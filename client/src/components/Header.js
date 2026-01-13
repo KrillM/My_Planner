@@ -13,7 +13,7 @@ const Header = () => {
       <div className="header-actions">
         <div className="profile-circle">
           {/* 로그인 기능 전 임시 이미지 */}
-          <img src="../../public/static/profileImages/basic_profile.png" alt="Profile" />
+          <img src={process.env.PUBLIC_URL + '/static/profileImages/basic_profile.png'} alt="Profile" />
         </div>
         <IoSearchOutline className="icon" />
         <IoMenuOutline className="icon" />
