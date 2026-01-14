@@ -1,11 +1,19 @@
 import { IoSearchOutline, IoMenuOutline } from 'react-icons/io5';
+import { useNavigate } from 'react-router-dom';
 import '../styles/header.scss';
 
 const Header = () => {
+
+  // navigate 선언
+  const navigate = useNavigate();
+  const handleHomeClick = () => {
+    navigate('/'); // 클릭 시 / 경로로 이동
+  };
+
   return (
     <header className="header-container">
       {/* 왼쪽: 로고/타이틀 */}
-      <div className="header-logo">
+      <div className="header-logo" onClick={handleHomeClick}>
         My Planner
       </div>
 

@@ -1,0 +1,33 @@
+// 변수 설정
+$saveBtn-bg: #0080ff;
+$findBtn-bg: #D9D9D9;
+
+.save-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: $saveBtn-bg;
+    border: none;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+    background-color: darken($saveBtn-bg, 10%);
+    }
+}
+
+.find-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: $findBtn-bg;
+    border: none;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+    background-color: darken($findBtn-bg, 10%);
+    }
+}

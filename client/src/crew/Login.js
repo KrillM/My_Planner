@@ -1,8 +1,23 @@
 import { IoLogInOutline } from 'react-icons/io5';
+import { useNavigate } from 'react-router-dom';
+import Header from '../components/Header';
 import '../styles/login.scss';
 
 const Login = () => {
+  
+  // navigate 선언
+  const navigate = useNavigate();
+  const handleJoinClick = () => {
+    navigate('/join'); // 클릭 시 /join 경로로 이동
+  };
+
+  const handleFindPasswordClick = () => {
+    navigate('/findpassword'); // 클릭 시 findpassword 경로로 이동
+  };
+
   return (
+    <>
+    <Header/>
     <div className="login-container">
       <form className="login-form">
         {/* 입력 필드 */}
@@ -13,8 +28,8 @@ const Login = () => {
 
         {/* 보조 메뉴 */}
         <div className="secondary-menu">
-          <button type="button" className="text-link">join</button>
-          <button type="button" className="text-link">find password</button>
+          <button type="button" className="text-link" onClick={handleJoinClick}>join</button>
+          <button type="button" className="text-link" onClick={handleFindPasswordClick}>find password</button>
         </div>
 
         {/* 로그인 버튼 */}
@@ -30,6 +45,7 @@ const Login = () => {
         <button className="social-icon kakao"><img src={process.env.PUBLIC_URL + '/static/logos/kakao_icon.png'} alt="Kakao" /></button>
       </div>
     </div>
+    </>
   );
 };
 
