@@ -1,0 +1,107 @@
+// 변수 설정
+$loginBtn-bg: #c8a2c8;
+$border-color: #000;
+$text-color: #333;
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 320px; // 와이어프레임 비율에 맞춘 너비
+  margin: 30px auto;
+  padding: 10px;
+
+  .login-form {
+    width: 100%;
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+
+      .underline-input {
+        border: none;
+        border-bottom: 1.5px solid $border-color; // 하단 라인만 강조
+        padding: 8px 4px;
+        font-size: 1.1rem;
+        background: transparent;
+        outline: none;
+        color: $text-color;
+
+        &::placeholder {
+          color: $text-color; // 와이어프레임처럼 진한 텍스트 색상
+        }
+
+        &:focus {
+          border-bottom-width: 2px; // 포커스 시 라인 강조
+        }
+      }
+    }
+
+    .secondary-menu {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+
+      .text-link {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: $text-color;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 10px;
+      background-color: $loginBtn-bg;
+      border: none;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      &:hover {
+        background-color: darken($loginBtn-bg, 10%);
+      }
+    }
+  }
+
+  .divider {
+    width: 100%;
+    border: 0;
+    border-top: 1.5px solid $border-color;
+    margin: 25px 0;
+  }
+
+  .social-login {
+    display: flex;
+    gap: 30px;
+
+    .social-icon {
+      background: none;
+      border: none; // 기존의 검은색 네모 박스 제거
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        width: 45px; // 아이콘 크기 조절
+        height: 45px;
+        border-radius: 50%; // 아이콘을 원형으로 유지
+        object-fit: cover;
+        // 필요 시 여기에 box-shadow를 살짝 주면 더 입체적입니다.
+      }
+    }
+  }
+}
