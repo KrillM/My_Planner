@@ -1,5 +1,5 @@
 // 변수 설정
-$saveBtn-bg: #0080ff;
+$saveBtn-bg: #c8a2c8;
 $findBtn-bg: #D9D9D9;
 
 .save-btn {
@@ -30,4 +30,19 @@ $findBtn-bg: #D9D9D9;
     &:hover {
     background-color: darken($findBtn-bg, 10%);
     }
+}
+
+.profile-image-bar {
+    display: flex; 
+    align-items: center; 
+    gap: 10px;
+}
+
+.profile-image-cancel {
+    position: absolute;
+    right: 10px; // '파일 찾기' 버튼 위치에 따라 조절
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #FF0000;
 }
