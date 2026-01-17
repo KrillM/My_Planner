@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.js')[env];
+const db = {};
 
 const sequelize = new Sequelize(
   config.database,
@@ -9,7 +10,8 @@ const sequelize = new Sequelize(
   config
 );
 
-const db = {};
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
 // 1. 모델 로드
 db.Crew = require('./crew')(sequelize);
@@ -61,8 +63,5 @@ db.DateMemo.belongsTo(db.Date, { foreignKey: 'dateId' });
 db.Frequency.belongsTo(db.Crew, { foreignKey: 'crewId' });
 db.List.belongsTo(db.Frequency, { foreignKey: 'frequencyId' });
 db.Event.belongsTo(db.Crew, { foreignKey: 'crewId' });
-
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
 
 module.exports = db;

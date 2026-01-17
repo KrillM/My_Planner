@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
   return sequelize.define('Date', {
-    dateId: { type: DataTypes.STRING(40), primaryKey: true },
+    dateId: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
     crewId: { type: DataTypes.STRING(40), primaryKey: true },
     day: { type: DataTypes.INTEGER },
     month: { type: DataTypes.INTEGER },

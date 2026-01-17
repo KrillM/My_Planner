@@ -85,7 +85,7 @@ const Join = () => {
   const [motto, setMotto] = useState('');
 
   // 폼 제출
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
   
     if(email.trim().length === 0) {
@@ -118,6 +118,38 @@ const Join = () => {
     ) {
         return;
       }
+
+    // 서버로 전송
+    try {
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("nickname", nickname);
+      formData.append("password", password);
+      formData.append("motto", motto);
+
+      // 파일은 "파일 객체"를 넣어야 함 (파일명 말고)
+      // 지금 코드는 file.name만 저장하고 있어서 파일 객체를 state로 따로 저장해야 함
+      if (profileImageFileName) {
+        formData.append("profileImage", profileImageFileName); // key 이름 중요
+      }
+
+      const res = await fetch("http://localhost:8080/crew/join", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || "JOIN 실패");
+      }
+
+      const data = await res.json();
+      console.log("JOIN 성공:", data);
+
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
   }
 
   return (

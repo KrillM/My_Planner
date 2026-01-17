@@ -9,13 +9,13 @@ function App() {
   const [message, setMessage] = useState("")
 
   useEffect(()=>{
-    axios.get('http://localhost:8080/api/data') // 프로토콜이 빠져 있음
+    axios.get('http://localhost:8080/')
     .then(res=>{
       setMessage(res.data.message)
     })
     .catch(error=>{
       console.log("에러 발생: ", error)
-    })
+    }, [])
   })
 
   return (

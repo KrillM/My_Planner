@@ -1,31 +1,34 @@
-const express = require('express');
-const cors = require('cors'); // 다른 포트 번호 간의 통신을 허용
-const dotenv = require('dotenv')
-const db = require('./model') // model/index.js에서 db 객체를 불러온다.
+const http = require("http");
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
 
-// .env 파일의 환경 변수 로드
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
 
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
+app.use("/static", express.static("static"));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// DB 연동
-db.sequelize.sync({force: false})
-    .then(()=>{
-        console.log('데이터베이스 연결 및 동기화 완료')
-    })
-    .catch((err)=>{
-        console.error('연결 실패 : ', err)
-    })
+// const router = require("./routes");
+// app.use("/", router);
 
-// React 연동
-app.get('/api/data', (req, res) => {
-    res.json({ message: "Hello React" });
+const crewRouter = require("./routes/crew");
+app.use("/crew", crewRouter);  
+
+app.get("/", (req, res) => {
+  res.send({ message: "Server and Client connected" });
 });
 
-app.listen(port, () => {
-    console.log(`서버가 ${port}번 포트에서 실행 중입니다.`);
+app.use((req, res) => {
+  res.status(404).send("404");
+});
+
+const server = http.createServer(app);
+
+server.listen(port, () => {
+  console.log(`서버가 ${port}번 포트에서 실행 중입니다.`);
 });

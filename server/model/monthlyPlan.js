@@ -2,8 +2,8 @@ const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
   return sequelize.define('MonthlyPlan', {
-    monthlyPlanId: { type: DataTypes.STRING(40), primaryKey: true },
-    yearlyPlanId: { type: DataTypes.STRING(40), primaryKey: true },
+    monthlyPlanId: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
+    yearlyPlanId: { type: DataTypes.BIGINT, primaryKey: true },
     crewId: { type: DataTypes.STRING(40), primaryKey: true },
     month: { type: DataTypes.INTEGER, allowNull: false },
     year: { type: DataTypes.INTEGER, allowNull: false },
