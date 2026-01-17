@@ -8,7 +8,7 @@ const join = async (req, res) => {
     try {
         // Client에서 전송한 데이터 확인
         const {email, nickname, password, motto} = req.body;
-        const profileImageFileName = req.file ? req.file.filename : null;
+        const profileImage = req.file ? req.file.filename : null;
 
         let crewId;
         let isCrewIdExists = true;
@@ -39,7 +39,7 @@ const join = async (req, res) => {
             nickname,
             password: hashPassword,
             motto,
-            profileImage: profileImageFileName || null,
+            profileImage: profileImage || null,
             creationTime: now,
             modifyTime: now,
         });
@@ -60,5 +60,5 @@ const join = async (req, res) => {
 // 회원 탈퇴
 
 module.exports = {
-    addCrew: [upload.single("profileImageFileName"), join]
+    addCrew: [upload.single("profileImage"), join]
 }

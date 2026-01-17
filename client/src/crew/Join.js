@@ -1,10 +1,13 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import '../styles/login.scss';
 import '../styles/save.scss';
 
 const Join = () => {
   
+  const navigate = useNavigate();
+
   // 이메일
   // 유효성 상태 관리
   const [email, setEmail] = useState('');
@@ -57,6 +60,7 @@ const Join = () => {
   // 프로필 이미지
   // 유효성 상태 관리
   const fileInputRef = useRef(null);
+  const [profileImage, setProfileImage] = useState(null);
   const [profileImageFileName, setProfileImageFileFileName] = useState("");
 
   const handleButtonClick = () => {
@@ -66,6 +70,7 @@ const Join = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setProfileImage(file);
       setProfileImageFileFileName(file.name); // 파일명 저장
       // 여기서 파일 업로드 API를 호출하거나 Preview 로직을 넣는다.
       console.log("선택된 파일 객체:", file);
@@ -130,10 +135,10 @@ const Join = () => {
       // 파일은 "파일 객체"를 넣어야 함 (파일명 말고)
       // 지금 코드는 file.name만 저장하고 있어서 파일 객체를 state로 따로 저장해야 함
       if (profileImageFileName) {
-        formData.append("profileImage", profileImageFileName); // key 이름 중요
+        formData.append("profileImageFileName", profileImage); // key 이름 중요
       }
 
-      const res = await fetch("http://localhost:8080/crew/join", {
+      const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/crew/join", {
         method: "POST",
         body: formData,
       });
@@ -145,6 +150,7 @@ const Join = () => {
 
       const data = await res.json();
       console.log("JOIN 성공:", data);
+      navigate('/');
 
     } catch (err) {
       console.error(err);
