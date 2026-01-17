@@ -4,6 +4,7 @@ const { Crew } = require('../model');
 const bcrypt = require('bcrypt');
 const saltLevel = 10;
 
+// 회원가입
 const join = async (req, res) => {
     try {
         // Client에서 전송한 데이터 확인
@@ -52,6 +53,31 @@ const join = async (req, res) => {
 };
 
 // 이메일 중복 체크
+const isEmailDuplicate = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: '잘못된 요청입니다.' });
+    }
+
+    const isEmailExist = await Crew.findOne({
+      where: {
+        email: email,
+        loginType: 'MY_PLANNER',
+      },
+    });
+
+    if (isEmailExist) {
+      return res.send({ result: false });
+    }
+
+    res.send({ result: true,});
+  } catch (error) {
+    console.error('중복 확인 중 오류 발생:', error);
+    res.status(500).json({ error: '중복 확인 중 오류 발생' });
+  }
+};
 
 // 회원 정보 수정
 
@@ -60,5 +86,6 @@ const join = async (req, res) => {
 // 회원 탈퇴
 
 module.exports = {
-    addCrew: [upload.single("profileImage"), join]
+    addCrew: [upload.single("profileImage"), join],
+    isEmailDuplicate
 }

@@ -19,18 +19,86 @@ const Join = () => {
   const validateEmail = (value) => {
     setEmail(value);
     
+    // 사용자가 내용을 수정하면 중복 확인 결과들을 다 지워버림
+    setIsNewEmail(false);
+    setIsOldEmail(false);
+    setIsEmailCheckButtonClick(false);
+    setIsEmailCheck(false);
+
     // 입력값이 비어있을 때는 경고창을 안 띄우고 싶다면 추가 조건 설정
     if (value === "") {
       setIsEmailValid(true);
     } else {
       setIsEmailValid(emailRegex.test(value));
     }
+
+    if(isEmailEmpty){
+      if(value.trim() !== ''){
+        setIsEmailEmpty(false)
+      }
+    }
   };
+
+  // 중복 확인
+  // 유효성 상태 관리
+  const [isEmailCheck, setIsEmailCheck] = useState(false);
+  const [isEmailCheckButtonClick, setIsEmailCheckButtonClick] = useState(false);
+  const [isNewEmail, setIsNewEmail] = useState(false);
+  const [isOldEmail, setIsOldEmail] = useState(false);
+  const [isEmailAvailable, setIsEmailAvailable] = useState(false); // 중복 검사 통과 여부
+
+  const pressEmailCheckBtn = async () => {
+    // 입력값이 없을 때는 실행 안 함
+    if (!email.trim() || !isEmailValid) {
+      setIsEmailEmpty(true);
+      return;
+    }
+
+    try {
+      // JSON 형태로 보낼 경우 (백엔드 req.body에서 받기 위함)
+      const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/crew/check-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (data.result) {
+        setIsNewEmail(true);
+        setIsOldEmail(false);
+        setIsEmailAvailable(true);  
+        setIsEmailCheckButtonClick(true); // 버튼 클릭됨
+        setIsEmailCheck(false); // "중복 확인 해주세요" 경고 문구 숨김
+      } else {
+        setIsNewEmail(false);
+        setIsOldEmail(true);
+        setIsEmailAvailable(false);  
+        setIsEmailCheckButtonClick(false); // 버튼 클릭됨
+        setIsEmailCheck(false); // "중복 확인 해주세요" 경고 문구 숨김
+      }
+    } catch (err) {
+      console.error("중복 체크 오류:", err);
+      alert("오류가 발생했습니다. 다시 시도해주세요.");
+    }
+  }
 
   // 닉네임
   // 유효성 상태 관리
   const [nickname, setNickname] = useState('');
   const [isNicknameEmpty, setIsNicknameEmpty] = useState(false);
+
+  const validateNickname = (value) => {
+    setNickname(value);
+
+    if(isNicknameEmpty){
+      if(value.trim()!==''){
+        setIsNicknameEmpty(false);
+      }
+    }
+  }
 
   // 비밀번호
   // 유효성 상태 관리
@@ -56,6 +124,16 @@ const Join = () => {
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const isPasswordNotEqual = passwordConfirm.length > 0 && password !== passwordConfirm;
   const [isPasswordConfirmEmpty, setIsPasswordConfirmEmpty] = useState(false);
+
+  const validatePasswordConfirm = (value) => {
+    setPasswordConfirm(value);
+
+    if(isPasswordConfirmEmpty){
+      if(value.trim()!==''){
+        setIsPasswordConfirmEmpty(false);
+      }
+    }
+  }
 
   // 프로필 이미지
   // 유효성 상태 관리
@@ -93,36 +171,30 @@ const Join = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    if(email.trim().length === 0) {
-      setIsEmailEmpty(true);
-    }
-    else{
-      setIsEmailEmpty(false);
-    }
+    // 모든 필드 체크 (경고창을 동시에 띄우기 위해 변수 활용)
+    const emailEmpty = email.trim() === "";
+    const nicknameEmpty = nickname.trim() === "";
+    const passwordConfirmEmpty = passwordConfirm.trim() === "";
 
-    if(nickname.trim().length === 0) {
-      setIsNicknameEmpty(true);
-    }
-    else{
-      setIsNicknameEmpty(false);
-    }
-
-    if(passwordConfirm.trim().length === 0) {
-      setIsPasswordConfirmEmpty(true);
-    }
-    else{
-      setIsPasswordConfirmEmpty(false);
-    }
+    setIsEmailEmpty(emailEmpty);
+    setIsNicknameEmpty(nicknameEmpty);
+    setIsPasswordConfirmEmpty(passwordConfirmEmpty);
 
     if(!isEmailValid || 
       isEmailEmpty || 
       isNicknameEmpty || 
       !isPasswordValid || 
       isPasswordNotEqual ||
-      isPasswordConfirmEmpty
-    ) {
+      isPasswordConfirmEmpty ||
+      isOldEmail
+      ) {
         return;
       }
+
+    if(!isEmailCheckButtonClick || !isEmailAvailable){
+      setIsEmailCheck(true);
+      return;
+    }
 
     // 서버로 전송
     try {
@@ -184,12 +256,36 @@ const Join = () => {
             </p>
           )}
 
+          <button 
+            type="button" 
+            className="save-btn" 
+            onClick={pressEmailCheckBtn}>
+            중복 확인
+          </button>
+          {isEmailCheck && (
+            <p className="warning-message">
+              이메일 중복 확인을 해주세요.
+            </p>
+          )}
+
+          {isNewEmail&& (
+            <p className="success-message">
+              사용 가능한 이메일입니다.
+            </p>
+          )}
+
+          {isOldEmail&& (
+            <p className="warning-message">
+              이미 사용 중인 이메일입니다.
+            </p>
+          )}
+
           <input 
             type="text" 
             placeholder="nickname (필수)" 
             className="underline-input"
             value={nickname}
-            onChange={(e)=>setNickname(e.target.value)}
+            onChange={(e)=>validateNickname(e.target.value)}
           />
           
           {isNicknameEmpty && (
@@ -217,7 +313,7 @@ const Join = () => {
             placeholder="password confirm (필수)" 
             className="underline-input"
             value={passwordConfirm}
-            onChange={(e) => setPasswordConfirm(e.target.value)}
+            onChange={(e) => validatePasswordConfirm(e.target.value)}
           />
           {isPasswordNotEqual && (
             <p className="warning-message">
@@ -231,9 +327,7 @@ const Join = () => {
             </p>
           )}
 
-          <div className='profile-image-bar'>
-            {/* 화면에 보이는 텍스트 인풋 */}
-            <div style={{ position: 'relative', flex: 1 }}>
+          <div className="profile-image-input-wrapper">
             <input 
               type="text" 
               placeholder="profile image" 
@@ -252,9 +346,9 @@ const Join = () => {
                 ✕
               </button>
             )}
-            </div>
-
-            {/* 실제로 파일을 찾는 버튼 */}
+          </div>
+     
+          {/* 실제로 파일을 찾는 버튼 */}
             <button 
               type="button" 
               className="find-btn" // 원하는 스타일 적용
@@ -271,7 +365,6 @@ const Join = () => {
               ref={fileInputRef} 
               onChange={handleFileChange} 
             />
-          </div>
 
           <input 
             type="text" 

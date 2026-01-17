@@ -32,17 +32,43 @@ $findBtn-bg: #D9D9D9;
     }
 }
 
-.profile-image-bar {
-    display: flex; 
-    align-items: center; 
-    gap: 10px;
-}
 
-.profile-image-cancel {
+// .profile-image-cancel {
+//     position: absolute;
+//     right: 10px; // '파일 찾기' 버튼 위치에 따라 조절
+//     background: none;
+//     border: none;
+//     cursor: pointer;
+//     color: #FF0000;
+// }
+
+.profile-image-input-wrapper {
+  position: relative; // 기준점
+  width: 100%;
+  flex: 1;
+
+  .underline-input {
+    width: 100%;    // ✅ 핵심
+    display: block; // ✅ inline 이슈 차단
+    box-sizing: border-box;
+  }
+
+  .profile-image-cancel {
     position: absolute;
-    right: 10px; // '파일 찾기' 버튼 위치에 따라 조절
+    top: 50%;
+    right: 4px;
+    transform: translateY(-50%);
+
     background: none;
     border: none;
-    cursor: pointer;
+    padding: 0;
+
+    font-size: 14px;
     color: #FF0000;
+    cursor: pointer;
+
+    &:hover {
+      color: #333;
+    }
+  }
 }
