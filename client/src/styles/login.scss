@@ -39,18 +39,19 @@ $text-color: #333;
         }
       }
 
-      .warning-message {
-        color: #FF0000;
+      @mixin message-style($color) {
+        color: $color;
         font-size: 12px;
         margin-top: 5px;
         text-align: left;
       }
+
+      .warning-message {
+        @include message-style(#FF0000);
+      }
       
       .success-message {
-        color: #0080FF;
-        font-size: 12px;
-        margin-top: 5px;
-        text-align: left;
+        @include message-style(#0080FF);
       }
     }
 
