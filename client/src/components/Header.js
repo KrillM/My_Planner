@@ -2,7 +2,7 @@ import { IoSearchOutline, IoMenuOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import '../styles/header.scss';
 
-const Header = () => {
+const Header = ({isLogin}) => {
 
   // navigate 선언
   const navigate = useNavigate();
@@ -17,15 +17,19 @@ const Header = () => {
         My Planner
       </div>
 
-      {/* 오른쪽: 프로필 및 아이콘 메뉴 */}
-      <div className="header-actions">
-        <div className="profile-circle">
-          {/* 로그인 기능 전 임시 이미지 */}
-          <img src={process.env.PUBLIC_URL + '/static/profileImages/basic_profile.png'} alt="Profile" />
+      {/* 오른쪽: 로그인 상태일 때만 검색, 메뉴, 프로필 아이콘을 렌더링 */}
+      {isLogin && (
+        <div className="header-actions">
+          <div className="profile-circle">
+            <img 
+              src={process.env.PUBLIC_URL + '/static/profileImages/basic_profile.png'} 
+              alt="Profile" 
+            />
+          </div>
+          <IoSearchOutline className="icon" />
+          <IoMenuOutline className="icon" />
         </div>
-        <IoSearchOutline className="icon" />
-        <IoMenuOutline className="icon" />
-      </div>
+      )}
     </header>
   );
 };

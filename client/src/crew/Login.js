@@ -1,10 +1,9 @@
 import { IoLogInOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import Header from '../components/Header';
 import '../styles/login.scss';
 
-const Login = () => {
+const Login = ({setIsLogin}) => {
   
   // navigate 선언
   const navigate = useNavigate();
@@ -68,9 +67,10 @@ const Login = () => {
         return;
       }
       
-      localStorage.setItem("accessToken", data.token);
+      localStorage.setItem("token", data.token);
+      setIsLogin(true);
       console.log("로그인 성공:", data);
-      navigate('/succeed');
+      navigate('/');
 
     } catch (err) {
       console.error(err);

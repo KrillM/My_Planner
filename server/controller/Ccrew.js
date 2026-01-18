@@ -116,6 +116,18 @@ const { email, password } = req.body;
   }
 };
 
+// 로그아웃
+const logout = async (req, res) => {
+  try {    
+    res.status(200).json({
+      success: true,
+      message: "성공적으로 로그아웃되었습니다. 토큰을 폐기합니다."
+    });
+  } catch (error) {
+    res.status(500).json({ message: "로그아웃 처리 중 오류 발생" });
+  }
+};
+
 // 회원 정보 수정
 
 // 비밀번호 찾기
@@ -125,5 +137,6 @@ const { email, password } = req.body;
 module.exports = {
   addCrew: [upload.single("profileImage"), join],
   isEmailDuplicate,
-  login
+  login,
+  logout
 }

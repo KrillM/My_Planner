@@ -1,5 +1,4 @@
 import { IoMail } from 'react-icons/io5';
-import Header from '../components/Header';
 import '../styles/login.scss';
 
 const FindPassword = () => {

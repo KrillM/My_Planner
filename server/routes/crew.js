@@ -11,4 +11,7 @@ router.post('/check-email', Ccrew.isEmailDuplicate);
 // 로그인
 router.post('/login', Ccrew.login);
 
+// 로그아웃
+router.post('/logout', Ccrew.logout);
+
 module.exports = router;

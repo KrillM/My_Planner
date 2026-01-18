@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
 import '../styles/login.scss';
 import '../styles/save.scss';
 
