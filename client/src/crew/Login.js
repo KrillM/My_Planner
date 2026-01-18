@@ -81,7 +81,6 @@ const Login = () => {
 
   return (
     <>
-    <Header/>
     <div className="login-container">
       <form className="login-form" onSubmit={handleLogin}>
         {/* 입력 필드 */}

@@ -6,7 +6,6 @@ const FindPassword = () => {
   
   return (
     <>
-    <Header/>
     <div className="login-container">
       <form className="login-form">
         {/* 입력 필드 */}

@@ -232,7 +232,6 @@ const Join = () => {
 
   return (
     <>
-    <Header/>
     <div className="login-container">
       <form className="login-form" onSubmit={handleSubmit}>
         <div className="input-group">
