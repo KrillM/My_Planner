@@ -107,7 +107,7 @@ const { email, password } = req.body;
     res.json({
       success: true,
       token: token,
-      email: crew.nickname,
+      email: crew.email,
       nickname: crew.nickname
     });
 

@@ -33,7 +33,7 @@ function App() {
     <BrowserRouter>
       <Header isLogin={isLogin} setIsLogin={setIsLogin}/>
       <Routes>
-        <Route path="/" element={isLogin ? <Date setIsLogin={setIsLogin}/> : <Login setIsLogin={setIsLogin} />} />
+        <Route path="/" element={isLogin ? <Date /> : <Login setIsLogin={setIsLogin}/>} />
         <Route path="/join" element={<Join />} />
         <Route path="/findpassword" element={<FindPassword />} />
       </Routes>

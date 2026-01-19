@@ -1,13 +1,22 @@
 import { IoSearchOutline, IoMenuOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import Sidebar from './Sidebar';
 import '../styles/header.scss';
 
-const Header = ({isLogin}) => {
+const Header = ({isLogin, setIsLogin}) => {
 
   // navigate 선언
   const navigate = useNavigate();
   const handleHomeClick = () => {
-    navigate('/'); // 클릭 시 / 경로로 이동
+    navigate('/');
+  };
+
+  // 사이드바 상태
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
   return (
@@ -27,9 +36,16 @@ const Header = ({isLogin}) => {
             />
           </div>
           <IoSearchOutline className="icon" />
-          <IoMenuOutline className="icon" />
+          <IoMenuOutline className="icon" onClick={toggleSidebar} />
         </div>
       )}
+
+      {/* 사이드바 컴포넌트 호출 (상태와 닫기 함수 전달) */}
+      <Sidebar 
+        isOpen={isLogin && isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+        setIsLogin={setIsLogin}
+      />
     </header>
   );
 };
