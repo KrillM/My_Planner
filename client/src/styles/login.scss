@@ -1,5 +1,7 @@
+@use 'my_planner_lavender' as mpl;
+
 // 변수 설정
-$loginBtn-bg: #c8a2c8;
+$loginBtn-bg: mpl.$brand-color;
 $border-color: #000;
 $text-color: #333;
 

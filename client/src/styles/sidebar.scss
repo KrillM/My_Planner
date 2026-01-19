@@ -1,3 +1,5 @@
+@use 'my_planner_lavender' as mpl;
+
 .sidebar-overlay {
   position: fixed;
   top: 0;
@@ -14,7 +16,7 @@
   right: -200px; // 기본적으로 화면 밖에 위치
   width: 200px;
   height: 100vh;
-  background-color: #c8a2c8; // 이미지의 보라색 톤
+  background-color: mpl.$brand-color; // 이미지의 보라색 톤
   transition: right 0.3s ease-in-out;
   z-index: 1000;
   padding: 20px;

@@ -1,5 +1,7 @@
+@use 'my_planner_lavender' as mpl;
+
 // 변수 설정
-$saveBtn-bg: #c8a2c8;
+$saveBtn-bg: mpl.$brand-color;
 $findBtn-bg: #D9D9D9;
 
 .save-btn {
