@@ -62,5 +62,18 @@
         font-size: 1.4rem;
       }
     }
+
+    .sub-items {
+      padding-left: 30px; // 서브 메뉴 들여쓰기
+      color: #666;
+      
+      .sub-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+        gap: 8px;
+        font-size: 0.9rem;
+      }
+    }
   }
 }

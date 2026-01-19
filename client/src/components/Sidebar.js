@@ -1,9 +1,23 @@
-import { IoCalendarOutline, IoTodayOutline, IoListOutline, IoPersonOutline, IoLogOutOutline, IoCloseOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { 
+  IoListOutline, 
+  IoCloseOutline, 
+  IoAddOutline,
+  IoCreateOutline,
+  IoRepeatOutline,
+  IoCalendarOutline,
+  IoTodayOutline,
+  IoPersonOutline,
+  IoLogOutOutline
+} from 'react-icons/io5';
 import '../styles/sidebar.scss';
 
 const Sidebar = ({ setIsLogin, isOpen, onClose }) => {
   const navigate = useNavigate();
+
+  // Plan 메뉴의 열림/닫힘 상태 관리
+  const [isPlanOpen, setIsPlanOpen] = useState(true);
 
   // 임시 로그아웃 함수
   const handleLogout = async () => {
@@ -41,6 +55,10 @@ const Sidebar = ({ setIsLogin, isOpen, onClose }) => {
     }
   };
 
+  const handleHome = () => {
+    navigate('/');
+  }
+
   if (!isOpen) return null;
 
   return (
@@ -58,7 +76,24 @@ const Sidebar = ({ setIsLogin, isOpen, onClose }) => {
         <nav className="sidebar-items">
           <div className="item"><IoTodayOutline /> <span>Today</span></div>
           <div className="item"><IoCalendarOutline /> <span>Calendar</span></div>
-          <div className="item"><IoListOutline /> <span>Plan</span></div>
+
+          {/* Plan 클릭 시 isPlanOpen 상태를 반전 */}
+          <div className="item plan-menu" onClick={() => setIsPlanOpen(!isPlanOpen)}>
+            <IoListOutline /> 
+            <span>Plan</span>
+          </div>
+
+          {/* sPlanOpen이 true일 때 서브 메뉴를 보여줌 */}
+          {isPlanOpen && (
+            <div className="sub-items">
+              <div className="sub-item" onClick={handleHome}><IoAddOutline /> New</div>
+              <div className="sub-item"><IoCreateOutline /> Update</div>
+              <div className="sub-item"><IoRepeatOutline /> Frequency</div>
+              <div className="sub-item"><IoCalendarOutline /> Long Term</div>
+              <div className="sub-item"><IoCalendarOutline /> Event</div>
+            </div>
+          )}
+
           <div className="item"><IoPersonOutline /> <span>Profile</span></div>
           <div className="item" onClick={handleLogout}><IoLogOutOutline /> <span>Logout</span></div>
         </nav>
