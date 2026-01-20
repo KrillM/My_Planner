@@ -9,6 +9,8 @@ module.exports = (sequelize) => {
     motto: { type: DataTypes.STRING(200) },
     profileImage: { type: DataTypes.STRING(600) },
     alarm: { type: DataTypes.DATE },
+    resetPasswordToken: { type: DataTypes.STRING(600) },
+    resetTokenExpires: { type: DataTypes.DATE },
     loginType: { type: DataTypes.STRING(10), defaultValue: 'MY_PLANNER', allowNull: false },
     creationTime: { type: DataTypes.DATE, allowNull: false },
     modifyTime: { type: DataTypes.DATE, allowNull: false }

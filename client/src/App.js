@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Login from './crew/Login';
 import Join from './crew/Join';
 import FindPassword from './crew/FindPassword';
+import ResetPassword from './crew/ResetPassword';
 import Date from './plan/Date';
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
         <Route path="/" element={isLogin ? <Date /> : <Login setIsLogin={setIsLogin}/>} />
         <Route path="/join" element={<Join />} />
         <Route path="/findpassword" element={<FindPassword />} />
+        <Route path="/resetpassword" element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
   );
