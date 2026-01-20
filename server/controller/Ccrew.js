@@ -192,7 +192,7 @@ const findPassword = async (req, res) => {
 // 메일 발송 함수
 const sendResetEmail = async (toEmail, resetLink) => {
   const mailOptions = {
-    from: `"My Planner" <${process.env.EMAIL_USER}>`,
+    from: `"My Planner Account Manager"`,
     to: toEmail,
     subject: '[My Planner] 비밀번호 재설정 링크입니다.',
     html: `
@@ -220,7 +220,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-
 
 // 비밀번호 수정
 const resetPassword = async (req, res) => {
