@@ -198,7 +198,7 @@ const sendResetEmail = async (toEmail, resetLink) => {
     html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.6;">
         <h2>비밀번호를 잊으셨나요?</h2>
-        <p>아래 버튼을 클릭하여 비밀번호를 재설정하세요. 이 링크는 <strong>10분 동안</strong> 유효합니다.</p>
+        <p>아래 버튼을 클릭하여 비밀번호를 재설정하세요. 이 링크는 <strong>1시간 동안</strong> 유효합니다.</p>
         <div style="text-align: left; margin: 30px 0;">
           <a href="${resetLink}" style="padding: 12px 24px; background-color: #c8a2c8; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">비밀번호 재설정하기</a>
         </div>
