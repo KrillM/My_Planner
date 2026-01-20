@@ -192,7 +192,7 @@ const findPassword = async (req, res) => {
 // 메일 발송 함수
 const sendResetEmail = async (toEmail, resetLink) => {
   const mailOptions = {
-    from: `"My Planner Account Manager"`,
+    from: `"My Planner" <${process.env.EMAIL_USER}>`,
     to: toEmail,
     subject: '[My Planner] 비밀번호 재설정 링크입니다.',
     html: `
