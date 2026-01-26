@@ -16,8 +16,13 @@ app.use(express.json());
 // const router = require("./routes");
 // app.use("/", router);
 
+// 일반 회원가입
 const crewRouter = require("./routes/crew");
 app.use("/crew", crewRouter);  
+
+// OAuth2
+const oauth2Router = require("./routes/oauth2");
+app.use("/", oauth2Router);  
 
 app.get("/", (req, res) => {
   res.send({ message: "Server and Client connected" });

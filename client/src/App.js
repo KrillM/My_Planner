@@ -7,6 +7,7 @@ import Join from './crew/Join';
 import FindPassword from './crew/FindPassword';
 import ResetPassword from './crew/ResetPassword';
 import Date from './plan/Date';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function App() {
   const [message, setMessage] = useState("")
@@ -33,12 +34,14 @@ function App() {
   return (
     <BrowserRouter>
       <Header isLogin={isLogin} setIsLogin={setIsLogin}/>
-      <Routes>
-        <Route path="/" element={isLogin ? <Date /> : <Login setIsLogin={setIsLogin}/>} />
-        <Route path="/join" element={<Join />} />
-        <Route path="/findpassword" element={<FindPassword />} />
-        <Route path="/resetpassword" element={<ResetPassword />} />
-      </Routes>
+      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+        <Routes>
+          <Route path="/" element={isLogin ? <Date /> : <Login setIsLogin={setIsLogin}/>} />
+          <Route path="/join" element={<Join />} />
+          <Route path="/findpassword" element={<FindPassword />} />
+          <Route path="/resetpassword" element={<ResetPassword />} />
+        </Routes>
+      </GoogleOAuthProvider>
     </BrowserRouter>
   );
 }
