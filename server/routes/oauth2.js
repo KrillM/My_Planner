@@ -6,6 +6,7 @@ const COAuth2 = require('../controller/COAuth2');
 router.post('/api/auth/google', COAuth2.googleLogin);
 
 // 네이버
+router.post('/api/auth/naver', COAuth2.naverLogin);
 
 // 카카오
 

@@ -65,10 +65,7 @@ const isEmailDuplicate = async (req, res) => {
     }
 
     const isEmailExist = await Crew.findOne({
-      where: {
-        email: email,
-        loginType: 'MY_PLANNER',
-      },
+      where: { email: email },
     });
 
     if (isEmailExist) {

@@ -1,7 +1,7 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import { IoLogInOutline } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import '../styles/login.scss';
 
 const Login = ({setIsLogin}) => {
@@ -20,6 +20,7 @@ const Login = ({setIsLogin}) => {
   const [password, setPassword] = useState('');
   const [isLoginError, setIsLoginError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [searchParams] = useSearchParams(); // URL 파라미터 제어
 
   const handleEmail = (e) => {
     const value = e.target.value;
@@ -111,6 +112,55 @@ const Login = ({setIsLogin}) => {
     flow: 'auth-code', // 이 설정이 있어야 백엔드에서 'code'를 처리할 수 있음
   });
 
+  // 네이버 로그인 페이지로 이동시키기 위한 정보를 구성합니다.
+  const handleNaverLogin = () => {
+    const client_id = process.env.REACT_APP_NAVER_CLIENT_ID;
+
+    // 리디렉션 위치를 현재 로그인 페이지(/)로 설정
+    const redirect_uri = encodeURIComponent('http://localhost:3000/'); 
+    const state = Math.random().toString(36).substring(7);
+    
+    // 나중에 검증을 위해 state를 저장해둘 수도 있습니다.
+    localStorage.setItem("naverState", state);
+
+    const naver_auth_url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}`;
+    
+    window.location.href = naver_auth_url;
+  };
+
+  // --- [자동 콜백 감지 로직] ---
+  useEffect(() => {
+    const code = searchParams.get("code");
+    const state = searchParams.get("state");
+
+    // URL에 code와 state가 있다면 네이버에서 돌아온 상황임
+    if (code && state) {
+      const fetchNaverLogin = async () => {
+        try {
+          const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/auth/naver`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code, state }),
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            localStorage.setItem("token", data.token);
+            setIsLogin(true);
+            navigate("/"); // 로그인 성공 시 홈으로
+          } else {
+            alert("네이버 로그인 실패: " + data.message);
+          }
+        } catch (err) {
+          console.error("Naver Login Error:", err);
+        }
+      };
+
+      fetchNaverLogin();
+    }
+  }, [searchParams]); // 3. URL이 변경될 때마다 체크
+
   return (
     <>
     <div className="login-container">
@@ -148,7 +198,11 @@ const Login = ({setIsLogin}) => {
         >
           <img src={process.env.PUBLIC_URL + '/static/logos/google_icon.png'} alt="Google" />
         </button>
-        <button className="social-icon naver">
+        <button 
+          type="button" 
+          className="social-icon naver" 
+          onClick={handleNaverLogin}
+        >
           <img src={process.env.PUBLIC_URL + '/static/logos/naver_icon.png'} alt="Naver" />
         </button>
         <button className="social-icon kakao">

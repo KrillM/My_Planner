@@ -2,6 +2,7 @@ const { Crew } = require('../model');
 const { OAuth2Client } = require('google-auth-library');
 const { createCrewId } = require('../static/createCrewId');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -30,9 +31,6 @@ exports.googleLogin = async (req, res) => {
     let isCreated = false; // 신규 가입인지 확인하기 위한 플래그 선언
 
     if (user) {
-      // 이메일이 존재한다면? -> 정보 업데이트 (Update)
-      isCreated = false;
-      
       // 기존 유저가 있는 경우: 변경 사항이 있는지 체크
       const isChanged = 
         user.nickname !== name || 
@@ -48,7 +46,7 @@ exports.googleLogin = async (req, res) => {
           loginType: 'GOOGLE'
         });
       } else {
-        console.log('변경 사항 없음');
+        console.log('변경 사항 없음 - 구글');
       }
     } else {
       // 이메일이 존재하지 않는다면? -> 신규 생성 (Create)
@@ -100,5 +98,91 @@ exports.googleLogin = async (req, res) => {
   } catch (error) {
     console.error('Google Login Error:', error);
     res.status(500).json({ message: '인증 서버 에러' });
+  }
+};
+
+exports.naverLogin = async (req, res) => {
+  const { code, state } = req.body;
+  const now = new Date();
+
+  try {
+    // 인가 코드로 접근 토큰(Access Token) 요청
+    const tokenResponse = await axios.get(`https://nid.naver.com/oauth2.0/token`, {
+      params: {
+        grant_type: 'authorization_code',
+        client_id: process.env.NAVER_CLIENT_ID,
+        client_secret: process.env.NAVER_CLIENT_SECRET,
+        code: code,
+        state: state,
+      },
+    });
+
+    const accessToken = tokenResponse.data.access_token;
+
+    // 접근 토큰으로 네이버 프로필 정보 요청
+    const userResponse = await axios.get('https://openapi.naver.com/v1/nid/me', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    const { email, nickname, profile_image } = userResponse.data.response;
+
+    // DB 로직 (기존 구글 로직과 동일, createCrewId만 NAVER로!)
+    let user = await Crew.findOne({ where: { email: email } });
+    let isCreated = false;
+
+    if (user) {
+      // 기존 유저가 있는 경우: 변경 사항이 있는지 체크
+      const isChanged = 
+        user.nickname !== nickname || 
+        user.profileImage !== profile_image || 
+        user.loginType !== 'NAVER';
+
+      if (isChanged) {
+        console.log('변경 사항 감지: 정보 업데이트 중...');
+        await user.update({
+          nickname: nickname,
+          profileImage: profile_image,
+          modifyTime: now,
+          loginType: 'NAVER'
+        });
+      } else {
+        console.log('변경 사항 없음 - 네이버');
+      }
+    } else {
+      isCreated = true;
+      let crewId;
+      let isCrewIdExists = true;
+
+      while(isCrewIdExists){
+        crewId = createCrewId('NAVER');
+
+        const checkId = await Crew.findOne({
+          where: { crewId: crewId }
+        });
+
+        if (!checkId) {
+          isCrewIdExists = false;
+        }
+      }
+
+      user = await Crew.create({
+        crewId: crewId,
+        email: email,
+        nickname: nickname,
+        profileImage: profile_image,
+        loginType: 'NAVER',
+        creationTime: now,
+        modifyTime: now,
+      });
+    }
+
+    // JWT 발급
+    const token = jwt.sign({ crewId: user.crewId }, process.env.JWT_SECRET, { expiresIn: '24h' });
+
+    res.status(200).json({ token, message: isCreated ? '회원가입 성공' : '로그인 성공' });
+
+  } catch (error) {
+    console.error('Naver Login Error:', error);
+    res.status(500).json({ message: '네이버 로그인 실패' });
   }
 };
