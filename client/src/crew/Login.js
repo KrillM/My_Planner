@@ -1,7 +1,7 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import { IoLogInOutline } from 'react-icons/io5';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import '../styles/login.scss';
 
 const Login = ({setIsLogin}) => {
@@ -115,18 +115,16 @@ const Login = ({setIsLogin}) => {
   // 네이버 로그인 페이지로 이동시키기 위한 정보를 구성합니다.
   const handleNaverLogin = () => {
     const client_id = process.env.REACT_APP_NAVER_CLIENT_ID;
-
-    // 리디렉션 위치를 현재 로그인 페이지(/)로 설정
-    const redirect_uri = encodeURIComponent('http://localhost:3000/'); 
+    const redirect_uri = encodeURIComponent(process.env.REACT_APP_LOCAL_URL+'/'); 
     const state = Math.random().toString(36).substring(7);
     
-    // 나중에 검증을 위해 state를 저장해둘 수도 있습니다.
     localStorage.setItem("naverState", state);
-
-    const naver_auth_url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}`;
+    const naver_auth_url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}&auth_type=reprompt`;
     
     window.location.href = naver_auth_url;
   };
+
+  const isProcessing = useRef(false);
 
   // --- [자동 콜백 감지 로직] ---
   useEffect(() => {
@@ -134,7 +132,9 @@ const Login = ({setIsLogin}) => {
     const state = searchParams.get("state");
 
     // URL에 code와 state가 있다면 네이버에서 돌아온 상황임
-    if (code && state) {
+    if (code && state && !isProcessing.current) {
+      isProcessing.current = true;
+
       const fetchNaverLogin = async () => {
         try {
           const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/auth/naver`, {
@@ -148,12 +148,14 @@ const Login = ({setIsLogin}) => {
           if (res.ok) {
             localStorage.setItem("token", data.token);
             setIsLogin(true);
-            navigate("/"); // 로그인 성공 시 홈으로
+            navigate("/", {"replace" : "true"}); // 로그인 성공 시 홈으로
           } else {
             alert("네이버 로그인 실패: " + data.message);
+            isProcessing.current = false;
           }
         } catch (err) {
-          console.error("Naver Login Error:", err);
+          console.error("네이버 로그인 오류: ", err);
+          isProcessing.current = false;
         }
       };
 

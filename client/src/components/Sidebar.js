@@ -19,7 +19,7 @@ const Sidebar = ({ setIsLogin, isOpen, onClose }) => {
   // Plan 메뉴의 열림/닫힘 상태 관리
   const [isPlanOpen, setIsPlanOpen] = useState(true);
 
-  // 임시 로그아웃 함수
+  // 로그아웃 함수
   const handleLogout = async () => {
     try {
         const token = localStorage.getItem('token');
