@@ -22,7 +22,7 @@ app.use("/crew", crewRouter);
 
 // OAuth2
 const oauth2Router = require("./routes/oauth2");
-app.use("/", oauth2Router);  
+app.use("/api/auth", oauth2Router);  
 
 app.get("/", (req, res) => {
   res.send({ message: "Server and Client connected" });

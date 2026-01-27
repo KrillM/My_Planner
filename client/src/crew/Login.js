@@ -207,9 +207,6 @@ const Login = ({setIsLogin}) => {
         >
           <img src={process.env.PUBLIC_URL + '/static/logos/naver_icon.png'} alt="Naver" />
         </button>
-        <button className="social-icon kakao">
-          <img src={process.env.PUBLIC_URL + '/static/logos/kakao_icon.png'} alt="Kakao" />
-        </button>
       </div>
     </div>
     </>
