@@ -206,7 +206,7 @@ const Join = () => {
       // 파일은 "파일 객체"를 넣어야 함 (파일명 말고)
       // 지금 코드는 file.name만 저장하고 있어서 파일 객체를 state로 따로 저장해야 함
       if (profileImageFileName) {
-        formData.append("profileImageFileName", profileImage); // key 이름 중요
+        formData.append("profileImage", profileImage); // key 이름 중요
       }
 
       const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/crew/join", {
