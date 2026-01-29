@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Sidebar from './Sidebar';
 import '../styles/header.scss';
 
-const Header = ({isLogin, setIsLogin, crew}) => {
+const Header = ({isLogin, setIsLogin, crew, setCrew}) => {
 
   // 기본 프로필 이미지
   const defaultProfileImage = process.env.PUBLIC_URL + '/static/profileImages/basic_profile.png';
@@ -50,7 +50,7 @@ const Header = ({isLogin, setIsLogin, crew}) => {
         isOpen={isLogin && isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
         setIsLogin={setIsLogin}
-        crew={crew}
+        setCrew={setCrew}
       />
     </header>
   );

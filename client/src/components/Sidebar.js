@@ -13,51 +13,53 @@ import {
 } from 'react-icons/io5';
 import '../styles/sidebar.scss';
 
-const Sidebar = ({ setIsLogin, isOpen, onClose, crew }) => {
+const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
   const navigate = useNavigate();
 
   // Plan 메뉴의 열림/닫힘 상태 관리
   const [isPlanOpen, setIsPlanOpen] = useState(true);
 
-  // 로그아웃 함수
-  const handleLogout = async () => {
-    try {
-      const token = localStorage.getItem('token');
-
-      // 1. 서버에 로그아웃 알림 (토큰 수거 요청)
-      const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/crew/logout", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}` // 현재 토큰 전달
-        },
-        body: JSON.stringify({}), // 필요한 데이터가 없다면 빈 객체 전송
-      });
-
-      // 서버 응답 확인 (필요 시)
-      const data = await res.json();
-      console.log("서버 응답:", data.message);
-
-      // 2. 클라이언트에서 토큰 소멸 (성공/실패 여부와 상관없이 삭제하는 것이 안전)
-      localStorage.removeItem('token');
-      
-      // 3. 상태 변경 및 페이지 이동
-      setIsLogin(false);
-      onClose();
-      navigate('/');
-    } catch (err) {
-      console.error("로그아웃 통신 에러:", err);
-      // 서버와 연결이 끊겼더라도 클라이언트 토큰은 지워야 합니다.
-      localStorage.removeItem('token');
-      setIsLogin(false);
-      onClose();
-      navigate('/');
-    }
-  };
-
   const handleHome = () => {
     navigate('/');
   }
+
+  // 프로필 화면 이동
+  const handleProfile = () => {
+    navigate('/profile')
+  }
+
+  // 로그아웃 함수
+  const handleLogout = async () => {
+    const token = localStorage.getItem('token');
+
+    // 먼저 루트로 보내서 /404로 튕기는 타이밍 이슈 차단
+    onClose();
+    navigate('/', { replace: true });
+
+    // 클라이언트 로그아웃 확정 처리
+    localStorage.removeItem('token');
+    localStorage.removeItem('crew');
+    setIsLogin(false);
+    setCrew(null);
+
+    // 서버 로그아웃은 나중에 시도
+    try {
+      const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/crew/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({}),
+      });
+
+      // 서버 응답이 꼭 JSON이 아닐 수도 있으니 방어적으로
+      const text = await res.text();
+      console.log("서버 응답:", text);
+    } catch (err) {
+      console.error("로그아웃 통신 에러:", err);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -94,7 +96,7 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, crew }) => {
             </div>
           )}
 
-          <div className="item"><IoPersonOutline /> <span>Profile</span></div>
+          <div className="item" onClick={handleProfile}><IoPersonOutline /> <span>Profile</span></div>
           <div className="item" onClick={handleLogout}><IoLogOutOutline /> <span>Logout</span></div>
         </nav>
       </div>
