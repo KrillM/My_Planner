@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import '../styles/login.scss';
 
-const Login = ({setIsLogin}) => {
+const Login = ({setIsLogin, setCrew}) => {
   
   // navigate 선언
   const navigate = useNavigate();
@@ -70,6 +70,16 @@ const Login = ({setIsLogin}) => {
       }
       
       localStorage.setItem("token", data.token);
+
+      const crew = {
+        email: data.email,
+        nickname: data.nickname,
+        profileImage: data.profileImage,
+        motto: data.motto
+      }
+      localStorage.setItem("crew", JSON.stringify(crew));
+
+      setCrew(crew);
       setIsLogin(true);
       console.log("로그인 성공:", data);
       navigate('/');
@@ -100,6 +110,16 @@ const Login = ({setIsLogin}) => {
 
         if (res.ok) {
           localStorage.setItem("token", data.token); // JWT 저장
+
+          const crew = {
+            email: data.crew?.email ?? "",
+            nickname: data.crew?.nickname ?? "",
+            profileImage: data.crew?.profileImage ?? "",
+            motto: data.crew?.motto ?? ""
+          }
+          localStorage.setItem("crew", JSON.stringify(crew));
+          
+          setCrew(crew);
           setIsLogin(true);
           navigate('/');
         } else {
@@ -147,6 +167,16 @@ const Login = ({setIsLogin}) => {
 
           if (res.ok) {
             localStorage.setItem("token", data.token);
+
+            const crew = {
+              email: data.crew?.email ?? "",
+              nickname: data.crew?.nickname ?? "",
+              profileImage: data.crew?.profileImage ?? "",
+              motto: data.crew?.motto ?? ""
+            }
+            localStorage.setItem("crew", JSON.stringify(crew));
+            
+            setCrew(crew);
             setIsLogin(true);
             navigate("/", {"replace" : "true"}); // 로그인 성공 시 홈으로
           } else {

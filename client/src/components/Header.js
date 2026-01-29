@@ -4,17 +4,25 @@ import { useState } from 'react';
 import Sidebar from './Sidebar';
 import '../styles/header.scss';
 
-const Header = ({isLogin, setIsLogin}) => {
+const Header = ({isLogin, setIsLogin, crew}) => {
 
-  // navigate 선언
+  // 기본 프로필 이미지
+  const defaultProfileImage = process.env.PUBLIC_URL + '/static/profileImages/basic_profile.png';
+
+  // 회원 프로필 이미지
+  const crewProfileImage = crew?.profileImage
+    ? (crew.profileImage.startsWith("http") || crew.profileImage.startsWith("/"))
+      ? crew.profileImage
+      : `${process.env.REACT_APP_API_BASE_URL}/static/files/${crew.profileImage}`
+    : defaultProfileImage;
+
   const navigate = useNavigate();
   const handleHomeClick = () => {
     navigate('/');
   };
 
-  // 사이드바 상태
+  // 사이드바 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
-
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -30,10 +38,7 @@ const Header = ({isLogin, setIsLogin}) => {
       {isLogin && (
         <div className="header-actions">
           <div className="profile-circle">
-            <img 
-              src={process.env.PUBLIC_URL + '/static/profileImages/basic_profile.png'} 
-              alt="Profile" 
-            />
+            <img src={crewProfileImage} alt="Profile" />
           </div>
           <IoSearchOutline className="icon" />
           <IoMenuOutline className="icon" onClick={toggleSidebar} />
@@ -45,6 +50,7 @@ const Header = ({isLogin, setIsLogin}) => {
         isOpen={isLogin && isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
         setIsLogin={setIsLogin}
+        crew={crew}
       />
     </header>
   );

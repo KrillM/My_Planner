@@ -13,7 +13,7 @@ import {
 } from 'react-icons/io5';
 import '../styles/sidebar.scss';
 
-const Sidebar = ({ setIsLogin, isOpen, onClose }) => {
+const Sidebar = ({ setIsLogin, isOpen, onClose, crew }) => {
   const navigate = useNavigate();
 
   // Plan 메뉴의 열림/닫힘 상태 관리

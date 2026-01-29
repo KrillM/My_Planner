@@ -107,7 +107,9 @@ const login = async (req, res) => {
       success: true,
       token: token,
       email: crew.email,
-      nickname: crew.nickname
+      nickname: crew.nickname,
+      profileImage: crew.profileImage,
+      motto: crew.motto
     });
 
   } catch (error) {

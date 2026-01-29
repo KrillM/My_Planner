@@ -27,19 +27,19 @@ exports.googleLogin = async (req, res) => {
     const now = new Date();
 
     // DB 작업 (Upsert: 존재하면 Update, 없으면 Insert)
-    let user = await Crew.findOne({ where: { email: email } });
+    let crew = await Crew.findOne({ where: { email: email } });
     let isCreated = false; // 신규 가입인지 확인하기 위한 플래그 선언
 
-    if (user) {
+    if (crew) {
       // 기존 유저가 있는 경우: 변경 사항이 있는지 체크
       const isChanged = 
-        user.nickname !== name || 
-        user.profileImage !== picture || 
-        user.loginType !== 'GOOGLE';
+        crew.nickname !== name || 
+        crew.profileImage !== picture || 
+        crew.loginType !== 'GOOGLE';
 
       if (isChanged) {
         console.log('변경 사항 감지: 정보 업데이트 중...');
-        await user.update({
+        await crew.update({
           nickname: name,
           profileImage: picture,
           modifyTime: now,
@@ -68,7 +68,7 @@ exports.googleLogin = async (req, res) => {
         }
       }
 
-      user = await Crew.create({
+      crew = await Crew.create({
         crewId: crewId,        // 구글의 고유 ID를 PK로 사용
         email: email,
         nickname: name,
@@ -81,7 +81,7 @@ exports.googleLogin = async (req, res) => {
     }
     // 서비스 전용 JWT 발급
     const accessToken = jwt.sign(
-      { crewId: user.crewId, email: user.email },
+      { crewId: crew.crewId, email: crew.email },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -89,9 +89,11 @@ exports.googleLogin = async (req, res) => {
     res.status(200).json({
       message: isCreated ? '회원가입 성공' : '로그인 성공',
       token: accessToken,
-      user: {
+      crew: {
+        email: email,
         nickname: name,
-        profileImage: picture
+        profileImage: picture,
+        motto: crew?.motto ?? ""
       }
     });
 
@@ -127,19 +129,19 @@ exports.naverLogin = async (req, res) => {
     const { email, nickname, profile_image } = userResponse.data.response;
 
     // DB 로직 (기존 구글 로직과 동일, createCrewId만 NAVER로!)
-    let user = await Crew.findOne({ where: { email: email } });
+    let crew = await Crew.findOne({ where: { email: email } });
     let isCreated = false;
 
-    if (user) {
+    if (crew) {
       // 기존 유저가 있는 경우: 변경 사항이 있는지 체크
       const isChanged = 
-        user.nickname !== nickname || 
-        user.profileImage !== profile_image || 
-        user.loginType !== 'NAVER';
+        crew.nickname !== nickname || 
+        crew.profileImage !== profile_image || 
+        crew.loginType !== 'NAVER';
 
       if (isChanged) {
         console.log('변경 사항 감지: 정보 업데이트 중...');
-        await user.update({
+        await crew.update({
           nickname: nickname,
           profileImage: profile_image,
           modifyTime: now,
@@ -165,7 +167,7 @@ exports.naverLogin = async (req, res) => {
         }
       }
 
-      user = await Crew.create({
+      crew = await Crew.create({
         crewId: crewId,
         email: email,
         nickname: nickname,
@@ -177,9 +179,21 @@ exports.naverLogin = async (req, res) => {
     }
 
     // JWT 발급
-    const token = jwt.sign({ crewId: user.crewId }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign(
+      { crewId: crew.crewId }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '24h' }
+    );
 
-    res.status(200).json({ token, message: isCreated ? '회원가입 성공' : '로그인 성공' });
+    res.status(200).json({ 
+      token, message: isCreated ? '회원가입 성공' : '로그인 성공',
+      crew: {
+        email: email,
+        nickname: nickname,
+        profileImage: profile_image,
+        motto: crew?.motto ?? ""
+      }
+    });
 
   } catch (error) {
     console.error('Naver Login Error:', error);
