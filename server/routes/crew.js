@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Ccrew = require('../controller/Ccrew');
+const auth = require('../middleware/auth');
+const { upload } = require('../multer/multerConfig');
 
 // 회원가입
 router.post('/join', Ccrew.addCrew);
@@ -22,5 +24,8 @@ router.post('/sendresetemail', Ccrew.sendResetEmail);
 
 // 비밀번호 수정
 router.post('/resetpassword', Ccrew.resetPassword);
+
+// 회원정보 수정
+router.post('/editprofile', auth, upload.single("profileImage"), Ccrew.editProfile);
 
 module.exports = router;

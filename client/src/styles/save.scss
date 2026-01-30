@@ -3,46 +3,37 @@
 // 변수 설정
 $saveBtn-bg: mpl.$brand-color;
 $findBtn-bg: #D9D9D9;
+$editBtn-bg: #FFD700;
+$delete-bg: #FF0000;
+
+@mixin base-btn($bg-color) {
+  width: 100%;
+  padding: 10px;
+  background-color: $bg-color;
+  border: none;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background-color: darken($bg-color, 10%);
+  }
+}
 
 .save-btn {
-    width: 100%;
-    padding: 10px;
-    background-color: $saveBtn-bg;
-    border: none;
-    font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.2s;
-
-    &:hover {
-    background-color: darken($saveBtn-bg, 10%);
-    }
+  @include base-btn($saveBtn-bg);
 }
 
 .find-btn {
-    width: 100%;
-    padding: 10px;
-    background-color: $findBtn-bg;
-    border: none;
-    font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.2s;
-
-    &:hover {
-    background-color: darken($findBtn-bg, 10%);
-    }
+  @include base-btn($findBtn-bg);
 }
 
-
-// .profile-image-cancel {
-//     position: absolute;
-//     right: 10px; // '파일 찾기' 버튼 위치에 따라 조절
-//     background: none;
-//     border: none;
-//     cursor: pointer;
-//     color: #FF0000;
-// }
+.leave-btn {
+  @include base-btn($delete-bg); 
+  margin-top: 5%;
+  color: ivory;
+}
 
 .profile-image-input-wrapper {
   position: relative; // 기준점

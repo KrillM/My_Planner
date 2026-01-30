@@ -258,6 +258,68 @@ const resetPassword = async (req, res) => {
 };
 
 // 회원 정보 수정
+const editProfile = async (req, res) => {
+  try {
+    const { nickname, password, motto } = req.body;
+    const uploadedImage = req.file ? req.file.filename : null;
+    const crewId = req.user.crewId;
+
+    // 현재 사용자 정보 조회 (기존 이미지 비교용)
+    const crew = await Crew.findOne({ where: { crewId } });
+    if (!crew) {
+      return res.status(404).json({ message: "유저를 찾을 수 없습니다." });
+    }
+
+    const updateData = {
+      nickname,
+      motto,
+      modifyTime: new Date(),
+    };
+
+    // 비밀번호 처리
+    if (password && password.trim() !== "") {
+      updateData.password = await bcrypt.hash(password, saltLevel);
+    }
+
+    if (req.body.profileImageClear === "true") {
+      updateData.profileImage = null;
+    }
+
+    else if (uploadedImage) {
+      if (crew.profileImage !== uploadedImage) {
+        updateData.profileImage = uploadedImage;
+      }
+    }
+
+    const [affected] = await Crew.update(updateData, {
+      where: { crewId },
+    });
+
+    if (affected === 0) {
+      return res.status(400).json({ message: "변경 사항이 없습니다." });
+    }
+
+    // 변경 후 데이터 내려주기 (프론트 기준 통일)
+    const updatedCrew = await Crew.findOne({
+      where: { crewId },
+      attributes: ["email", "nickname", "profileImage", "motto"],
+    });
+
+    return res.json({ 
+      result: true,  
+      crew: {
+        email: updatedCrew.email,
+        nickname: updatedCrew.nickname,
+        profileImage: updatedCrew.profileImage,
+        motto: updatedCrew.motto,
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "회원정보 수정 중 오류가 발생했습니다." });
+  }
+};
 
 // 회원 탈퇴
 
@@ -268,5 +330,6 @@ module.exports = {
   logout,
   findPassword,
   sendResetEmail,
-  resetPassword
+  resetPassword,
+  editProfile
 }

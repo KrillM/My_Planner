@@ -31,20 +31,25 @@ exports.googleLogin = async (req, res) => {
     let isCreated = false; // 신규 가입인지 확인하기 위한 플래그 선언
 
     if (crew) {
-      // 기존 유저가 있는 경우: 변경 사항이 있는지 체크
-      const isChanged = 
-        crew.nickname !== name || 
-        crew.profileImage !== picture || 
-        crew.loginType !== 'GOOGLE';
+      const updateData = {};
+      let isChanged = false;
+
+      // 프로필 이미지가 없을 때만 구글 이미지 사용
+      if (!crew.profileImage && picture) {
+        updateData.profileImage = picture;
+        isChanged = true;
+      }
+
+      // 로그인 타입 보정
+      if (crew.loginType !== 'GOOGLE') {
+        updateData.loginType = 'GOOGLE';
+        isChanged = true;
+      }
 
       if (isChanged) {
-        console.log('변경 사항 감지: 정보 업데이트 중...');
-        await crew.update({
-          nickname: name,
-          profileImage: picture,
-          modifyTime: now,
-          loginType: 'GOOGLE'
-        });
+        updateData.modifyTime = now;
+        await crew.update(updateData);
+        console.log('기존 유저 정보 업데이트 완료');
       } else {
         console.log('변경 사항 없음 - 구글');
       }
@@ -81,7 +86,7 @@ exports.googleLogin = async (req, res) => {
     }
     // 서비스 전용 JWT 발급
     const accessToken = jwt.sign(
-      { crewId: crew.crewId, email: crew.email },
+      { crewId: crew.crewId },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -90,9 +95,9 @@ exports.googleLogin = async (req, res) => {
       message: isCreated ? '회원가입 성공' : '로그인 성공',
       token: accessToken,
       crew: {
-        email: email,
-        nickname: name,
-        profileImage: picture,
+        email: crew.email,
+        nickname: crew.nickname,
+        profileImage: crew.profileImage,
         motto: crew?.motto ?? ""
       }
     });
@@ -133,20 +138,25 @@ exports.naverLogin = async (req, res) => {
     let isCreated = false;
 
     if (crew) {
-      // 기존 유저가 있는 경우: 변경 사항이 있는지 체크
-      const isChanged = 
-        crew.nickname !== nickname || 
-        crew.profileImage !== profile_image || 
-        crew.loginType !== 'NAVER';
+      const updateData = {};
+      let isChanged = false;
+
+      // 프로필 이미지가 없을 때만 네이버 이미지 사용
+      if (!crew.profileImage && profile_image) {
+        updateData.profileImage = profile_image;
+        isChanged = true;
+      }
+
+      // 로그인 타입 보정
+      if (crew.loginType !== 'NAVER') {
+        updateData.loginType = 'NAVER';
+        isChanged = true;
+      }
 
       if (isChanged) {
-        console.log('변경 사항 감지: 정보 업데이트 중...');
-        await crew.update({
-          nickname: nickname,
-          profileImage: profile_image,
-          modifyTime: now,
-          loginType: 'NAVER'
-        });
+        updateData.modifyTime = now;
+        await crew.update(updateData);
+        console.log('기존 유저 정보 업데이트 완료');
       } else {
         console.log('변경 사항 없음 - 네이버');
       }
@@ -188,9 +198,9 @@ exports.naverLogin = async (req, res) => {
     res.status(200).json({ 
       token, message: isCreated ? '회원가입 성공' : '로그인 성공',
       crew: {
-        email: email,
-        nickname: nickname,
-        profileImage: profile_image,
+        email: crew.email,
+        nickname: crew.nickname,
+        profileImage: crew.profileImage,
         motto: crew?.motto ?? ""
       }
     });

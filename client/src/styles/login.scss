@@ -14,6 +14,37 @@ $text-color: #333;
   margin: 30px auto;
   padding: 10px;
 
+  .profile-top {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .profile-avatar {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #eee;
+    flex: 0 0 62px;
+  }
+
+  .profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .profile-email {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: $text-color;
+    word-break: break-all; // 이메일 길면 줄바꿈
+  }
+
   .login-form {
     width: 100%;
 
