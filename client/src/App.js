@@ -50,7 +50,7 @@ function App() {
           
           {/* 로그인 필수 */}
           <Route element={<ProtectedRoute isLogin={isLogin} />}>
-            <Route path="/profile" element={<Profile crew={crew} setCrew={setCrew} />} />
+            <Route path="/profile" element={<Profile crew={crew} setCrew={setCrew} setIsLogin={setIsLogin} />} />
           </Route>
 
           {/* 404 */}

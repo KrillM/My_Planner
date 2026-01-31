@@ -1,8 +1,8 @@
-@use 'my_planner_lavender' as mpl;
+@use 'my_planner_main' as mp;
 
 // 변수 설정
-$loginBtn-bg: mpl.$brand-color;
-$border-color: #000;
+$loginBtn-bg: mp.$brand-color;
+$border-color: mp.$font-color;
 $text-color: #333;
 
 .login-container {
@@ -10,7 +10,7 @@ $text-color: #333;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 320px; // 와이어프레임 비율에 맞춘 너비
+  width: mp.$login-container-width;
   margin: 30px auto;
   padding: 10px;
 
@@ -80,11 +80,11 @@ $text-color: #333;
       }
 
       .warning-message {
-        @include message-style(#FF0000);
+        @include message-style(mp.$warn-color);
       }
       
       .success-message {
-        @include message-style(#0080FF);
+        @include message-style(mp.$primary-color);
       }
     }
 

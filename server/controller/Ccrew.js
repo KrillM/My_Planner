@@ -322,6 +322,23 @@ const editProfile = async (req, res) => {
 };
 
 // 회원 탈퇴
+const leave = async (req, res) => {
+  try {
+    // 토큰에서 나온 회원
+    const crewId = req.user.crewId; 
+
+    const crew = await Crew.findOne({ where: { crewId } });
+    if (!crew) {
+      return res.status(404).json({ result: false, message: '회원을 찾을 수 없습니다.' });
+    }
+
+    await crew.destroy();
+    return res.json({ result: true, message: '회원 탈퇴가 완료되었습니다.' });
+  } catch (error) {
+    console.error('Error deleting crew', error);
+    return res.status(500).send('Internal Server Error');
+  }
+};
 
 module.exports = {
   addCrew: [upload.single("profileImage"), join],
@@ -331,5 +348,6 @@ module.exports = {
   findPassword,
   sendResetEmail,
   resetPassword,
-  editProfile
+  editProfile,
+  leave
 }

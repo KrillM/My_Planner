@@ -1,0 +1,66 @@
+@use 'my_planner_main' as mp;
+
+// 변수 선언
+$btn-bg: mp.$brand-color;
+$max-width: mp.$login-container-width;
+$bg-color: mp.$main-bg-color;
+$warn-color: mp.$warn-color;
+$font-color: mp.$font-color;
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal {
+  width: max($max-width);
+  background: $bg-color;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  padding: 42px 28px 28px;
+}
+
+.modal-body {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.modal-text {
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 700;
+  color: $font-color;
+  margin: 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 17px;
+}
+
+.modal-btn {
+  flex: 1;
+  height: 28px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 200;
+}
+
+.modal-btn.return {
+  background: $btn-bg;
+  color: $font-color;
+}
+
+.modal-btn.leave {
+  background: $warn-color;
+  color: $bg-color;
+}

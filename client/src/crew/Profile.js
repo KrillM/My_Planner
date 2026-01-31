@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ModalLeave from '../modals/ModalLeave';
 import '../styles/login.scss';
 import '../styles/save.scss';
 
-const Profile = ({crew, setCrew }) => {
+const Profile = ({crew, setCrew, setIsLogin }) => {
   const navigate = useNavigate();
 
   // 기본 프로필 이미지
@@ -178,6 +179,44 @@ const Profile = ({crew, setCrew }) => {
     }
   }
 
+  // 모달 창 관리
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  // 회원 탈퇴 처리
+  const handleLeave = async () => {
+    const token = localStorage.getItem('token');
+
+    // 먼저 루트로 보내서 /404로 튕기는 타이밍 이슈 차단
+    closeModal();
+    navigate('/', { replace: true });
+
+    // 클라이언트 로그아웃 확정 처리
+    localStorage.removeItem('token');
+    localStorage.removeItem('crew');
+    setIsLogin(false);
+    setCrew(null);
+
+    // 회원 탈퇴는 나중에 시도
+    try {
+      const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/crew/leave", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({}),
+      });
+
+      // 서버 응답이 꼭 JSON이 아닐 수도 있으니 방어적으로
+      const text = await res.text();
+      console.log("서버 응답:", text);
+    } catch (err) {
+      console.error("회원탈퇴 통신 에러:", err);
+    }
+  }
+
   return (
     <>
     <div className="login-container">
@@ -261,22 +300,22 @@ const Profile = ({crew, setCrew }) => {
           </div>
      
           {/* 실제로 파일을 찾는 버튼 */}
-            <button 
-              type="button" 
-              className="find-btn" // 원하는 스타일 적용
-              onClick={handleButtonClick}
-            >
-              파일 찾기
-            </button>
+          <button 
+            type="button" 
+            className="find-btn" // 원하는 스타일 적용
+            onClick={handleButtonClick}
+          >
+            파일 찾기
+          </button>
 
-            {/* 실제로 동작하지만 숨겨진 파일 인풋 */}
-            <input 
-              type="file" 
-              accept="image/*" // 이미지 파일만 선택 가능하게 제한
-              style={{ display: 'none' }} 
-              ref={fileInputRef} 
-              onChange={handleFileChange} 
-            />
+          {/* 실제로 동작하지만 숨겨진 파일 인풋 */}
+          <input 
+            type="file" 
+            accept="image/*" // 이미지 파일만 선택 가능하게 제한
+            style={{ display: 'none' }} 
+            ref={fileInputRef} 
+            onChange={handleFileChange} 
+          />
 
           <input 
             type="text" 
@@ -289,7 +328,9 @@ const Profile = ({crew, setCrew }) => {
 
         <button type="submit" className="save-btn">Edit</button>
       </form>
-      <button type="button" className="leave-btn">Leave</button>
+      <button type="button" className="leave-btn" onClick={openModal}>Leave</button>
+
+      <ModalLeave open={isModalOpen} onClose={closeModal} onConfirm={handleLeave}/>
     </div>
     </>
   );

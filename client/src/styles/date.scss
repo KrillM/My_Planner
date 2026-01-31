@@ -1,6 +1,15 @@
+@use 'my_planner_main' as mp;
+
+// 변수 선언
+$btn-bg: mp.$brand-color;
+$max-width: mp.$login-container-width;
+$bg-color: mp.$main-bg-color;
+$warn-color: mp.$warn-color;
+$font-color: mp.$font-color;
+
 .date-container {
   padding: 20px;
-  background-color: #fff;
+  background-color: $bg-color;
 
   .planner-header {
     display: flex;
@@ -21,7 +30,7 @@
       color: #555;
       cursor: pointer;
         
-      &:hover { color: #000; }
+      &:hover { color: $font-color; }
     }
   }
 

@@ -1,8 +1,8 @@
-@use 'my_planner_lavender' as mpl;
+@use 'my_planner_main' as mp;
 @import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
 
 // 변수 선언
-$header-bg: mpl.$brand-color; // 연보라색 배경
+$header-bg: mp.$brand-color; // 연보라색 배경
 $text-color: #000;
 $profile-size: 20px;
 $icon-color: #333;
