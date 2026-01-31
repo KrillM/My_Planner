@@ -1,10 +1,7 @@
 @use 'my_planner_main' as mp;
 
 // 변수 선언
-$btn-bg: mp.$brand-color;
-$max-width: mp.$login-container-width;
 $bg-color: mp.$main-bg-color;
-$warn-color: mp.$warn-color;
 $font-color: mp.$font-color;
 
 .date-container {
@@ -15,7 +12,7 @@ $font-color: mp.$font-color;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 
     .date-title {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
@@ -39,7 +36,7 @@ $font-color: mp.$font-color;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
 
       .item-time { font-size: 0.8rem; color: #666; display: block; }
       .item-title { font-size: 1.4rem; font-weight: 500; }
@@ -55,6 +52,31 @@ $font-color: mp.$font-color;
         font-size: 1.5rem;
         cursor: pointer;
         &.active { color: #333; }
+      }
+    }
+  }
+}
+
+// 다크모드
+body.dark {
+  .date-container {
+    background-color: mp.$main-bg-color-dark;
+    color: mp.$font-color-dark;
+
+    .planner-header {
+      .date-title { color: mp.$font-color-dark; }
+      .doc-icon { color: mp.$font-color-dark; }
+    }
+
+    .schedule-list {
+      .schedule-item {
+        .item-time { color: rgba(mp.$font-color-dark, 0.65); }
+        .item-title { color: mp.$font-color-dark; }
+
+        .check-icon {
+          color: rgba(mp.$font-color-dark, 0.55);
+          &.active { color: mp.$font-color-dark; }
+        }
       }
     }
   }

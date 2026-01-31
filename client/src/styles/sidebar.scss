@@ -13,8 +13,8 @@
 .sidebar-menu {
   position: fixed;
   top: 0;
-  right: -200px; // 기본적으로 화면 밖에 위치
-  width: 200px;
+  right: -140px; // 기본적으로 화면 밖에 위치
+  width: 140px;
   height: 100vh;
   background-color: mp.$brand-color; // 이미지의 보라색 톤
   transition: right 0.3s ease-in-out;

@@ -8,6 +8,7 @@ import FindPassword from './crew/FindPassword';
 import ResetPassword from './crew/ResetPassword';
 import Profile from './crew/Profile';
 import Date from './plan/Date';
+import DarkMode from './components/DarkMode';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import ProtectedRoute from './components/ProtectedRoute';
@@ -17,6 +18,7 @@ function App() {
   const [message, setMessage] = useState("")
   const [isLogin, setIsLogin] = useState(false);
   const [crew, setCrew] = useState(null);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(()=>{
     axios.get(process.env.REACT_APP_API_BASE_URL)
@@ -36,6 +38,24 @@ function App() {
     if (token) setIsLogin(true);
     if(crewInfo) setCrew(JSON.parse(crewInfo));
   }, []);
+
+   // 최초 로드시 저장값 반영
+  useEffect(() => {
+    const saved = localStorage.getItem("theme"); // "dark" | "light"
+    const initialDark = saved === "dark";
+    setIsDark(initialDark);
+    document.body.classList.toggle("dark", initialDark);
+  }, []);
+
+  // 토글 함수
+  const changeMode = () => {
+    setIsDark((prev) => {
+      const next = !prev;
+      document.body.classList.toggle("dark", next);
+      localStorage.setItem("theme", next ? "dark" : "light");
+      return next;
+    });
+  };
 
   return (
     <BrowserRouter>
@@ -58,6 +78,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </GoogleOAuthProvider>
+      <DarkMode isDark={isDark} changeMode={changeMode}/>
     </BrowserRouter>
   );
 }

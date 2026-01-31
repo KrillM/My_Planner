@@ -4,7 +4,7 @@
 // 변수 선언
 $header-bg: mp.$brand-color; // 연보라색 배경
 $text-color: #000;
-$profile-size: 20px;
+$profile-size: 22px;
 $icon-color: #333;
 
 .header-container {
@@ -13,11 +13,11 @@ $icon-color: #333;
   align-items: center;
   padding: 2px 4px;
   background-color: $header-bg;
-  height: 30px;
+  height: 36px;
 
   .header-logo {
     font-family: 'itim', cursive;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
     color: $text-color;

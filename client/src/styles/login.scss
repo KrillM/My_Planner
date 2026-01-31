@@ -3,7 +3,7 @@
 // 변수 설정
 $loginBtn-bg: mp.$brand-color;
 $border-color: mp.$font-color;
-$text-color: #333;
+$text-color: mp.$crew-txt-color;
 
 .login-container {
   display: flex;
@@ -112,6 +112,7 @@ $text-color: #333;
       padding: 10px;
       background-color: $loginBtn-bg;
       border: none;
+      border-radius: 999px; 
       font-weight: bold;
       font-size: 1rem;
       cursor: pointer;
@@ -149,6 +150,35 @@ $text-color: #333;
         border-radius: 50%; // 아이콘을 원형으로 유지
         object-fit: cover;
       }
+    }
+  }
+}
+
+// 다크 모드
+body.dark .login-container {
+  .profile-email {
+    color: mp.$font-color-dark;
+  }
+
+  .login-form {
+    .input-group {
+      .underline-input {
+        color: mp.$font-color-dark;
+        border-bottom-color: mp.$font-color-dark;
+
+        &::placeholder {
+          color: mp.$font-color-dark;
+          opacity: 0.7; // placeholder만 살짝 흐리게 (선택)
+        }
+      }
+    }
+
+    .secondary-menu .text-link {
+      color: mp.$font-color-dark;
+    }
+
+    .divider {
+      border-top-color: mp.$font-color-dark;
     }
   }
 }

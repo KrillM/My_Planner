@@ -7,3 +7,33 @@ $main-bg-color: #fff;
 $warn-color: #ff0000;
 $font-color: #111;
 $primary-color: #0080FF;
+$crew-txt-color: #333;
+
+// Dark Mode
+$brand-color-dark: #6e4c73;
+$main-bg-color-dark: #0f0f12;
+$font-color-dark: #f2f2f2;
+$primary-color-dark: #4da3ff;
+
+.header {
+  background: $brand-color;
+}
+
+body {
+  background: $main-bg-color;
+  color: $font-color;
+}
+
+body.dark {
+  background: $main-bg-color-dark;
+  color: $font-color-dark;
+}
+
+.button-primary {
+  color: $main-bg-color;
+  background: $primary-color;
+}
+
+body.dark .button-primary {
+  background: $primary-color-dark;
+}

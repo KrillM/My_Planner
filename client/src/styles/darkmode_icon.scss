@@ -1,0 +1,22 @@
+@use 'my_planner_main' as mp;
+
+// 변수 선언
+$bg-color: mp.$main-bg-color;
+$font-color: mp.$font-color;
+
+.floating-moon {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 999;
+
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+
+  color: $font-color; // 기본(라이트) 아이콘 색
+}
+body.dark .floating-moon {
+  color: $bg-color; // 다크일 때 아이콘 색
+}
