@@ -50,6 +50,7 @@ $font-color: mp.$font-color;
   flex: 1;
   height: 28px;
   border: none;
+  border-radius: 999px; 
   cursor: pointer;
   font-size: 14px;
   font-weight: 200;
@@ -63,4 +64,31 @@ $font-color: mp.$font-color;
 .modal-btn.leave {
   background: $warn-color;
   color: $bg-color;
+}
+
+// 다크모드
+body.dark {
+  .modal-overlay {
+    background: rgba(0, 0, 0, 0.6);
+  }
+
+  .modal {
+    background: mp.$main-bg-color-dark;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+  }
+
+  .modal-text {
+    color: mp.$font-color-dark;
+  }
+
+  .modal-btn.return {
+    background: mp.$brand-color-dark;
+    color: mp.$font-color-dark;
+  }
+
+  .modal-btn.leave {
+    // 경고 버튼은 빨강 유지하되 글자색만 다크에 맞게
+    background: mp.$warn-color;
+    color: mp.$font-color-dark;
+  }
 }

@@ -4,8 +4,8 @@
 // 변수 선언
 $header-bg: mp.$brand-color; // 연보라색 배경
 $text-color: #000;
-$profile-size: 22px;
-$icon-color: #333;
+$profile-size: 30px;
+$icon-color: mp.$crew-txt-color;
 
 .header-container {
   display: flex;
@@ -13,11 +13,11 @@ $icon-color: #333;
   align-items: center;
   padding: 2px 4px;
   background-color: $header-bg;
-  height: 36px;
+  height: 50px;
 
   .header-logo {
     font-family: 'itim', cursive;
-    font-size: 1.1rem;
+    font-size: 1.4rem;
     font-weight: bold;
     cursor: pointer;
     color: $text-color;
@@ -44,7 +44,7 @@ $icon-color: #333;
     }
 
     .icon {
-      font-size: 20px;
+      font-size: 25px;
       cursor: pointer;
       color: $icon-color;
       transition: opacity 0.2s ease;
