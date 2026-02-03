@@ -312,7 +312,8 @@ const editProfile = async (req, res) => {
         nickname: updatedCrew.nickname,
         profileImage: updatedCrew.profileImage,
         motto: updatedCrew.motto,
-      }
+      },
+      message: "회원 정보가 수정되었습니다."
     });
 
   } catch (error) {

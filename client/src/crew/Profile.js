@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ModalLeave from '../modals/ModalLeave';
+import ModalLeaveCheck from '../modals/ModalLeaveCheck';
+import ModalMessage from '../modals/ModalMessage';
 import '../styles/login.scss';
 import '../styles/save.scss';
 
@@ -172,50 +173,82 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
 
       localStorage.setItem("crew", JSON.stringify(crewUpdate));
       setCrew(crewUpdate);
-      navigate("/");
+      setResultMessage(data.message);
+      setIsResultModalOpen(true);
     } catch (err) {
       console.error(err);
       alert(err.message);
     }
   }
 
-  // 모달 창 관리
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  // 경고 모달 창
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+
+  // 메시지 모달 창
+  const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+  const [resultMessage, setResultMessage] = useState("");
+  const [isLeaveSuccess, setIsLeaveSuccess] = useState(false);
+
+  const openLeaveModal = () => setIsLeaveModalOpen(true);
+  const closeLeaveModal = () => setIsLeaveModalOpen(false);
 
   // 회원 탈퇴 처리
   const handleLeave = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
-    // 먼저 루트로 보내서 /404로 튕기는 타이밍 이슈 차단
-    closeModal();
-    navigate('/', { replace: true });
-
-    // 클라이언트 로그아웃 확정 처리
-    localStorage.removeItem('token');
-    localStorage.removeItem('crew');
-    setIsLogin(false);
-    setCrew(null);
-
-    // 회원 탈퇴는 나중에 시도
     try {
-      const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/crew/leave", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({}),
-      });
+      const res = await fetch(
+        process.env.REACT_APP_API_BASE_URL + "/crew/leave",
+        {
+          method: "DELETE",
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        }
+      );
 
-      // 서버 응답이 꼭 JSON이 아닐 수도 있으니 방어적으로
+      // 방어적으로 text로 받고 JSON 파싱 시도
       const text = await res.text();
       console.log("서버 응답:", text);
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { result: res.ok, message: text };
+      }
+
+      const ok = !!data.result && res.ok;
+
+      setIsLeaveSuccess(ok);
+      setResultMessage(
+        data.message || (ok ? "회원 탈퇴가 완료되었습니다." : "회원 탈퇴에 실패했습니다.")
+      );
+
+      closeLeaveModal();
+      setIsResultModalOpen(true);
     } catch (err) {
       console.error("회원탈퇴 통신 에러:", err);
+      setIsLeaveSuccess(false);
+      setResultMessage("네트워크 오류로 회원 탈퇴에 실패했습니다.");
+      closeLeaveModal();
+      setIsResultModalOpen(true);
     }
-  }
+  };
+
+  // 완료 모달 확인 버튼 눌렀을 때만 로그아웃/이동
+  const handleResultConfirm = () => {
+    setIsResultModalOpen(false);
+
+    if (isLeaveSuccess) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("crew");
+      setIsLogin(false);
+      setCrew(null);
+    }
+
+    navigate("/", { replace: true });
+  };
 
   return (
     <>
@@ -328,9 +361,10 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
 
         <button type="submit" className="save-btn">Edit</button>
       </form>
-      <button type="button" className="leave-btn" onClick={openModal}>Leave</button>
+      <button type="button" className="leave-btn" onClick={openLeaveModal}>Leave</button>
 
-      <ModalLeave open={isModalOpen} onClose={closeModal} onConfirm={handleLeave}/>
+      <ModalLeaveCheck open={isLeaveModalOpen} onClose={closeLeaveModal} onConfirm={handleLeave}/>
+      <ModalMessage open={isResultModalOpen} message={resultMessage} onConfirm={handleResultConfirm} />
     </div>
     </>
   );
