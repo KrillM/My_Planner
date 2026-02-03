@@ -6,6 +6,7 @@ module.exports = (sequelize) => {
     frequencyId: { type: DataTypes.BIGINT, primaryKey: true },
     crewId: { type: DataTypes.STRING(40), primaryKey: true },
     content: { type: DataTypes.STRING(200), allowNull: false },
+    isUseTimeSlot: { type: DataTypes.CHAR(1), defaultValue: 'N', allowNull: false },
     planBegin: { type: DataTypes.DATE },
     planEnd: { type: DataTypes.DATE },
     isUseAlarm: { type: DataTypes.CHAR(1), defaultValue: 'N', allowNull: false },

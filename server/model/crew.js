@@ -8,6 +8,7 @@ module.exports = (sequelize) => {
     password: { type: DataTypes.STRING(600) },
     motto: { type: DataTypes.STRING(200) },
     profileImage: { type: DataTypes.STRING(600) },
+    isUseAlarm: { type: DataTypes.CHAR(1), defaultValue: 'N', allowNull: false },
     alarm: { type: DataTypes.DATE },
     resetPasswordToken: { type: DataTypes.STRING(600) },
     resetTokenExpires: { type: DataTypes.DATE },
