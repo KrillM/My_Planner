@@ -34,15 +34,15 @@ exports.googleLogin = async (req, res) => {
       const updateData = {};
       let isChanged = false;
 
-      // 프로필 이미지가 없을 때만 구글 이미지 사용
-      if (!crew.profileImage && picture) {
-        updateData.profileImage = picture;
-        isChanged = true;
-      }
-
       // 로그인 타입 보정
       if (crew.loginType !== 'GOOGLE') {
         updateData.loginType = 'GOOGLE';
+        isChanged = true;
+      }
+
+      // 프로필 이미지가 없을 때만 구글 이미지 사용
+      if (!crew.profileImage && picture) {
+        updateData.profileImage = picture;
         isChanged = true;
       }
 
@@ -141,15 +141,15 @@ exports.naverLogin = async (req, res) => {
       const updateData = {};
       let isChanged = false;
 
-      // 프로필 이미지가 없을 때만 네이버 이미지 사용
-      if (!crew.profileImage && profile_image) {
-        updateData.profileImage = profile_image;
-        isChanged = true;
-      }
-
       // 로그인 타입 보정
       if (crew.loginType !== 'NAVER') {
         updateData.loginType = 'NAVER';
+        isChanged = true;
+      }
+
+      // 프로필 이미지가 없을 때만 네이버 이미지 사용
+      if (!crew.profileImage && profile_image) {
+        updateData.profileImage = profile_image;
         isChanged = true;
       }
 
