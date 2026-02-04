@@ -23,7 +23,7 @@ exports.googleLogin = async (req, res) => {
       url: 'https://www.googleapis.com/oauth2/v3/userinfo',
     });
 
-    const { sub: googleId, email, name, picture } = userInfo.data;
+    const { email, name, picture } = userInfo.data;
     const now = new Date();
 
     // DB 작업 (Upsert: 존재하면 Update, 없으면 Insert)
