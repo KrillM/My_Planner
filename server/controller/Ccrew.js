@@ -165,11 +165,16 @@ const findPassword = async (req, res) => {
     const crewId = crew.get("crewId");
 
     // 보안 토큰 생성 (유효기간 1시간)
-    const resetPasswordToken = crypto.randomBytes(20).toString('hex');
-    const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000);; // 1시간
+    const passwordToken = crypto.randomBytes(20).toString('hex');
+    const hashedPasswordToken = crypto
+      .createHash("sha256")
+      .update(passwordToken)
+      .digest("hex");
+
+    const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000); // 1시간
     
     const [updatedCount] = await Crew.update(
-      { resetPasswordToken, resetTokenExpires },
+      { resetPasswordToken: hashedPasswordToken, resetTokenExpires },
       { where: { crewId } }
     );
 
@@ -178,7 +183,7 @@ const findPassword = async (req, res) => {
     }
 
     // 재설정 링크 생성 (프론트엔드 경로)
-    const resetUrl = `${process.env.NODE_APP_API_BASE_URL}/resetpassword?token=${resetPasswordToken}`;
+    const resetUrl = `${process.env.NODE_APP_API_BASE_URL}/resetpassword?token=${passwordToken}`;
 
     // 이메일 전송 함수 호출 (정의해두신 sendResetEmail 사용)
     await sendResetEmail(crew.email, resetUrl);
@@ -229,10 +234,16 @@ const resetPassword = async (req, res) => {
   }
 
   try {
+    // 암호화된 토큰 호출
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
     // 토큰 + 만료시간 체크
     const crew = await Crew.findOne({
       where: {
-        resetPasswordToken: token,
+        resetPasswordToken: hashedToken,
         resetTokenExpires: { [require("sequelize").Op.gt]: new Date() },
       },
     });
