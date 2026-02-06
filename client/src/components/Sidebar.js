@@ -8,6 +8,11 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
   // Plan 메뉴의 열림/닫힘 상태 관리
   const [isPlanOpen, setIsPlanOpen] = useState(true);
 
+  // 홈 페이지로 이동
+  const handleHome = () => {
+    navigate('/')
+  }
+
   // 계획 생성 페이지로 이동
   const handleCreatePlan = () => {
     navigate('/new')
@@ -72,7 +77,7 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
         </div>
         
         <nav className="sidebar-items">
-          <div className="item">
+          <div className="item" onClick={handleHome}>
             <span className="material-symbols-outlined">today</span>
             <span>Today</span>
           </div>
