@@ -1,4 +1,3 @@
-import { IoSearchOutline, IoMenuOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Sidebar from './Sidebar';
@@ -40,8 +39,8 @@ const Header = ({isLogin, setIsLogin, crew, setCrew}) => {
           <div className="profile-circle">
             <img src={crewProfileImage} alt="Profile" />
           </div>
-          <IoSearchOutline className="icon" />
-          <IoMenuOutline className="icon" onClick={toggleSidebar} />
+          <span className="material-symbols-outlined icon">search</span>
+          <span class="material-symbols-outlined icon" onClick={toggleSidebar}>menu</span>
         </div>
       )}
 

@@ -1,5 +1,4 @@
 import { useGoogleLogin } from '@react-oauth/google';
-import { IoLogInOutline } from 'react-icons/io5';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import '../styles/login.scss';
@@ -216,7 +215,9 @@ const Login = ({setIsLogin, setCrew}) => {
         </div>
 
         {/* 로그인 버튼 */}
-        <button type="submit" className="login-btn">LOGIN <IoLogInOutline/></button>
+        <button type="submit" className="login-btn">LOGIN
+          <span className="material-symbols-outlined">login</span>
+        </button>
       </form>
 
       <hr className="divider" />

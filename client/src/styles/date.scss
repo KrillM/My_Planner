@@ -15,7 +15,7 @@ $font-color: mp.$font-color;
     margin-bottom: 25px;
 
     .date-content {
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      font-family: mp.$brand-font;
       font-weight: 400; 
       font-size: 1.8rem;
       color: #222;     
@@ -26,6 +26,7 @@ $font-color: mp.$font-color;
       font-size: 1.6rem;
       color: #555;
       cursor: pointer;
+      display: flex;
         
       &:hover { color: $font-color; }
     }
@@ -38,8 +39,17 @@ $font-color: mp.$font-color;
       align-items: center;
       margin-bottom: 20px;
 
-      .toDo-time { font-size: 0.8rem; color: #666; display: block; }
-      .toDo-content { font-size: 1.4rem; font-weight: 500; }
+      .toDo-time { 
+        font-size: 0.8rem; 
+        color: #666; 
+        display: block; 
+      }
+      
+      .toDo-content { 
+        font-family: mp.$brand-font;
+        font-size: 1.4rem; 
+        font-weight: 500; 
+      }
       
       .content-row {
         display: flex;

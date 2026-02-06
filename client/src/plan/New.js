@@ -18,6 +18,16 @@ const New = ({ crew }) => {
 
   return (
     <div className="date-container">
+      <div className="planner-header">
+        <div className="date-content">
+
+        </div>
+        <div className="doc-icon">
+          <span className="material-symbols-outlined">calendar_month</span>
+          <span className="material-symbols-outlined">description</span>
+        </div>
+      </div>
+
       <div className="toDo-list">
         {toDoList.map((toDo) => (
           <div key={toDo.toDoId} className="toDo-detail">

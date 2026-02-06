@@ -1,16 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { 
-  IoListOutline, 
-  IoCloseOutline, 
-  IoAddOutline,
-  IoCreateOutline,
-  IoRepeatOutline,
-  IoCalendarOutline,
-  IoTodayOutline,
-  IoPersonOutline,
-  IoLogOutOutline
-} from 'react-icons/io5';
 import '../styles/sidebar.scss';
 
 const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
@@ -73,32 +62,65 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
       <div className="sidebar-menu open">
         <div className="sidebar-header">
           <span></span>
-          <IoCloseOutline className="close-icon" onClick={onClose} />
+          <span 
+            className="material-symbols-outlined" 
+            style={{ cursor: 'pointer' }} 
+            onClick={onClose}
+          >
+            close
+          </span>
         </div>
         
         <nav className="sidebar-items">
-          <div className="item"><IoTodayOutline /> <span>Today</span></div>
-          <div className="item"><IoCalendarOutline /> <span>Calendar</span></div>
+          <div className="item">
+            <span className="material-symbols-outlined">today</span>
+            <span>Today</span>
+          </div>
+          <div className="item">
+            <span className="material-symbols-outlined">calendar_month</span>
+            <span>Calendar</span>
+          </div>
 
           {/* Plan 클릭 시 isPlanOpen 상태를 반전 */}
           <div className="item plan-menu" onClick={() => setIsPlanOpen(!isPlanOpen)}>
-            <IoListOutline /> 
+            <span className="material-symbols-outlined">event_list</span>
             <span>Plan</span>
           </div>
 
           {/* sPlanOpen이 true일 때 서브 메뉴를 보여줌 */}
           {isPlanOpen && (
             <div className="sub-items">
-              <div className="sub-item" onClick={handleCreatePlan}><IoAddOutline /> New</div>
-              <div className="sub-item"><IoCreateOutline /> Update</div>
-              <div className="sub-item"><IoRepeatOutline /> Frequency</div>
-              <div className="sub-item"><IoCalendarOutline /> Long Term</div>
-              <div className="sub-item"><IoCalendarOutline /> Event</div>
+              <div className="sub-item" onClick={handleCreatePlan}>
+                <span class="material-symbols-outlined">add_notes</span>
+                New
+              </div>
+              <div className="sub-item">
+                <span className="material-symbols-outlined">edit</span>
+                Update
+              </div>
+              <div className="sub-item">
+                <span className="material-symbols-outlined">repeat</span>
+                Frequency
+              </div>
+              <div className="sub-item">
+                <span className="material-symbols-outlined">calendar_view_day</span>
+                Long Term
+              </div>
+              <div className="sub-item">
+                <span class="material-symbols-outlined">event</span>
+                Event
+              </div>
             </div>
           )}
 
-          <div className="item" onClick={handleProfile}><IoPersonOutline /> <span>Profile</span></div>
-          <div className="item" onClick={handleLogout}><IoLogOutOutline /> <span>Logout</span></div>
+          <div className="item" onClick={handleProfile}>
+            <span className="material-symbols-outlined">article_person</span>   
+            <span>Profile</span>
+          </div>
+          <div className="item" onClick={handleLogout}>
+            <span className="material-symbols-outlined">logout</span>
+            <span>Logout</span>
+          </div>
         </nav>
       </div>
     </>

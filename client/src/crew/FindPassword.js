@@ -1,4 +1,3 @@
-import { IoMail } from 'react-icons/io5';
 import { useState } from 'react';
 import '../styles/login.scss';
 
@@ -74,7 +73,8 @@ const FindPassword = () => {
         </div>
 
         {/* 메일 전송 버튼 버튼 */}
-        <button type="submit" className="login-btn">SEND MAIL <IoMail/></button>
+        <button type="submit" className="login-btn">SEND MAIL <span className="material-symbols-outlined">forward_to_inbox</span>
+        </button>
       </form>
     </div>
     </>
