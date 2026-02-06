@@ -19,8 +19,9 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
   // Plan 메뉴의 열림/닫힘 상태 관리
   const [isPlanOpen, setIsPlanOpen] = useState(true);
 
-  const handleHome = () => {
-    navigate('/');
+  // 계획 생성 페이지로 이동
+  const handleCreatePlan = () => {
+    navigate('/new')
   }
 
   // 프로필 화면 이동
@@ -88,7 +89,7 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
           {/* sPlanOpen이 true일 때 서브 메뉴를 보여줌 */}
           {isPlanOpen && (
             <div className="sub-items">
-              <div className="sub-item" onClick={handleHome}><IoAddOutline /> New</div>
+              <div className="sub-item" onClick={handleCreatePlan}><IoAddOutline /> New</div>
               <div className="sub-item"><IoCreateOutline /> Update</div>
               <div className="sub-item"><IoRepeatOutline /> Frequency</div>
               <div className="sub-item"><IoCalendarOutline /> Long Term</div>

@@ -8,6 +8,7 @@ import FindPassword from './crew/FindPassword';
 import ResetPassword from './crew/ResetPassword';
 import Profile from './crew/Profile';
 import Date from './plan/Date';
+import New from './plan/New';
 import DarkMode from './components/DarkMode';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
@@ -71,6 +72,7 @@ function App() {
           {/* 로그인 필수 */}
           <Route element={<ProtectedRoute isLogin={isLogin} />}>
             <Route path="/profile" element={<Profile crew={crew} setCrew={setCrew} setIsLogin={setIsLogin} />} />
+            <Route path="/new" element={<New crew={crew} />} />
           </Route>
 
           {/* 404 */}

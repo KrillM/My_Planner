@@ -1,42 +1,41 @@
-import { IoDocumentTextOutline, IoSquareOutline, IoCheckboxOutline, IoNotificationsOutline } from 'react-icons/io5';
 import '../styles/date.scss';
 
 const Date = () => {
 
   // 임시 데이터
-  const schedules = [
-    { id: 1, time: '07:00 ~ 07:30', title: '아침 식사', completed: true },
-    { id: 2, time: '08:00 ~ 08:30', title: 'VOC 파악', completed: true },
-    { id: 3, time: '10:00', title: '티 타임', completed: true },
-    { id: 4, time: '12:00 ~ 13:00', title: '점심 식사', completed: false },
-    { id: 5, time: '오후', title: '업무', completed: false },
-    { id: 6, time: '18:00 ~19:00', title: '저녁 식사', completed: false },
-    { id: 7, time: '저녁', title: '코딩 학습', completed: false, hasIcon: true },
-    { id: 8, time: '20:00 ~ 21:00', title: '운동', completed: false },
+  const toDoList = [
+    { toDoId: 1, time: '07:00 ~ 07:30', content: '아침 식사', isDone: true },
+    { toDoId: 2, time: '08:00 ~ 08:30', content: 'VOC 파악', isDone: true },
+    { toDoId: 3, time: '10:00', content: '티 타임', isDone: true },
+    { toDoId: 4, time: '12:00 ~ 13:00', content: '점심 식사', isDone: false },
+    { toDoId: 5, time: '오후', content: '업무', isDone: false },
+    { toDoId: 6, time: '18:00 ~19:00', content: '저녁 식사', isDone: false },
+    { toDoId: 7, time: '저녁', content: '코딩 학습', isDone: false, hasIcon: true },
+    { toDoId: 8, time: '20:00 ~ 21:00', content: '운동', isDone: false },
   ];
 
   return (
     <div className="date-container">
       <div className="planner-header">
-        <h1 className="date-title">Today</h1>
-        <IoDocumentTextOutline className="doc-icon"/>
+        <h1 className="date-content">Today</h1>
+        <span className="material-symbols-outlined doc-icon">description</span>
       </div>
 
-      <div className="schedule-list">
-        {schedules.map((item) => (
-          <div key={item.id} className="schedule-item">
-            <div className="item-content">
-              <span className="item-time">{item.time}</span>
-              <div className="title-row">
-                <span className="item-title">{item.title}</span>
-                {item.hasIcon && <IoNotificationsOutline className="notif-icon" />}
+      <div className="toDo-list">
+        {toDoList.map((toDo) => (
+          <div key={toDo.toDoId} className="toDo-detail">
+            <div className="toDo-content">
+              <span className="toDo-time">{toDo.time}</span>
+              <div className="content-row">
+                <span className="toDo-content">{toDo.content}</span>
+                {toDo.hasIcon && <span class="material-symbols-outlined notif-icon">notifications</span>}
               </div>
             </div>
-            <div className="item-checkbox">
-              {item.completed ? (
-                <IoCheckboxOutline className="check-icon active" />
+            <div className="toDo-checkbox">
+              {toDo.isDone ? (
+                <span className="material-symbols-outlined check-icon active">select_check_box</span>
               ) : (
-                <IoSquareOutline className="check-icon" />
+                <span className="material-symbols-outlined check-icon">check_box_outline_blank</span>
               )}
             </div>
           </div>

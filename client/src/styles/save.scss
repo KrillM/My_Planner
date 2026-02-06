@@ -30,9 +30,14 @@ $delete-bg: mp.$warn-color;
   @include base-btn($findBtn-bg);
 }
 
+.temp-btn {
+  @include base-btn($editBtn-bg);
+  margin-top: 5px;
+}
+
 .leave-btn {
   @include base-btn($delete-bg); 
-  margin-top: 5%;
+  margin-top: 5px;
   color: ivory;
 }
 
