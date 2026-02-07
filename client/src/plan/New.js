@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import "../styles/date.scss";
 import '../styles/save.scss';
 
@@ -34,7 +34,7 @@ const New = ({ crew }) => {
             <div className="toDo-content">
               <span className="toDo-time">{toDo.time}</span>
               <div className="content-row">
-                <span className="toDo-content">{toDo.content}</span>      
+                <span className="toDo-detail-content">{toDo.content}</span>      
               </div>
             </div>
             <div className="toDo-checkbox">
