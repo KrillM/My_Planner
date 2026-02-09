@@ -27,7 +27,7 @@ const Date = () => {
             <div className="toDo-content">
               <span className="toDo-time">{toDo.time}</span>
               <div className="content-row">
-                <span className="toDo-detail-content">{toDo.content}</span>
+                <span className="toDo-content">{toDo.content}</span>
                 {toDo.hasIcon && <span class="material-symbols-outlined notif-icon">notifications</span>}
               </div>
             </div>
