@@ -1,139 +1,178 @@
-import { useState } from "react";
-import "../styles/input.scss";
-import '../styles/save.scss';
+  import { useState, useEffect } from "react";
+  import "../styles/input.scss";
+  import '../styles/save.scss';
 
-const Input = () => {
-  const [slot, setSlot] = useState("");
-  const [start, setStart] = useState("");
-  const [end, setEnd] = useState("");
-  const [content, setContent] = useState("");
-  const [timeSlotType, setTimeSlotType] = useState("slot");
-  const [isUseTimeSlot, setIsUseTimeSlot] = useState(true);
-  const [isContentEmpty, setIsContentEmpty] = useState(false);
-  const [isWrongTimeSlot, setIsWrongTimeSlot] = useState(false);
+  const Input = () => {
+    const [slot, setSlot] = useState("slot");
+    const [start, setStart] = useState("");
+    const [end, setEnd] = useState("");
+    const [content, setContent] = useState("");
+    const [isUseTimeSlot, setIsUseTimeSlot] = useState(true);
+    const [isContentEmpty, setIsContentEmpty] = useState(false);
+    const [isWrongTimeSlot, setIsWrongTimeSlot] = useState(false);
+    const [isTimeEmpty, setIsTimeEmpty] = useState(false);
+    const [isUseAlarm, setIsUseAlarm] = useState(false);
 
-  const resetTodo = () => {
-    setSlot("slot")
-    setStart("");
-    setEnd("");
-    setContent("");
-  }
+    const resetTodo = () => {
+      setSlot("slot");
+      setIsUseTimeSlot(true);
+      setStart("");
+      setEnd("");
+      setContent("");
+      setIsContentEmpty(false);
+      setIsWrongTimeSlot(false);
+      setIsTimeEmpty(false);
+    }
 
-  const setEndTimeDefault = (start) => {
-    if(!start) return "";
+    // const setEndTimeDefault = (start) => {
+    //   if(!start) return "";
 
-    const [hour, minute] = start.split(":").map(Number);
-    let endTime = hour * 60 + minute + 60;
-    endTime %= 24 * 60;
+    //   const [hour, minute] = start.split(":").map(Number);
+    //   let endTime = hour * 60 + minute + 60;
+    //   endTime %= 24 * 60;
 
-    const setHour = String(Math.floor(endTime / 60)).padStart(2, "0");
-    const setMinutes = String(endTime % 60).padStart(2, "0");
-    return `${setHour}:${setMinutes}`
-  }
+    //   const setHour = String(Math.floor(endTime / 60)).padStart(2, "0");
+    //   const setMinutes = String(endTime % 60).padStart(2, "0");
+    //   return `${setHour}:${setMinutes}`
+    // }
 
-  // toDo 입력
-  const inputToDo = (value) => {
-    setContent(value);
+    const setTime = (start) => {
+      if(start !== "") setIsTimeEmpty(false);
+    }
 
-    if(isContentEmpty){
-      if(value.trim()!==''){
-        setIsContentEmpty(false);
+    // toDo 입력
+    const inputToDo = (value) => {
+      setContent(value);
+
+      if(isContentEmpty){
+        if(value.trim()!==''){
+          setIsContentEmpty(false);
+        }
       }
     }
-  }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    useEffect(() => {
+      setIsWrongTimeSlot(
+        start && end ? start > end : false
+      );
+    }, [start, end]);
 
-    const contentEmpty = content.trim() === "";
-    const wrongTimeSlot = (isUseTimeSlot === true && (start > end))
+    const handleSubmit = async (e) => {
+      e.preventDefault();
 
-    setIsContentEmpty(contentEmpty);
-    setIsWrongTimeSlot(wrongTimeSlot);
+      const contentEmpty = content.trim() === "";
+      const wrongTimeSlot = (isUseTimeSlot === true && end !== "" && (start > end));
+      const timeEmpty = (slot === "slot" && start === "");
 
-    if(contentEmpty || wrongTimeSlot) return;
-  }
+      setIsContentEmpty(contentEmpty);
+      setIsWrongTimeSlot(wrongTimeSlot);
+      setIsTimeEmpty(timeEmpty);
 
-  return (
-    <form className="input-wrap" onSubmit={handleSubmit}>
-      <div className="slot-row">     
-        <select
-          name="timeSlotType"
-          id="timeSlotType"
-          className="pill pill-label"
-          value={timeSlotType}
-          onChange={(e) => {
-            const val = e.target.value;
-            setTimeSlotType(val);
-            setIsUseTimeSlot(val === "slot");
-          }}
+      if(contentEmpty || wrongTimeSlot || timeEmpty) return;
+    }
+
+    return (
+      <form className="input-wrap" onSubmit={handleSubmit}>
+        <div className="slot-row">     
+          <select
+            name="timeSlotType"
+            id="timeSlotType"
+            className="pill pill-label"
+            value={slot}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSlot(val);
+              setIsUseTimeSlot(val === "slot");
+            }}
+            >
+            <option value="slot">Slot</option>
+            <option value="morning">Morning</option>
+            <option value="afternoon">Afternoon</option>
+            <option value="evening">Evening</option>
+            <option value="night">Night</option>
+          </select>
+
+          {isUseTimeSlot && (
+          <div className="time-group">
+            <input
+              className="pill pill-time"
+              type="time"
+              value={start}
+              onChange={(e) => {
+                const setEndTime = e.target.value;
+                setStart(setEndTime);
+                // setEnd(setEndTimeDefault(setEndTime))
+                setTime(setEndTime)
+              }}
+            />
+
+            <span className="tilde">~</span>
+
+            <input
+              className="pill pill-time"
+              type="time"
+              value={end}
+              onChange={(e) => {
+                setEnd(e.target.value);
+              }}
+            />
+          </div>
+          )}
+
+          <button
+            type="button"
+            className="close-btn"
+            aria-label="close"
+            onClick={() => resetTodo()}
           >
-          <option value="slot">Slot</option>
-          <option value="morning">Morning</option>
-          <option value="afternoon">Afternoon</option>
-          <option value="evening">Evening</option>
-          <option value="night">Night</option>
-        </select>
+            ×
+          </button>
+        </div>
 
-        {isUseTimeSlot && (
-        <>
+        <div className="content-row">
           <input
-            className="pill pill-time"
-            type="time"
-            value={start}
-            onChange={(e) => {
-              const setEndTime = e.target.value;
-              setStart(setEndTime);
-              setEnd(setEndTimeDefault(setEndTime))
-            }}
+            className="content-input"
+            value={content}
+            placeholder="To Do"
+            onChange={(e) => inputToDo(e.target.value)}
           />
 
-          <span className="tilde">~</span>
+          <div className="content-icons">
+            <button
+              type="button"
+              className={`icon-btn alert ${isUseAlarm ? "active" : ""}`}
+              aria-label="setAlert"
+              onClick={() => setIsUseAlarm(prev => !prev)}
+            >
+              <span className="material-symbols-outlined">
+                add_alert
+              </span>
+            </button>
+            <button type="submit" className="icon-btn add" aria-label="addTodo">
+              <span className="material-symbols-outlined">edit</span>
+            </button>
+          </div>
+        </div>
 
-          <input
-            className="pill pill-time"
-            type="time"
-            value={end}
-            onChange={(e) => {
-              setEnd(e.target.value);
-            }}
-          />
-        </>
+        {isContentEmpty && (
+          <p className="warning-message">
+            계획을 입력해주세요.
+          </p>
         )}
 
-        <button
-          type="button"
-          className="close-btn"
-          aria-label="close"
-          onClick={() => resetTodo()}
-        >
-          ×
-        </button>
-      </div>
+        {(isWrongTimeSlot && isUseTimeSlot) && (
+          <p className="warning-message">
+            종료시간은 시작시간보다 빠를 수 없습니다.
+          </p>
+        )}
 
-      <input
-        className="content-input"
-        value={content}
-        placeholder="To Do"
-        onChange={(e)=>inputToDo(e.target.value)}
-      />
+        {(isTimeEmpty && isUseTimeSlot) && (
+          <p className="warning-message">
+            시작 시간을 입력해주세요.
+          </p>
+        )}
+      </form>
+    );
+  }
 
-      {isContentEmpty && (
-        <p className="warning-message">
-          계획을 입력해주세요.
-        </p>
-      )}
-
-      {isWrongTimeSlot && (
-        <p className="warning-message">
-          종료시간은 시작시간보다 빠를 수 없습니다.
-        </p>
-      )}
-      
-      <button type="submit" className="save-btn">SAVE</button>
-      <button type="submit" className="temp-btn">TEMP</button>
-    </form>
-  );
-}
-
-export default Input;
+  export default Input;

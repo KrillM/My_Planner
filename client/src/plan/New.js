@@ -20,10 +20,10 @@ const New = ({ crew }) => {
     <div className="date-container">
       <div className="planner-header">
         <div className="date-content">
-
+          <input className="date-detail" type="date" name="date"></input>
         </div>
         <div className="doc-icon">
-          <span className="material-symbols-outlined">calendar_month</span>
+          {/* <span className="material-symbols-outlined">calendar_month</span> */}
           <span className="material-symbols-outlined">description</span>
         </div>
       </div>
@@ -44,6 +44,9 @@ const New = ({ crew }) => {
         ))}
       </div>
       <Input />
+
+      <button type="submit" className="save-btn">SAVE</button>
+      <button type="submit" className="temp-btn">TEMP</button>
     </div>
   );
 };

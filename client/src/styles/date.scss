@@ -22,6 +22,17 @@ $font-color: mp.$font-color;
       letter-spacing: -1px;
     }
 
+    .date-detail {
+      border: 1px solid #e6e6e6;
+      background: mp.$main-bg-color;
+      color: mp.$font-color;
+      line-height: 28px;
+
+      &:focus {
+        border-color: #cfcfcf;
+      }
+    }
+
     .doc-icon {
       font-size: 1.6rem;
       color: #555;
@@ -74,6 +85,16 @@ body.dark {
     color: mp.$font-color-dark;
 
     .planner-header {
+      .date-detail { 
+        background-color: mp.$main-bg-color-dark;
+        color: mp.$font-color-dark; 
+      }
+
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1) brightness(1.8);
+        opacity: 1;
+      }
+      
       .date-title { color: mp.$font-color-dark; }
       .doc-icon { color: mp.$font-color-dark; }
     }

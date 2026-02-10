@@ -76,21 +76,59 @@
   text-align: left;
 }
 
-.content-input {
-  margin-top: 14px;
-  margin-bottom: 14px;
-  width: 100%;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: mp.$font-color;
-  font-size: 22px;
-  font-weight: 700;
-  padding: 8px 2px;
-  border-bottom: 2px solid mp.$font-color;
+.content-row {
+  display: flex;
+  gap: 5px;
 
-  &::placeholder {
-    opacity: 0.35;
+  .content-input {
+    margin-top: 14px;
+    margin-bottom: 14px;
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: mp.$font-color;
+    font-size: 22px;
+    font-weight: 700;
+    padding: 8px 2px;
+    border-bottom: 2px solid mp.$font-color;
+
+    &::placeholder {
+      opacity: 0.35;
+    }
+  }
+
+  .content-icons {
+    display: flex;
+    gap: 5px;
+    margin-top: 14px;
+    color: mp.$font-color;
+  }
+
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 22px;
+    opacity: 0.75;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .alert {
+    color: #808080;
+
+    &.active {
+      color: mp.$warn-color;  // 알림 느낌 레드 (원하는 색으로)
+    }
+  }
+
+  .add {
+    color: mp.$crew-txt-color;
   }
 }
 
@@ -102,6 +140,11 @@ body.dark{
     color: mp.$font-color-dark;
   }
 
+  .pill-time::-webkit-calendar-picker-indicator {
+    filter: invert(1);   // ✅ 아이콘 흰색으로 뒤집기
+    opacity: 1;
+  }
+
   &:focus {
     border-color: #333;
   }
@@ -110,9 +153,48 @@ body.dark{
     color:mp.$font-color-dark;
   }
 
-  .content-input {
+  .content-row  {
     background: mp.$main-bg-color-dark;
-    color: mp.$font-color-dark;
-    border-bottom: 2px solid mp.$font-color-dark;
+
+    .content-input {
+      border-bottom: 2px solid mp.$font-color-dark;
+      color: mp.$font-color-dark;
+    }
+
+    .content-icons {
+      color: mp.$font-color-dark;
+    }
+
+    .add {
+      color: mp.$font-color-dark;
+    }
+  }
+}
+
+// 모바일 모드
+@media (max-width: 768px) {
+  .slot-row {
+    display: flex;
+    flex-wrap: wrap;   // select와 time은 줄바꿈 허용
+    gap: 6px;
+  }
+
+  .time-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+
+    flex-wrap: nowrap;   // start~end 절대 안 깨짐
+    white-space: nowrap;
+
+    .pill-time {
+      width: 92px;
+      font-size: 11px;
+    }
+  }
+
+  .close-btn {
+    width: 14px;
+    height: 14px;
   }
 }
