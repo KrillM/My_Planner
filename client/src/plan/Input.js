@@ -2,7 +2,7 @@
   import "../styles/input.scss";
   import '../styles/save.scss';
 
-  const Input = () => {
+  const Input = ({ addTodo }) => {
     const [slot, setSlot] = useState("slot");
     const [start, setStart] = useState("");
     const [end, setEnd] = useState("");
@@ -69,6 +69,12 @@
       setIsTimeEmpty(timeEmpty);
 
       if(contentEmpty || wrongTimeSlot || timeEmpty) return;
+
+      // 여기서 부모(New)의 리스트에 추가
+      addTodo?.({ slot, start, end, content: content.trim(), isUseAlarm });
+
+      // 입력창 초기화
+      resetTodo();
     }
 
     return (

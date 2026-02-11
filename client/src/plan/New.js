@@ -1,20 +1,32 @@
-import { useMemo } from "react";
+import { useState } from "react";
 import Input from "./Input";
 import "../styles/date.scss";
 
 const New = ({ crew }) => {
 
-  const toDoList = useMemo(
-    () => [
-      { toDoId: 1, time: "07:00 ~ 07:30", content: "아침 식사" },
-      { toDoId: 2, time: "08:00 ~ 09:30", content: "독서 <자유론>" },
-      { toDoId: 3, time: "오전", content: "장보기" },
-      { toDoId: 4, time: "13:00 ~ 14:00", content: "점심 - 오리지널 까르보나라" },
-      { toDoId: 5, time: "오후", content: "개인 프로젝트 - 검색 기능 구현" },
-      { toDoId: 6, time: "18:00 ~ 20:00", content: "한강 공원 러닝" },
-    ],
-    []
-  );
+  const [toDoList, setToDoList] = useState([]);
+
+  const handleAddTodo = ({ slot, start, end, content, isUseAlarm }) => {
+    const newId =
+      toDoList.length === 0 ? 1 : Math.max(...toDoList.map((t) => t.toDoId)) + 1;
+
+    const time =
+      slot === "slot"
+        ? `${start}${end ? ` ~ ${end}` : ""}`
+        : slot === "morning" ? "오전"
+        : slot === "afternoon" ? "오후"
+        : slot === "evening" ? "저녁"
+        : "밤";
+
+    const newTodo = {
+      toDoId: newId,
+      time,
+      content,
+      isUseAlarm,
+    };
+
+    setToDoList((prev) => [...prev, newTodo]);
+  };
 
   return (
     <div className="date-container">
@@ -43,7 +55,7 @@ const New = ({ crew }) => {
           </div>
         ))}
       </div>
-      <Input />
+      <Input addTodo={handleAddTodo}/>
 
       <button type="submit" className="save-btn">SAVE</button>
       <button type="submit" className="temp-btn">TEMP</button>

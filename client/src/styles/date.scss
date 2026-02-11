@@ -27,6 +27,7 @@ $font-color: mp.$font-color;
       background: mp.$main-bg-color;
       color: mp.$font-color;
       line-height: 28px;
+      border-radius: 999px;
 
       &:focus {
         border-color: #cfcfcf;
