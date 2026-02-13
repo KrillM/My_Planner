@@ -85,6 +85,10 @@ body.dark {
     background-color: mp.$main-bg-color-dark;
     color: mp.$font-color-dark;
 
+    .date-content{
+      color: mp.$font-color-dark;
+    }
+
     .planner-header {
       .date-detail { 
         background-color: mp.$main-bg-color-dark;
