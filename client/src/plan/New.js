@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Input from "./Input";
+import ModalMemo from "../modals/ModalMemo";
 import "../styles/date.scss";
 
 const New = ({ crew }) => {
@@ -28,6 +29,17 @@ const New = ({ crew }) => {
     setToDoList((prev) => [...prev, newTodo]);
   };
 
+  // 메모 모달창 상태
+  const [isMemoModalOpen, setIsMemoModalOpen] = useState(false);
+
+  // 메모 모달창 동작
+  const openMemoModal = () => setIsMemoModalOpen(true);
+
+  // 완료 모달 확인 버튼 눌렀을 때만 로그아웃/이동
+  const handleSaveMemo = () => {
+    setIsMemoModalOpen(false);
+  };
+
   return (
     <div className="date-container">
       <div className="planner-header">
@@ -36,7 +48,7 @@ const New = ({ crew }) => {
         </div>
         <div className="doc-icon">
           {/* <span className="material-symbols-outlined">calendar_month</span> */}
-          <span className="material-symbols-outlined">description</span>
+          <span className="material-symbols-outlined" onClick={openMemoModal}>description</span>
         </div>
       </div>
 
@@ -59,6 +71,8 @@ const New = ({ crew }) => {
 
       <button type="submit" className="save-btn">SAVE</button>
       <button type="submit" className="temp-btn">TEMP</button>
+
+      <ModalMemo open={isMemoModalOpen} onConfirm={handleSaveMemo}/>
     </div>
   );
 };

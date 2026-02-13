@@ -18,17 +18,69 @@ $font-color: mp.$font-color;
 }
 
 .modal {
-  width: max($max-width);
+  width: 85%;
+  max-width: $max-width;
   background: $bg-color;
   border-radius: 12px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
   padding: 42px 28px 28px;
+  position: relative;
 }
+
+  .modal-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    font-weight: 300;
+    color: $font-color;
+    cursor: pointer;
+    line-height: 1;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.2);
+      color: $warn-color; // 호버 시 강조색(경고색)으로 변경
+    }
+  }
 
 .modal-body {
   display: flex;
   justify-content: center;
   text-align: center;
+
+  .editor-wrap {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-align: left;
+
+    .toastui-editor-defaultUI {
+      width: 100% !important;
+      min-width: 0 !important;
+      border: none !important;
+    }
+
+    .toastui-editor-defaultUI-toolbar {
+      width: 100% !important;
+      min-width: 0 !important;
+      flex-wrap: wrap !important; 
+      display: flex !important;
+    }
+
+    .toastui-editor-main {
+      width: 100% !important;
+      min-width: 0 !important;
+      
+      .toastui-editor-main-container {
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+    }
+  }
 }
 
 .modal-text {
@@ -90,5 +142,25 @@ body.dark {
     // 경고 버튼은 빨강 유지하되 글자색만 다크에 맞게
     background: mp.$warn-color;
     color: mp.$font-color-dark;
+  }
+
+  .editor-wrap {
+    border: 1px solid #444 !important; 
+    background-color: #1e1e1e; 
+
+    .toastui-editor-defaultUI {
+      background-color: transparent;
+      border: none !important;
+    }
+
+    .toastui-editor-toolbar {
+      border-bottom: 1px solid #333 !important;
+      background-color: #2d2d2d !important;
+    }
+  }
+
+  .modal-close-btn {
+    color: mp.$font-color-dark;
+    &:hover { color: mp.$warn-color; }
   }
 }
