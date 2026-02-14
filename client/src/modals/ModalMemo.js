@@ -4,7 +4,7 @@ import "../styles/modal.scss";
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
 
-function ModalMemo({ open, onConfirm }) {
+function ModalMemo({ open, onConfirm, onSave }) {
   const editorRef = useRef();
   const [content, setContent] = useState(" ");
 
@@ -33,6 +33,7 @@ function ModalMemo({ open, onConfirm }) {
     const data = editorRef.current.getInstance().getHTML();
     setContent(data);
     console.log(data);
+    onSave?.(data);
     onConfirm();
   };
 

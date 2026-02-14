@@ -35,9 +35,18 @@ const New = ({ crew }) => {
   // 메모 모달창 동작
   const openMemoModal = () => setIsMemoModalOpen(true);
 
-  // 완료 모달 확인 버튼 눌렀을 때만 로그아웃/이동
-  const handleSaveMemo = () => {
+  // 메모 내용
+  const [memo, setMemo] = useState("");
+
+  const handleCloseMemoModal = (data) => {
     setIsMemoModalOpen(false);
+  };
+
+  // 메모 내용 저장
+  const handleSaveMemo = (data) => {
+    setMemo(data);
+    setIsMemoModalOpen(false);
+    console.log("memo: ", data);
   };
 
   return (
@@ -72,7 +81,7 @@ const New = ({ crew }) => {
       <button type="submit" className="save-btn">SAVE</button>
       <button type="submit" className="temp-btn">TEMP</button>
 
-      <ModalMemo open={isMemoModalOpen} onConfirm={handleSaveMemo}/>
+      <ModalMemo open={isMemoModalOpen} onConfirm={handleCloseMemoModal} onSave={handleSaveMemo}/>
     </div>
   );
 };
