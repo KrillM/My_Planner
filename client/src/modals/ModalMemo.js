@@ -6,7 +6,7 @@ import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
 
 function ModalMemo({ open, onConfirm }) {
   const editorRef = useRef();
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState(" ");
 
   useEffect(() => {
     if (!open) return;
@@ -38,39 +38,39 @@ function ModalMemo({ open, onConfirm }) {
 
   return (
     <div className="modal-overlay">
-        <div className="modal">
-            <button
-                type="button"
-                className="modal-close-btn"
-                aria-label="close"
-                onClick={onConfirm}
-            >
-                ×
-            </button>
+      <div className="modal">
+        <button
+          type="button"
+          className="modal-close-btn"
+          aria-label="close"
+          onClick={onConfirm}
+        >
+          ×
+        </button>
 
-            <div className="modal-body">
-                  <div className="editor-wrap">
-                    <Editor
-                        initialValue={content}
-                        previewStyle="vertical"
-                        height="300px"
-                        initialEditType="wysiwyg"
-                        theme={isDark ? 'dark' : ''}
-                        useCommandShortcut={true}
-                        hideModeSwitch={true}   // Markdown/WYSIWYG 스위치 제거
-                        toolbarItems={[
-                            ['bold', 'ul', 'ol', 'table', 'image', 'link'],
-                        ]}
-                        ref={editorRef}
-                    />
-                </div>
-            </div>
-            <div className="modal-actions">
-                <button type="button" className="modal-btn return" onClick={handleSave}>
-                    SAVE
-                </button>
-            </div>
+        <div className="modal-body">
+          <div className="editor-wrap">
+            <Editor
+              initialValue={content}
+              previewStyle="tab"
+              height="300px"
+              initialEditType="wysiwyg"
+              theme={isDark ? 'dark' : ''}
+              useCommandShortcut={true}
+              hideModeSwitch={true}
+              toolbarItems={[
+                ['bold', 'task', 'ul', 'ol' ],
+              ]}
+              ref={editorRef}
+            />
+          </div>
         </div>
+        <div className="modal-actions">
+          <button type="button" className="modal-btn return" onClick={handleSave}>
+            SAVE
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
