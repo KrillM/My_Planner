@@ -27,11 +27,24 @@ $font-color: mp.$font-color;
       background: mp.$main-bg-color;
       color: mp.$font-color;
       line-height: 28px;
+      width: 160px;
       border-radius: 999px;
+      text-align: center;
 
       &:focus {
         border-color: #cfcfcf;
       }
+    }
+
+    .hidden-date {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+
+      width: 0;
+      height: 0;
+      border: 0;
+      padding: 0;
     }
 
     .doc-icon {

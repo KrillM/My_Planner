@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Input from "./Input";
 import ModalMemo from "../modals/ModalMemo";
 import "../styles/date.scss";
@@ -49,14 +49,49 @@ const New = ({ crew }) => {
     console.log("memo: ", data);
   };
 
+  const calendarRef = useRef(null);
+
+  // 날짜 설정
+  const [year, setYear] = useState("");
+  const [month, setMonth] = useState("");
+  const [day, setDay] = useState("");
+  const [dateSet, setDateSet] = useState("날짜를 달력에서 선택하세요.");
+
   return (
     <div className="date-container">
       <div className="planner-header">
         <div className="date-content">
-          <input className="date-detail" type="date" name="date"></input>
+          <input
+            className="date-detail"
+            type="text"
+            name="date"
+            value={dateSet}
+            readOnly
+          />
         </div>
         <div className="doc-icon">
-          {/* <span className="material-symbols-outlined">calendar_month</span> */}
+          <input 
+            ref={calendarRef} 
+            type="date" 
+            name="date" 
+            className="hidden-date" 
+            onChange={(e) => {
+            const value = e.target.value; // "2026-02-15"
+            if (!value) return;
+            const [y, m, d] = value.split("-");
+            setYear(y);
+            setMonth(m);
+            setDay(d);
+            setDateSet(y+"년 "+m+"월 "+d+"일");
+          }}
+          />
+          <span
+            className="material-symbols-outlined"
+            onClick={() => calendarRef.current?.showPicker()}
+            style={{ cursor: "pointer" }}
+          >
+            calendar_month
+          </span>
           <span className="material-symbols-outlined" onClick={openMemoModal}>description</span>
         </div>
       </div>
