@@ -97,6 +97,13 @@ const New = ({ crew }) => {
     setSelectedTodoID(null);
   };
 
+  // toDo 삭제
+  const removeTodo = (todoId) => {
+    setToDoList(prev =>
+      prev.filter(t => t.toDoId !== todoId)
+    );
+  }
+
   // 저장
   const handleSubmit = (isTemp) => {
     setIsTemporary(isTemp);
@@ -180,11 +187,16 @@ const New = ({ crew }) => {
 
                 <div className="toDo-checkbox">
                   <span
-                    className="material-symbols-outlined"
+                    className="material-symbols-outlined toDo-checkbox-detail"
                     onClick={() => showUpdateTodo(toDo)}
-                    style={{ cursor: "pointer" }}
                   >
                     edit
+                  </span>
+                  <span 
+                    className="material-symbols-outlined toDo-checkbox-detail"
+                    onClick={() => removeTodo(toDo.toDoId)}
+                  >
+                    delete
                   </span>
                 </div>
               </div>

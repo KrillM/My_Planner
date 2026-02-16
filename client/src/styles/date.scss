@@ -99,6 +99,11 @@ $font-color: mp.$font-color;
         margin-top: 5px;
         text-align: left;
       }
+
+      .toDo-checkbox-detail{
+        margin-left: 5px;
+        cursor: pointer;
+      }
     }
   }
 }
