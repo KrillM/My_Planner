@@ -1,11 +1,14 @@
 import { useState, useRef } from "react";
+import { useNavigate } from 'react-router-dom';
 import InputTodo from "./InputTodo";
 import ModalMemo from "../modals/ModalMemo";
 import UpdateTodo from "./UpdateTodo";
+import ModalMessage from '../modals/ModalMessage';
 import "../styles/date.scss";
 
 const New = ({ crew }) => {
-
+  const navigate = useNavigate();
+  
   const [toDoList, setToDoList] = useState([]);
   const [isTodoListNull, setIsTodoListNull] = useState(false);
   const [isUpdateInputOpen, setIsUpdateInputOpen] = useState(false);
@@ -129,10 +132,12 @@ const New = ({ crew }) => {
     const addPlan = {year, month, day, isTemporary, isUseDDay, toDoList, memo};
 
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/plan/new", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(addPlan),
       });
@@ -140,10 +145,21 @@ const New = ({ crew }) => {
       const data = await res.json();
       console.log("서버 응답:", data);
 
+      setResultMessage(data.message);
+      setIsResultModalOpen(true);
     } catch (err) {
       console.error("전송 실패:", err);
     }
   }
+
+  // 메시지 모달 창
+  const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+  const [resultMessage, setResultMessage] = useState("");
+
+  const handleResultConfirm = () => {
+    setIsResultModalOpen(false);
+    // navigate("/", { replace: true });
+  };
 
   return (
     <div className="date-container">
@@ -157,7 +173,7 @@ const New = ({ crew }) => {
             readOnly
           />
           <div 
-            className="set-d-day" 
+            className="set-toggle" 
             onClick={() => setIsUseDDay(prev => !prev)}
             style={{
               cursor: "pointer",
@@ -256,6 +272,7 @@ const New = ({ crew }) => {
       <button type="submit" className="temp-btn" onClick={()=>handleSubmit("Y")}>TEMP</button>
 
       <ModalMemo open={isMemoModalOpen} onConfirm={handleCloseMemoModal} onSave={handleSaveMemo}/>
+      <ModalMessage open={isResultModalOpen} message={resultMessage} onConfirm={handleResultConfirm} />
     </div>
   );
 };

@@ -275,10 +275,10 @@ const editProfile = async (req, res) => {
     const uploadedImage = req.file ? req.file.filename : null;
     const crewId = req.user.crewId;
 
-    // 현재 사용자 정보 조회 (기존 이미지 비교용)
+    // 현재 사용자 정보 조회
     const crew = await Crew.findOne({ where: { crewId } });
     if (!crew) {
-      return res.status(404).json({ message: "유저를 찾을 수 없습니다." });
+      return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
 
     const updateData = {
