@@ -19,6 +19,7 @@ function App() {
   const [message, setMessage] = useState("")
   const [isLogin, setIsLogin] = useState(false);
   const [crew, setCrew] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [isDark, setIsDark] = useState(false);
 
   useEffect(()=>{
@@ -36,7 +37,8 @@ function App() {
     const token = localStorage.getItem('token');
     const crewInfo = localStorage.getItem('crew');
 
-    if (token) setIsLogin(true);
+    setIsLogin(!!token);
+    setAuthChecked(true);
     if(crewInfo) setCrew(JSON.parse(crewInfo));
   }, []);
 
@@ -70,9 +72,9 @@ function App() {
           <Route path="/resetpassword" element={<ResetPassword />} />
           
           {/* 로그인 필수 */}
-          <Route element={<ProtectedRoute isLogin={isLogin} />}>
+          <Route element={<ProtectedRoute isLogin={isLogin} authChecked={authChecked}/>}>
             <Route path="/profile" element={<Profile crew={crew} setCrew={setCrew} setIsLogin={setIsLogin} />} />
-            <Route path="/new" element={<New crew={crew} />} />
+            <Route path="/new" element={<New />} />
           </Route>
 
           {/* 404 */}

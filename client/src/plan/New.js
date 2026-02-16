@@ -6,7 +6,7 @@ import UpdateTodo from "./UpdateTodo";
 import ModalMessage from '../modals/ModalMessage';
 import "../styles/date.scss";
 
-const New = ({ crew }) => {
+const New = () => {
   const navigate = useNavigate();
   
   const [toDoList, setToDoList] = useState([]);
@@ -98,6 +98,8 @@ const New = ({ crew }) => {
     );
 
     setSelectedTodoID(null);
+    setIsUpdateInputOpen(false);
+    setIsButtonClickedWhenUpdateInputButtonOpen(false); 
   };
 
   // toDo 삭제
