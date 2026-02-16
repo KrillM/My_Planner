@@ -1,11 +1,15 @@
 import { useState, useRef } from "react";
-import Input from "./Input";
+import InputTodo from "./InputTodo";
 import ModalMemo from "../modals/ModalMemo";
+import UpdateTodo from "./UpdateTodo";
 import "../styles/date.scss";
 
 const New = ({ crew }) => {
 
   const [toDoList, setToDoList] = useState([]);
+  const [isTodoListNull, setIsTodoListNull] = useState(false);
+  const [isUpdateInputOpen, setIsUpdateInputOpen] = useState(false);
+  const [isButtonClickedWhenUpdateInputButtonOpen, setIsButtonClickedWhenUpdateInputButtonOpen] = useState(false);
 
   const handleAddTodo = ({ slot, start, end, content, isUseAlarm }) => {
     const newId =
@@ -27,6 +31,7 @@ const New = ({ crew }) => {
     };
 
     setToDoList((prev) => [...prev, newTodo]);
+    setIsTodoListNull(false);
   };
 
   // 메모 모달창 상태
@@ -46,23 +51,78 @@ const New = ({ crew }) => {
   const handleSaveMemo = (data) => {
     setMemo(data);
     setIsMemoModalOpen(false);
-    console.log("memo: ", data);
   };
 
   const calendarRef = useRef(null);
 
   // 날짜 설정
+  const isDateNotSet = "날짜를 달력에서 선택하세요.";
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
   const [day, setDay] = useState("");
-  const [dateSet, setDateSet] = useState("날짜를 달력에서 선택하세요.");
+  const [dateSet, setDateSet] = useState(isDateNotSet);
+  const [isDateEmpty, setIsDateEmpty] = useState(false);
+
+  // 임시 저장 판단
+  const [isTemporary, setIsTemporary] = useState("N");
+
+  // 일정 수정
+  const [selectedTodoID, setSelectedTodoID] = useState(null);
+
+  const showUpdateTodo = (todo) => {
+    setSelectedTodoID(prev =>
+      prev === todo.toDoId ? null : todo.toDoId
+    );
+
+    setIsUpdateInputOpen(true);
+  }
+
+  const updateTodo = ({ toDoId, slot, start, end, content, isUseAlarm }) => {
+    const time =
+      slot === "slot"
+        ? `${start}${end ? ` ~ ${end}` : ""}`
+        : slot === "morning" ? "오전"
+        : slot === "afternoon" ? "오후"
+        : slot === "evening" ? "저녁"
+        : "밤";
+
+    setToDoList(prev =>
+      prev.map(t =>
+        t.toDoId === toDoId
+          ? { ...t, time, content, isUseAlarm, slot }
+          : t
+      )
+    );
+
+    setSelectedTodoID(null);
+  };
+
+  // 저장
+  const handleSubmit = (isTemp) => {
+    setIsTemporary(isTemp);
+
+    if(dateSet === isDateNotSet){
+      setIsDateEmpty(true);
+      return;
+    }
+
+    if(toDoList.length === 0){
+      setIsTodoListNull(true);
+      return;
+    }
+
+    if(isUpdateInputOpen){
+      setIsButtonClickedWhenUpdateInputButtonOpen(true);
+      return;
+    }
+  }
 
   return (
     <div className="date-container">
       <div className="planner-header">
         <div className="date-content">
           <input
-            className="date-detail"
+            className={`date-detail ${isDateEmpty ? "icon-error" : ""}`}
             type="text"
             name="date"
             value={dateSet}
@@ -76,19 +136,19 @@ const New = ({ crew }) => {
             name="date" 
             className="hidden-date" 
             onChange={(e) => {
-            const value = e.target.value; // "2026-02-15"
+            const value = e.target.value;
             if (!value) return;
             const [y, m, d] = value.split("-");
             setYear(y);
             setMonth(m);
             setDay(d);
             setDateSet(y+"년 "+m+"월 "+d+"일");
+            setIsDateEmpty(false);
           }}
           />
           <span
-            className="material-symbols-outlined"
+            className={`material-symbols-outlined ${isDateEmpty ? "icon-error" : ""}`}
             onClick={() => calendarRef.current?.showPicker()}
-            style={{ cursor: "pointer" }}
           >
             calendar_month
           </span>
@@ -98,23 +158,56 @@ const New = ({ crew }) => {
 
       <div className="toDo-list">
         {toDoList.map((toDo) => (
-          <div key={toDo.toDoId} className="toDo-detail">
-            <div className="toDo-content">
-              <span className="toDo-time">{toDo.time}</span>
-              <div className="content-row">
-                <span className="toDo-content">{toDo.content}</span>      
+          <div key={toDo.toDoId}>
+            {selectedTodoID === toDo.toDoId ? (
+              <UpdateTodo
+                todo={toDo}
+                updateTodo={updateTodo}
+                onCancel={() => {
+                  setSelectedTodoID(null);
+                  setIsUpdateInputOpen(false);
+                }}
+              />
+            ) : (
+              <div className="toDo-detail">
+                <div className="toDo-content">
+                  <span className="toDo-time">{toDo.time}</span>
+                  <div className="content-row">
+                    <span className="toDo-content">{toDo.content}</span>
+                    {toDo.isUseAlarm && <span class="material-symbols-outlined notif-icon">notifications</span>}
+                  </div>
+                </div>
+
+                <div className="toDo-checkbox">
+                  <span
+                    className="material-symbols-outlined"
+                    onClick={() => showUpdateTodo(toDo)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    edit
+                  </span>
+                </div>
               </div>
-            </div>
-            <div className="toDo-checkbox">
-              <span className="material-symbols-outlined">edit</span>
-            </div>
+            )}
           </div>
         ))}
       </div>
-      <Input addTodo={handleAddTodo}/>
+      <InputTodo addTodo={handleAddTodo}/>
 
-      <button type="submit" className="save-btn">SAVE</button>
-      <button type="submit" className="temp-btn">TEMP</button>
+      {isTodoListNull && (
+        <p className="warning-message">
+          일정이 존재하지 않습니다. 일정을 등록해주세요.
+        </p>
+      )}
+
+      {(isUpdateInputOpen && isButtonClickedWhenUpdateInputButtonOpen ) && (
+        <p className="warning-message">
+          수정 중인 일정이 있으면 저장할 수 없습니다.
+        </p>
+      )}
+
+      <button type="submit" className="save-btn" onClick={()=>handleSubmit("N")}>SAVE</button>
+      <button type="submit" className="temp-btn" onClick={()=>handleSubmit("Y")}>TEMP</button>
 
       <ModalMemo open={isMemoModalOpen} onConfirm={handleCloseMemoModal} onSave={handleSaveMemo}/>
     </div>

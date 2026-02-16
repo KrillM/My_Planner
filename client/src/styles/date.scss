@@ -55,6 +55,10 @@ $font-color: mp.$font-color;
         
       &:hover { color: $font-color; }
     }
+
+    .icon-error{
+      color: mp.$warn-color;
+    }
   }
 
   .toDo-list {
@@ -87,6 +91,13 @@ $font-color: mp.$font-color;
         font-size: 1.5rem;
         cursor: pointer;
         &.active { color: #333; }
+      }
+
+      .warning-message {
+        color: mp.$warn-color;
+        font-size: 15px;
+        margin-top: 5px;
+        text-align: left;
       }
     }
   }

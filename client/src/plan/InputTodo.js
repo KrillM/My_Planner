@@ -2,7 +2,7 @@
   import "../styles/input.scss";
   import '../styles/save.scss';
 
-  const Input = ({ addTodo }) => {
+  const InputTodo = ({ addTodo }) => {
     const [slot, setSlot] = useState("slot");
     const [start, setStart] = useState("");
     const [end, setEnd] = useState("");
@@ -181,4 +181,4 @@
     );
   }
 
-  export default Input;
+  export default InputTodo;
