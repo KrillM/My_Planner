@@ -24,6 +24,10 @@ app.use("/crew", crewRouter);
 const oauth2Router = require("./routes/oauth2");
 app.use("/api/auth", oauth2Router);  
 
+// Plan
+const planRouter =  require("./routes/plan");
+app.use("/plan", planRouter);  
+
 app.get("/", (req, res) => {
   res.send({ message: "Server and Client connected" });
 });

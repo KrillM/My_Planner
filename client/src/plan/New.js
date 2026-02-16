@@ -108,7 +108,7 @@ const New = ({ crew }) => {
   const [isUseDDay, setIsUseDDay] = useState(false);
 
   // 저장
-  const handleSubmit = (isTemp) => {
+  const handleSubmit = async (isTemp) => {
     setIsTemporary(isTemp);
 
     if(dateSet === isDateNotSet){
@@ -128,7 +128,21 @@ const New = ({ crew }) => {
 
     const addPlan = {year, month, day, isTemporary, isUseDDay, toDoList, memo};
 
+    try {
+      const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/plan/new", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(addPlan),
+      });
 
+      const data = await res.json();
+      console.log("서버 응답:", data);
+
+    } catch (err) {
+      console.error("전송 실패:", err);
+    }
   }
 
   return (
