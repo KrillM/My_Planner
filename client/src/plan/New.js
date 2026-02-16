@@ -104,6 +104,9 @@ const New = ({ crew }) => {
     );
   }
 
+  // 디데이 사용 여부
+  const [isUseDDay, setIsUseDDay] = useState(false);
+
   // 저장
   const handleSubmit = (isTemp) => {
     setIsTemporary(isTemp);
@@ -122,6 +125,10 @@ const New = ({ crew }) => {
       setIsButtonClickedWhenUpdateInputButtonOpen(true);
       return;
     }
+
+    const addPlan = {year, month, day, isTemporary, isUseDDay, toDoList, memo};
+
+
   }
 
   return (
@@ -135,6 +142,19 @@ const New = ({ crew }) => {
             value={dateSet}
             readOnly
           />
+          <div 
+            className="set-d-day" 
+            onClick={() => setIsUseDDay(prev => !prev)}
+            style={{
+              cursor: "pointer",
+              color: isUseDDay ? "#4caf50" : "#bbb"
+            }}>
+            { isUseDDay ? (
+              <span className="material-symbols-outlined">toggle_on</span>) : (
+              <span className="material-symbols-outlined">toggle_off</span>
+            )}
+            D-Day
+          </div>
         </div>
         <div className="doc-icon">
           <input 
