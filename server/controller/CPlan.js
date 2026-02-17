@@ -119,6 +119,86 @@ const createPlan = async (req, res) => {
     }
 }
 
+const getTodayPlan = async (req, res) => {
+    try {
+        const crewId = req.user.crewId;
+
+        const now = new Date();
+        const y = String(now.getFullYear());
+        const m = String(now.getMonth() + 1).padStart(2, "0");
+        const d = String(now.getDate()).padStart(2, "0");
+
+        // date 찾기
+        const date = await PlanDate.findOne({
+            where: { crewId, year: y, month: m, day: d },
+            order: [["dateId", "DESC"]],
+        });
+
+        // date 없으면 빈 데이터 반환
+        if (!date) {
+        return res.status(200).json({
+                date: { year: y, month: m, day: d },
+                memo: "",
+                toDoList: [],
+            });
+        }
+
+        // memo 찾기(있으면)
+        const memo = await DateMemo.findOne({
+            where: { crewId, dateId: date.dateId },
+            order: [["dateMemoId", "DESC"]],
+        });
+
+        // todo 리스트 찾기
+        const todos = await ToDo.findAll({
+            where: { crewId, dateId: date.dateId },
+            order: [["planBegin", "ASC"]],
+        });
+
+        // 프론트가 쓰기 편하게 변환
+        const toDoList = todos.map(t => ({
+            toDoId: t.toDoId,
+            content: t.content,
+            isUseAlarm: t.isUseAlarm === "Y",
+            isDone: t.isDone === "Y",
+            time: formatTimeLabel(t.isUseTimeSlot, t.planBegin, t.planEnd),
+        }));
+
+        return res.status(200).json({
+            date: { year: date.year, month: date.month, day: date.day },
+            memo: memo?.content ?? "",
+            toDoList,
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "일정 조회 중 오류" });
+        }
+    };
+
+    // 시간 문자열 만들기: "07:00 ~ 07:30" 또는 "오후" 같은 라벨
+    function formatTimeLabel(isUseTimeSlot, begin, end) {
+    // Sequelize DATE는 JS Date로 들어온다고 가정
+    const b = new global.Date(begin);
+    const e = new global.Date(end);
+
+    const hhmm = (dt) =>
+        `${String(dt.getHours()).padStart(2, "0")}:${String(dt.getMinutes()).padStart(2, "0")}`;
+
+    if (isUseTimeSlot === "Y") {
+        const s = hhmm(b);
+        const t = hhmm(e);
+        return s === t ? s : `${s} ~ ${t}`;
+    }
+
+    // 슬롯일 때는 planBegin 시간으로 라벨 복원(네 createPlan에서 맵핑했던 시간 기준)
+    const hour = b.getHours();
+    if (hour === 4) return "오전";
+    if (hour === 12) return "오후";
+    if (hour === 18) return "저녁";
+    return "밤";
+}
+
 module.exports = {
-    createPlan
+    createPlan,
+    getTodayPlan
 }

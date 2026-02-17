@@ -6,6 +6,9 @@ const auth = require('../middleware/auth');
 // 일정 생성
 router.post('/new', auth, CPlan.createPlan);
 
+// 일정 조회
+router.get("/today", auth, CPlan.getTodayPlan)
+
 // 일정 수정
 
 // 일정 삭제
