@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import ModalMemoRead from "../modals/ModalMemoRead";
 import '../styles/date.scss';
 
 const DatePlan = () => {
@@ -68,11 +69,18 @@ const DatePlan = () => {
     fetchDate();
   }, []);
 
+  // 메모 useState
+  const [isMemoModalOpen, setIsMemoModalOpen] = useState(false);
+  const openMemoModal = () => setIsMemoModalOpen(true);
+  const handleCloseMemoModal = (data) => {
+    setIsMemoModalOpen(false);
+  };
+
   return (
     <div className="date-container">
       <div className="planner-header">
         <h1 className="date-content">{dateLabel}</h1>
-        <span className="material-symbols-outlined doc-icon">description</span>
+        <span className="material-symbols-outlined doc-icon" onClick={openMemoModal}>description</span>
       </div>
 
       <div className="toDo-list">
@@ -95,6 +103,8 @@ const DatePlan = () => {
           </div>
         ))}
       </div>
+
+      <ModalMemoRead open={isMemoModalOpen} close={handleCloseMemoModal} memo={memo} />
     </div>
   );
 };

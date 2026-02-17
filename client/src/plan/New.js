@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import InputTodo from "./InputTodo";
-import ModalMemo from "../modals/ModalMemo";
+import ModalMemoUpsert from "../modals/ModalMemoUpsert";
 import UpdateTodo from "./UpdateTodo";
 import ModalMessage from '../modals/ModalMessage';
 import "../styles/date.scss";
@@ -67,7 +67,7 @@ const New = () => {
   const [isDateEmpty, setIsDateEmpty] = useState(false);
 
   // 임시 저장 판단
-  const [isTemporary, setIsTemporary] = useState("N");
+  const [isTemporary, setIsTemporary] = useState("");
 
   // 일정 수정
   const [selectedTodoID, setSelectedTodoID] = useState(null);
@@ -273,7 +273,7 @@ const New = () => {
       <button type="submit" className="save-btn" onClick={()=>handleSubmit("N")}>SAVE</button>
       <button type="submit" className="temp-btn" onClick={()=>handleSubmit("Y")}>TEMP</button>
 
-      <ModalMemo open={isMemoModalOpen} onConfirm={handleCloseMemoModal} onSave={handleSaveMemo}/>
+      <ModalMemoUpsert open={isMemoModalOpen} onConfirm={handleCloseMemoModal} onSave={handleSaveMemo}/>
       <ModalMessage open={isResultModalOpen} message={resultMessage} onConfirm={handleResultConfirm} />
     </div>
   );

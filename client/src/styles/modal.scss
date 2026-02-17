@@ -27,24 +27,24 @@ $font-color: mp.$font-color;
   position: relative;
 }
 
-  .modal-close-btn {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    background: none;
-    border: none;
-    font-size: 28px;
-    font-weight: 300;
-    color: $font-color;
-    cursor: pointer;
-    line-height: 1;
-    transition: transform 0.2s ease;
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  font-weight: 300;
+  color: $font-color;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform 0.2s ease;
 
-    &:hover {
-      transform: scale(1.2);
-      color: $warn-color; // 호버 시 강조색(경고색)으로 변경
-    }
+  &:hover {
+    transform: scale(1.2);
+    color: $warn-color; // 호버 시 강조색(경고색)으로 변경
   }
+}
 
 .modal-body {
   display: flex;
@@ -116,6 +116,11 @@ $font-color: mp.$font-color;
 .modal-btn.leave {
   background: $warn-color;
   color: $bg-color;
+}
+
+.read-memo {
+  width: 100%;
+  text-align: left;
 }
 
 // 다크모드

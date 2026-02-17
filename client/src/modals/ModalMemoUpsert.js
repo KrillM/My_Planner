@@ -4,7 +4,7 @@ import "../styles/modal.scss";
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
 
-function ModalMemo({ open, onConfirm, onSave }) {
+function ModalMemoUpsert({ open, onConfirm, onSave }) {
   const editorRef = useRef();
   const [content, setContent] = useState(" ");
 
@@ -76,4 +76,4 @@ function ModalMemo({ open, onConfirm, onSave }) {
   );
 }
 
-export default ModalMemo;
+export default ModalMemoUpsert;

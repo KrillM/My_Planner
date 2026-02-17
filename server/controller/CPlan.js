@@ -39,7 +39,7 @@ const createPlan = async (req, res) => {
                 month,
                 day,
                 isUseDDay: isUseDDay ? "Y" : "N",
-                isTemporary: isTemporary ? "Y" : "N",
+                isTemporary,
                 creationTime: now,
                 modifyTime: now
             }, {transaction: transaction}
