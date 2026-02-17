@@ -110,7 +110,8 @@ const createPlan = async (req, res) => {
         }
 
         await transaction.commit();
-        return res.status(201).json({ message: "일정이 생성되었습니다.", dateId });
+        if (isTemporary === "Y") return res.status(201).json({ message: "일정이 임시 저장되었습니다.", dateId });
+        else return res.status(201).json({ message: "일정이 생성되었습니다.", dateId });
     }
     catch (error) {
         await transaction.rollback();

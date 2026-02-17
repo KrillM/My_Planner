@@ -66,9 +66,6 @@ const New = () => {
   const [dateSet, setDateSet] = useState(isDateNotSet);
   const [isDateEmpty, setIsDateEmpty] = useState(false);
 
-  // 임시 저장 판단
-  const [isTemporary, setIsTemporary] = useState("");
-
   // 일정 수정
   const [selectedTodoID, setSelectedTodoID] = useState(null);
 
@@ -112,9 +109,12 @@ const New = () => {
   // 디데이 사용 여부
   const [isUseDDay, setIsUseDDay] = useState(false);
 
+  // 임시 저장 여부
+  const submitTempRef = useRef("N");
+  
   // 저장
   const handleSubmit = async (isTemp) => {
-    setIsTemporary(isTemp);
+    submitTempRef.current = isTemp;
 
     if(dateSet === isDateNotSet){
       setIsDateEmpty(true);
@@ -131,7 +131,7 @@ const New = () => {
       return;
     }
 
-    const addPlan = {year, month, day, isTemporary, isUseDDay, toDoList, memo};
+    const addPlan = {year, month, day, isTemporary: isTemp, isUseDDay, toDoList, memo};
 
     try {
       const token = localStorage.getItem("token");
@@ -160,7 +160,15 @@ const New = () => {
 
   const handleResultConfirm = () => {
     setIsResultModalOpen(false);
-    // navigate("/", { replace: true });
+    if(submitTempRef.current === "Y") {
+      navigate("/", { replace: true });
+      return;
+    }
+    const yy = String(year).slice(-2);
+    const mm = String(month).padStart(2, "0");
+    const dd = String(day).padStart(2, "0");
+    
+    navigate(`/${yy}${mm}${dd}`, { replace: true });
   };
 
   return (
@@ -233,7 +241,7 @@ const New = () => {
                   <span className="toDo-time">{toDo.time}</span>
                   <div className="content-row">
                     <span className="toDo-content">{toDo.content}</span>
-                    {toDo.isUseAlarm && <span class="material-symbols-outlined notif-icon">notifications</span>}
+                    {toDo.isUseAlarm && <span className="material-symbols-outlined notif-icon">notifications</span>}
                   </div>
                 </div>
 
