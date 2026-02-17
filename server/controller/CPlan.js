@@ -119,14 +119,71 @@ const createPlan = async (req, res) => {
     }
 }
 
+// 오늘 일정
 const getTodayPlan = async (req, res) => {
     try {
         const crewId = req.user.crewId;
-
         const now = new Date();
         const y = String(now.getFullYear());
         const m = String(now.getMonth() + 1).padStart(2, "0");
         const d = String(now.getDate()).padStart(2, "0");
+        // date 찾기
+        const date = await PlanDate.findOne({
+            where: { crewId, year: y, month: m, day: d },
+            order: [["dateId", "DESC"]],
+        });
+        // date 없으면 빈 데이터 반환
+        if (!date) {
+        return res.status(200).json({
+                date: { year: y, month: m, day: d },
+                memo: "",
+                toDoList: [],
+            });
+        }
+        // memo 찾기(있으면)
+        const memo = await DateMemo.findOne({
+            where: { crewId, dateId: date.dateId },
+            order: [["dateMemoId", "DESC"]],
+        });
+        // todo 리스트 찾기
+        const todos = await ToDo.findAll({
+            where: { crewId, dateId: date.dateId },
+            order: [["planBegin", "ASC"]],
+        });
+        // 프론트가 쓰기 편하게 변환
+        const toDoList = todos.map(t => ({
+            toDoId: t.toDoId,
+            content: t.content,
+            isUseAlarm: t.isUseAlarm === "Y",
+            isDone: t.isDone === "Y",
+            time: formatTimeLabel(t.isUseTimeSlot, t.planBegin, t.planEnd),
+        }));
+        return res.status(200).json({
+            date: { year: date.year, month: date.month, day: date.day },
+            memo: memo?.content ?? "",
+            toDoList,
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "일정 조회 중 오류" });
+    }
+};
+
+// 다른 일정
+const getPlanByDate = async (req, res) => {
+    try {
+        const crewId = req.user.crewId;
+        const { dateKey } = req.params;
+        let y, m, d;
+        
+        if(dateKey){
+            y = "20" + dateKey.slice(0,2);
+            m = dateKey.slice(2,4);
+            d = dateKey.slice(4,6);
+        }
+        else {
+            return;
+        }
 
         // date 찾기
         const date = await PlanDate.findOne({
@@ -172,11 +229,11 @@ const getTodayPlan = async (req, res) => {
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "일정 조회 중 오류" });
-        }
-    };
+    }
+};
 
-    // 시간 문자열 만들기: "07:00 ~ 07:30" 또는 "오후" 같은 라벨
-    function formatTimeLabel(isUseTimeSlot, begin, end) {
+// 시간 문자열 만들기: "07:00 ~ 07:30" 또는 "오후" 같은 라벨
+function formatTimeLabel(isUseTimeSlot, begin, end) {
     // Sequelize DATE는 JS Date로 들어온다고 가정
     const b = new global.Date(begin);
     const e = new global.Date(end);
@@ -200,5 +257,6 @@ const getTodayPlan = async (req, res) => {
 
 module.exports = {
     createPlan,
-    getTodayPlan
+    getTodayPlan,
+    getPlanByDate
 }

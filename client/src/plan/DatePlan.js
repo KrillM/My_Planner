@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import '../styles/date.scss';
 
-const Date = () => {
+const DatePlan = () => {
 
   // 임시 데이터
   // const toDoList = [
@@ -15,39 +16,62 @@ const Date = () => {
   //   { toDoId: 8, time: '20:00 ~ 21:00', content: '운동', isDone: false, isUseAlarm: false },
   // ];
 
-    const [toDoList, setToDoList] = useState([]);
-    const [memo, setMemo] = useState("");
-    const [dateLabel, setDateLabel] = useState("Today");
+  const [toDoList, setToDoList] = useState([]);
+  const [memo, setMemo] = useState("");
+  const [dateLabel, setDateLabel] = useState("");
 
-    useEffect(() => {
-      const fetchToday = async () => {
-        try {
-          const token = localStorage.getItem("token");
-          const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/plan/today", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+  const { dateKey } = useParams();
 
-          const data = await res.json();
+  let selectedDate;
 
-          setToDoList(data.toDoList ?? []);
-          setMemo(data.memo ?? "");
+  if (dateKey) {
+    selectedDate = {
+      year: "20" + dateKey.slice(0,2),
+      month: dateKey.slice(2,4),
+      day: dateKey.slice(4,6),
+    };
+  } else {
+    const now = new Date();
+    selectedDate = {
+      year: now.getFullYear(),
+      month: String(now.getMonth()+1).padStart(2,"0"),
+      day: String(now.getDate()).padStart(2,"0")
+    };
+  }
 
-          const { year, month, day } = data.date ?? {};
-          if (year && month && day) setDateLabel(`${year}-${month}-${day}`);
-        } catch (e) {
-          console.error("일정 조회 실패:", e);
+  useEffect(() => {
+    const fetchDate = async () => {
+      try {
+        const url = dateKey ? `/plan/${dateKey}` : "/plan/today"
+        const token = localStorage.getItem("token");
+        const res = await fetch(process.env.REACT_APP_API_BASE_URL + url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+
+        setToDoList(data.toDoList ?? []);
+        setMemo(data.memo ?? "");
+
+        const { year, month, day } = data.date ?? {};
+        if (year && month && day) { 
+          if(dateKey) setDateLabel(`${year}년 ${month}월 ${day}일`);
+          else setDateLabel("Today");
         }
-      };
+      } catch (e) {
+        console.error("일정 조회 실패:", e);
+      }
+    };
 
-      fetchToday();
-    }, []);
+    fetchDate();
+  }, []);
 
   return (
     <div className="date-container">
       <div className="planner-header">
-        <h1 className="date-content">Today</h1>
+        <h1 className="date-content">{dateLabel}</h1>
         <span className="material-symbols-outlined doc-icon">description</span>
       </div>
 
@@ -75,4 +99,4 @@ const Date = () => {
   );
 };
 
-export default Date;
+export default DatePlan;

@@ -7,7 +7,7 @@ import Join from './crew/Join';
 import FindPassword from './crew/FindPassword';
 import ResetPassword from './crew/ResetPassword';
 import Profile from './crew/Profile';
-import Date from './plan/Date';
+import DatePlan from './plan/DatePlan';
 import New from './plan/New';
 import DarkMode from './components/DarkMode';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -66,7 +66,7 @@ function App() {
       <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
         <Routes>
           {/* 로그인 없이도 접근 가능 */}
-          <Route path="/" element={isLogin ? <Date /> : <Login setIsLogin={setIsLogin} setCrew={setCrew}/>} />
+          <Route path="/" element={isLogin ? <DatePlan /> : <Login setIsLogin={setIsLogin} setCrew={setCrew}/>} />
           <Route path="/join" element={<Join />} />
           <Route path="/findpassword" element={<FindPassword />} />
           <Route path="/resetpassword" element={<ResetPassword />} />
@@ -75,6 +75,7 @@ function App() {
           <Route element={<ProtectedRoute isLogin={isLogin} authChecked={authChecked}/>}>
             <Route path="/profile" element={<Profile crew={crew} setCrew={setCrew} setIsLogin={setIsLogin} />} />
             <Route path="/new" element={<New />} />
+            <Route path="/:dateKey" element={<DatePlan />} />
           </Route>
 
           {/* 404 */}
