@@ -130,7 +130,7 @@ const getTodayPlan = async (req, res) => {
         const d = String(now.getDate()).padStart(2, "0");
         // date 찾기
         const date = await PlanDate.findOne({
-            where: { crewId, year: y, month: m, day: d },
+            where: { crewId, year: y, month: m, day: d, isTemporary: "N" },
             order: [["dateId", "DESC"]],
         });
         // date 없으면 빈 데이터 반환
@@ -188,7 +188,7 @@ const getPlanByDate = async (req, res) => {
 
         // date 찾기
         const date = await PlanDate.findOne({
-            where: { crewId, year: y, month: m, day: d },
+            where: { crewId, year: y, month: m, day: d, isTemporary: "N" },
             order: [["dateId", "DESC"]],
         });
 
