@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ModalLeaveCheck from '../modals/ModalLeaveCheck';
+import ModalCheck from '../modals/ModalCheck';
 import ModalMessage from '../modals/ModalMessage';
 import '../styles/login.scss';
 import '../styles/save.scss';
@@ -250,6 +250,14 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
     navigate("/", { replace: true });
   };
 
+  const leaveMessage = (
+    <>
+      회원 탈퇴하시겠습니까?
+      <br />
+      이 작업은 되돌릴 수 없습니다.
+    </>
+  );
+
   return (
     <>
     <div className="login-container">
@@ -363,7 +371,7 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
       </form>
       <button type="button" className="leave-btn" onClick={openLeaveModal}>Leave</button>
 
-      <ModalLeaveCheck open={isLeaveModalOpen} onClose={closeLeaveModal} onConfirm={handleLeave}/>
+      <ModalCheck open={isLeaveModalOpen} onClose={closeLeaveModal} onConfirm={handleLeave} message={leaveMessage}/>
       <ModalMessage open={isResultModalOpen} message={resultMessage} onConfirm={handleResultConfirm} />
     </div>
     </>

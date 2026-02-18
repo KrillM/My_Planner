@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import InputTodo from "./InputTodo";
-import ModalMemoUpsert from "../modals/ModalMemoUpsert";
+import ModalMemoCreate from "../modals/ModalMemoCreate";
 import UpdateTodo from "./UpdateTodo";
 import ModalMessage from '../modals/ModalMessage';
 import "../styles/date.scss";
@@ -281,7 +281,7 @@ const New = () => {
       <button type="submit" className="save-btn" onClick={()=>handleSubmit("N")}>SAVE</button>
       <button type="submit" className="temp-btn" onClick={()=>handleSubmit("Y")}>TEMP</button>
 
-      <ModalMemoUpsert open={isMemoModalOpen} onConfirm={handleCloseMemoModal} onSave={handleSaveMemo}/>
+      <ModalMemoCreate open={isMemoModalOpen} onConfirm={handleCloseMemoModal} onSave={handleSaveMemo}/>
       <ModalMessage open={isResultModalOpen} message={resultMessage} onConfirm={handleResultConfirm} />
     </div>
   );

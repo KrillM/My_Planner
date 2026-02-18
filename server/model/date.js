@@ -7,7 +7,7 @@ module.exports = (sequelize) => {
     day: { type: DataTypes.INTEGER },
     month: { type: DataTypes.INTEGER },
     year: { type: DataTypes.INTEGER },
-    isUsedDay: { type: DataTypes.CHAR(1), defaultValue: 'N', allowNull: false },
+    isUseDDay: { type: DataTypes.CHAR(1), defaultValue: 'N', allowNull: false, field: "isUsedDay" },
     isTemporary: { type: DataTypes.CHAR(1), defaultValue: 'N', allowNull: false },
     creationTime: { type: DataTypes.DATE, allowNull: false },
     modifyTime: { type: DataTypes.DATE, allowNull: false }

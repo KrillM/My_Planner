@@ -4,6 +4,7 @@ import InputTodo from "./InputTodo";
 import ModalMemoUpsert from "../modals/ModalMemoUpsert";
 import UpdateTodo from "./UpdateTodo";
 import ModalMessage from '../modals/ModalMessage';
+import ModalCheck from "../modals/ModalCheck";
 import "../styles/date.scss";
 
 const Upsert = () => {
@@ -215,6 +216,23 @@ const Upsert = () => {
     navigate(`/${yy}${mm}${dd}`, { replace: true });
   };
 
+  // 경고 모달 창
+  const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
+  const openCheckModal = () => setIsCheckModalOpen(true);
+  const closeCheckModal = () => setIsCheckModalOpen(false);
+
+  const deleteMessage = (
+    <>
+      일정을 삭제하시겠습니까?
+      <br />
+      이 작업은 되돌릴 수 없습니다.
+    </>
+  );
+
+  const handleDelete = () => {
+
+  }
+
   return (
     <div className="date-container">
       <div className="planner-header">
@@ -264,6 +282,7 @@ const Upsert = () => {
             calendar_month
           </span>
           <span className="material-symbols-outlined" onClick={openMemoModal}>description</span>
+          <span className="material-symbols-outlined" onClick={openCheckModal}>delete</span>
         </div>
       </div>
 
@@ -325,8 +344,9 @@ const Upsert = () => {
       <button type="submit" className="save-btn" onClick={()=>handleSubmit("N")}>SAVE</button>
       <button type="submit" className="temp-btn" onClick={()=>handleSubmit("Y")}>TEMP</button>
 
-      <ModalMemoUpsert open={isMemoModalOpen} onConfirm={handleCloseMemoModal} onSave={handleSaveMemo}/>
+      <ModalMemoUpsert open={isMemoModalOpen} onConfirm={handleCloseMemoModal} onSave={handleSaveMemo} memo={memo}/>
       <ModalMessage open={isResultModalOpen} message={resultMessage} onConfirm={handleResultConfirm} />
+      <ModalCheck open={isCheckModalOpen} onClose={closeCheckModal} onConfirm={handleDelete} message={deleteMessage}/>
     </div>
   );
 };

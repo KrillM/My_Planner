@@ -103,10 +103,10 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
                 <span class="material-symbols-outlined">add_notes</span>
                 New
               </div>
-              <div className="sub-item">
+              {/* <div className="sub-item">
                 <span className="material-symbols-outlined">edit</span>
                 Update
-              </div>
+              </div> */}
               <div className="sub-item">
                 <span className="material-symbols-outlined">repeat</span>
                 Frequency

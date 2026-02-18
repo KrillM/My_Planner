@@ -1,38 +1,43 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import { Editor } from '@toast-ui/react-editor';
 import "../styles/modal.scss";
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
 
-function ModalMemoUpsert({ open, onConfirm, onSave }) {
+const ModalMemoUpsert = ({ open, onConfirm, onSave, memo }) => {
   const editorRef = useRef();
-  const [content, setContent] = useState(" ");
 
   useEffect(() => {
     if (!open) return;
 
-    const onKeyDown = (e) => {
-      if (e.key === "Escape") onConfirm();
+    let tries = 0;
+    const maxTries = 10;
+
+    const hydrate = () => {
+        const inst = editorRef.current?.getInstance?.();
+        if (!inst) return;
+
+        const html = (memo && memo.trim() !== "") ? memo : "<p></p>";
+        inst.setHTML(html);
+
+        tries += 1;
+        if (tries < maxTries) {
+            setTimeout(hydrate, 30);
+        }
     };
 
-    window.addEventListener("keydown", onKeyDown);
-    document.body.style.overflow = "hidden";
+    setTimeout(hydrate, 0);
 
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = "";
-    };
-  }, [open, onConfirm]);
+    return () => {};
+    }, [open, memo]);
 
   if (!open) return null;
 
-  const isDark = document.body.classList.contains('dark');
+  const isDark = document.body.classList.contains("dark");
 
   const handleSave = () => {
-    // 에디터 인스턴스에서 HTML 또는 마크다운 가져오기
-    const data = editorRef.current.getInstance().getHTML();
-    setContent(data);
-    console.log(data);
+    const inst = editorRef.current.getInstance();
+    const data = inst.getHTML();
     onSave?.(data);
     onConfirm();
   };
@@ -40,32 +45,24 @@ function ModalMemoUpsert({ open, onConfirm, onSave }) {
   return (
     <div className="modal-overlay">
       <div className="modal">
-        <button
-          type="button"
-          className="modal-close-btn"
-          aria-label="close"
-          onClick={onConfirm}
-        >
-          ×
-        </button>
+        <button type="button" className="modal-close-btn" onClick={onConfirm}>×</button>
 
         <div className="modal-body">
           <div className="editor-wrap">
             <Editor
-              initialValue={content}
+              initialValue="<p></p>"
               previewStyle="tab"
               height="300px"
               initialEditType="wysiwyg"
-              theme={isDark ? 'dark' : ''}
+              theme={isDark ? "dark" : ""}
               useCommandShortcut={true}
               hideModeSwitch={true}
-              toolbarItems={[
-                ['bold', 'task', 'ul', 'ol' ],
-              ]}
+              toolbarItems={[["bold", "task", "ul", "ol"]]}
               ref={editorRef}
             />
           </div>
         </div>
+
         <div className="modal-actions">
           <button type="button" className="modal-btn return" onClick={handleSave}>
             SAVE

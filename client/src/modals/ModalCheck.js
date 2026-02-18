@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import "../styles/modal.scss";
 
-export default function ModalLeaveCheck({ open, onClose, onConfirm }) {
+export default function ModalCheck({ open, onClose, onConfirm, message }) {
   useEffect(() => {
     if (!open) return;
 
@@ -32,9 +32,7 @@ export default function ModalLeaveCheck({ open, onClose, onConfirm }) {
       >
         <div className="modal-body">
           <p id="leave-title" className="modal-text">
-            회원 탈퇴하시겠습니까?
-            <br />
-            이 작업은 되돌릴 수 없습니다.
+            {message}
           </p>
         </div>
 
