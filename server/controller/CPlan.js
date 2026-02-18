@@ -233,6 +233,11 @@ const getPlanByDate = async (req, res) => {
     }
 };
 
+// 일정 수정 조회
+const getPlanForUpsert = async (req, res) => {
+
+}
+
 // 시간 문자열 만들기: "07:00 ~ 07:30" 또는 "오후" 같은 라벨
 function formatTimeLabel(isUseTimeSlot, begin, end) {
     // Sequelize DATE는 JS Date로 들어온다고 가정
@@ -259,5 +264,6 @@ function formatTimeLabel(isUseTimeSlot, begin, end) {
 module.exports = {
     createPlan,
     getTodayPlan,
-    getPlanByDate
+    getPlanByDate,
+    getPlanForUpsert
 }

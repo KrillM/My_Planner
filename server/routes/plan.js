@@ -12,7 +12,11 @@ router.get("/today", auth, CPlan.getTodayPlan);
 // 다른 날짜 일정 조회
 router.get("/:dateKey", auth, CPlan.getPlanByDate);
 
-// 일정 수정
+// 일정 수정 조회
+router.get("/upsert/:dateKey", auth, CPlan.getPlanForUpsert);
+
+// 일정 수정 실행
+
 
 // 일정 삭제
 

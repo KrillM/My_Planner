@@ -1,44 +1,17 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ModalMemoRead from "../modals/ModalMemoRead";
+import UpdateIcon from "./UpdateIcon";
 import '../styles/date.scss';
 
 const DatePlan = () => {
-
-  // 임시 데이터
-  // const toDoList = [
-  //   { toDoId: 1, time: '07:00 ~ 07:30', content: '아침 식사', isDone: true, isUseAlarm: false },
-  //   { toDoId: 2, time: '08:00 ~ 08:30', content: 'VOC 파악', isDone: true, isUseAlarm: false },
-  //   { toDoId: 3, time: '10:00', content: '티 타임', isDone: true, isUseAlarm: false },
-  //   { toDoId: 4, time: '12:00 ~ 13:00', content: '점심 식사', isDone: false, isUseAlarm: false },
-  //   { toDoId: 5, time: '오후', content: '업무', isDone: false, isUseAlarm: false },
-  //   { toDoId: 6, time: '18:00 ~19:00', content: '저녁 식사', isDone: false, isUseAlarm: false },
-  //   { toDoId: 7, time: '저녁', content: '코딩 학습', isDone: false, isUseAlarm: true },
-  //   { toDoId: 8, time: '20:00 ~ 21:00', content: '운동', isDone: false, isUseAlarm: false },
-  // ];
+  const navigate = useNavigate();
+  const { dateKey } = useParams();
 
   const [toDoList, setToDoList] = useState([]);
   const [memo, setMemo] = useState("");
   const [dateLabel, setDateLabel] = useState("");
-
-  const { dateKey } = useParams();
-
-  let selectedDate;
-
-  if (dateKey) {
-    selectedDate = {
-      year: "20" + dateKey.slice(0,2),
-      month: dateKey.slice(2,4),
-      day: dateKey.slice(4,6),
-    };
-  } else {
-    const now = new Date();
-    selectedDate = {
-      year: now.getFullYear(),
-      month: String(now.getMonth()+1).padStart(2,"0"),
-      day: String(now.getDate()).padStart(2,"0")
-    };
-  }
+  const [isDateExist, setIsDateExist] = useState(false);
 
   useEffect(() => {
     const fetchDate = async () => {
@@ -52,8 +25,12 @@ const DatePlan = () => {
         });
 
         const data = await res.json();
-
         setToDoList(data.toDoList ?? []);
+
+        if((data.toDoList ?? []).length > 0) setIsDateExist(true);
+        else setIsDateExist(false);
+
+        console.log(isDateExist);
         setMemo(data.memo ?? "");
 
         const { year, month, day } = data.date ?? {};
@@ -72,9 +49,29 @@ const DatePlan = () => {
   // 메모 useState
   const [isMemoModalOpen, setIsMemoModalOpen] = useState(false);
   const openMemoModal = () => setIsMemoModalOpen(true);
-  const handleCloseMemoModal = (data) => {
+  const handleCloseMemoModal = () => {
     setIsMemoModalOpen(false);
   };
+
+  const getTodayKey = () => {
+    const now = new Date();
+    const yy = String(now.getFullYear()).slice(-2);
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    return `${yy}${mm}${dd}`;
+  };
+
+  // 일정 작성 || 수정 페이지 이동
+  const move = () => {
+    console.log(dateKey);
+    if(isDateExist) {
+      if(!dateKey) navigate(`/upsert/${getTodayKey()}`);
+      else navigate(`/upsert/${dateKey}`);
+    }
+    else {
+      navigate("/new");
+    }
+  }
 
   return (
     <div className="date-container">
@@ -105,6 +102,7 @@ const DatePlan = () => {
       </div>
 
       <ModalMemoRead open={isMemoModalOpen} close={handleCloseMemoModal} memo={memo} />
+      <UpdateIcon onClick={move}/>
     </div>
   );
 };
