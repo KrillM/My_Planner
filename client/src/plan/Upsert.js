@@ -8,34 +8,41 @@ import "../styles/date.scss";
 
 const Upsert = () => {
 
-const { dateKey } = useParams();
+  const { dateKey } = useParams();
 
   useEffect(() => {
     if (!dateKey) return;
 
-    const y = "20" + dateKey.slice(0, 2);
-    const m = dateKey.slice(2, 4);
-    const d = dateKey.slice(4, 6);
-
-    setYear(y);
-    setMonth(m);
-    setDay(d);
-    setDateSet(`${y}년 ${m}월 ${d}일`);
-  }, [dateKey]);
-
-  useEffect(() => {
     const fetchExisting = async () => {
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(
-          process.env.REACT_APP_API_BASE_URL + `/plan/upsert/${dateKey}`,
+          process.env.REACT_APP_API_BASE_URL + `/plan/editpage/${dateKey}`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
+
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            if (res.status === 404) {
+            navigate("/404", { replace: true });
+            return;
+            }
+            throw new Error(errData.message || `HTTP ${res.status}`);
+        }
+
         const data = await res.json();
+        
+        const { year, month, day } = data.date ?? {};
+        if (year && month && day) {
+            setYear(String(year));
+            setMonth(String(month).padStart(2, "0"));
+            setDay(String(day).padStart(2, "0"));
+            setDateSet(`${year}년 ${String(month).padStart(2, "0")}월 ${String(day).padStart(2, "0")}일`);
+        }
 
         setToDoList(data.toDoList ?? []);
         setMemo(data.memo ?? "");
-        setIsUseDDay(!!data.isUseDDay);
+        setIsUseDDay(data.isUseDDay === "Y");
       } catch (e) {
         console.error("기존 일정 조회 실패:", e);
       }

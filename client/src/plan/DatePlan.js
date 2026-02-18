@@ -29,8 +29,7 @@ const DatePlan = () => {
 
         if((data.toDoList ?? []).length > 0) setIsDateExist(true);
         else setIsDateExist(false);
-
-        console.log(isDateExist);
+        
         setMemo(data.memo ?? "");
 
         const { year, month, day } = data.date ?? {};
@@ -63,7 +62,6 @@ const DatePlan = () => {
 
   // 일정 작성 || 수정 페이지 이동
   const move = () => {
-    console.log(dateKey);
     if(isDateExist) {
       if(!dateKey) navigate(`/upsert/${getTodayKey()}`);
       else navigate(`/upsert/${dateKey}`);

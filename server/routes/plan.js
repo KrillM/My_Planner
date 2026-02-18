@@ -13,10 +13,10 @@ router.get("/today", auth, CPlan.getTodayPlan);
 router.get("/:dateKey", auth, CPlan.getPlanByDate);
 
 // 일정 수정 조회
-router.get("/upsert/:dateKey", auth, CPlan.getPlanForUpsert);
+router.get("/editpage/:dateKey", auth, CPlan.getPlanForUpsert);
 
 // 일정 수정 실행
-
+// router.put("/upsert/:dateKey", auth, CPlan.upsertPlan);
 
 // 일정 삭제
 
