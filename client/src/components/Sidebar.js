@@ -13,6 +13,10 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
     navigate('/')
   }
 
+  const handleCalendar = () => {
+    navigate('/calendar')
+  }
+
   // 계획 생성 페이지로 이동
   const handleCreatePlan = () => {
     navigate('/new')
@@ -81,7 +85,7 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
             <span className="material-symbols-outlined">today</span>
             <span>Today</span>
           </div>
-          <div className="item">
+          <div className="item" onClick={handleCalendar}>
             <span className="material-symbols-outlined">calendar_month</span>
             <span>Calendar</span>
           </div>

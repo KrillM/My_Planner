@@ -28,6 +28,10 @@ app.use("/api/auth", oauth2Router);
 const planRouter =  require("./routes/plan");
 app.use("/plan", planRouter);  
 
+// Calendar
+const calendarRouter = require('./routes/calendar');
+app.use("/calendar", calendarRouter);
+
 app.get("/", (req, res) => {
   res.send({ message: "Server and Client connected" });
 });

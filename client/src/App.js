@@ -10,6 +10,7 @@ import Profile from './crew/Profile';
 import DatePlan from './plan/DatePlan';
 import New from './plan/New';
 import DarkMode from './components/DarkMode';
+import CalendarPage from './calendar/CalendarPage';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import ProtectedRoute from './components/ProtectedRoute';
@@ -76,6 +77,7 @@ function App() {
             <Route path="/profile" element={<Profile crew={crew} setCrew={setCrew} setIsLogin={setIsLogin} />} />
             <Route path="/new" element={<New />} />
             <Route path="/:dateKey" element={<DatePlan />} />
+            <Route path='/calendar' element={<CalendarPage />} />
           </Route>
 
           {/* 404 */}

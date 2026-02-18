@@ -1,0 +1,98 @@
+@use 'my_planner_main' as mp;
+
+.cal {
+  width: 100%;
+}
+
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20px;
+
+  button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  .cal-title {
+    font-weight: 800;
+  }
+}
+
+.cal-weekdays,
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.cal-weekdays .wd {
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.8;
+  padding: 6px 0;
+}
+
+.cal-grid {
+  gap: 6px;
+}
+
+.day {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 10px 0;
+  border-radius: 12px; // 기본 라운드
+  color: mp.$font-color;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .num {
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+  }
+}
+
+/* 다른 달 - 안 보임 */
+.day.out {
+  visibility: hidden;
+}
+
+/* 희미한 글자 - 일정 없음 */
+.day.empty {
+  font-weight: 400;
+  opacity: 0.45;
+}
+
+/* 진한 글자 - 일정 있음 */
+.day.has {
+  font-weight: 800;
+  opacity: 1;
+}
+
+/* 임시 저장 이텔릭체 */
+.day.temp {
+  font-weight: 900;
+  font-style: italic;
+  opacity: 1;
+}
+
+/* 오늘 동그란 원 */
+.day.today .num {
+  background-color: mp.$brand-color;
+}
+
+// 다크모드
+body.dark {
+  .day{
+    color: mp.$font-color-dark;
+  }
+}
