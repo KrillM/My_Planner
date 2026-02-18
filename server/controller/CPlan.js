@@ -128,6 +128,7 @@ const getTodayPlan = async (req, res) => {
         const y = String(now.getFullYear());
         const m = String(now.getMonth() + 1).padStart(2, "0");
         const d = String(now.getDate()).padStart(2, "0");
+
         // date 찾기
         const date = await PlanDate.findOne({
             where: { crewId, year: y, month: m, day: d, isTemporary: "N" },
@@ -175,20 +176,14 @@ const getPlanByDate = async (req, res) => {
     try {
         const crewId = req.user.crewId;
         const { dateKey } = req.params;
-        let y, m, d;
-        
-        if(dateKey){
-            y = "20" + dateKey.slice(0,2);
-            m = dateKey.slice(2,4);
-            d = dateKey.slice(4,6);
-        }
-        else {
-            return;
-        }
+
+        const y = "20" + dateKey.slice(0,2);
+        const m = dateKey.slice(2,4);
+        const d = dateKey.slice(4,6);
 
         // date 찾기
         const date = await PlanDate.findOne({
-            where: { crewId, year: y, month: m, day: d, isTemporary: "N" },
+            where: { crewId, year: y, month: m, day: d },
             order: [["dateId", "DESC"]],
         });
 
@@ -238,16 +233,10 @@ const getPlanForUpsert = async (req, res) => {
     try {
         const crewId = req.user.crewId;
         const { dateKey } = req.params;
-        let y, m, d;
         
-        if(dateKey){
-            y = "20" + dateKey.slice(0,2);
-            m = dateKey.slice(2,4);
-            d = dateKey.slice(4,6);
-        }
-        else {
-            return;
-        }
+        const y = "20" + dateKey.slice(0,2);
+        const m = dateKey.slice(2,4);
+        const d = dateKey.slice(4,6);
 
         // date 찾기
         const date = await PlanDate.findOne({
@@ -293,6 +282,40 @@ const getPlanForUpsert = async (req, res) => {
     }   
 }
 
+// 일정 삭제
+const deletePlan = async (req, res) => {
+    try{
+        const crewId = req.user.crewId;
+        const { dateKey } = req.params;
+
+        const y = "20" + dateKey.slice(0,2);
+        const m = dateKey.slice(2,4);
+        const d = dateKey.slice(4,6);
+
+        // date 찾기
+        const date = await PlanDate.findOne({
+            where: { crewId, year: y, month: m, day: d },
+            order: [["dateId", "DESC"]],
+        });
+
+        // date 없으면 빈 데이터 반환
+        if (!date) {
+            return res.status(404).json({ message: "존재하지 않는 일정입니다." });
+        }
+
+        const dateId = date.dateId;
+        await PlanDate.destroy({
+            where: { dateId, crewId }
+        });
+
+        return res.json({ result: true, message: '일정이 삭제되었습니다.' });
+    }
+    catch(error) {
+        console.error('Error deleting crew', error);
+        return res.status(500).send('Internal Server Error');
+    }
+}
+
 // 시간 문자열 만들기: "07:00 ~ 07:30" 또는 "오후" 같은 라벨
 function formatTimeLabel(isUseTimeSlot, begin, end) {
     // Sequelize DATE는 JS Date로 들어온다고 가정
@@ -320,5 +343,6 @@ module.exports = {
     createPlan,
     getTodayPlan,
     getPlanByDate,
-    getPlanForUpsert
+    getPlanForUpsert,
+    deletePlan
 }

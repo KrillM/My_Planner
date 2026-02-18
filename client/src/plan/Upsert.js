@@ -204,20 +204,26 @@ const Upsert = () => {
   const [resultMessage, setResultMessage] = useState("");
 
   const handleResultConfirm = () => {
-    setIsResultModalOpen(false);
-    if(submitTempRef.current === "Y") {
-      navigate("/", { replace: true });
-      return;
-    }
-    const yy = String(year).slice(-2);
-    const mm = String(month).padStart(2, "0");
-    const dd = String(day).padStart(2, "0");
-    
-    navigate(`/${yy}${mm}${dd}`, { replace: true });
+        setIsResultModalOpen(false);
+        if(isDeleteSuccess){
+            navigate("/", { replace: true });
+        }
+        else {
+            if(submitTempRef.current === "Y") {
+                navigate("/", { replace: true });
+                return;
+            }
+            const yy = String(year).slice(-2);
+            const mm = String(month).padStart(2, "0");
+            const dd = String(day).padStart(2, "0");
+            
+            navigate(`/${yy}${mm}${dd}`, { replace: true });
+        }
   };
 
   // 경고 모달 창
   const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
+  const [isDeleteSuccess, setIsDeleteSuccess] = useState(false);
   const openCheckModal = () => setIsCheckModalOpen(true);
   const closeCheckModal = () => setIsCheckModalOpen(false);
 
@@ -229,8 +235,38 @@ const Upsert = () => {
     </>
   );
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    try{
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+            process.env.REACT_APP_API_BASE_URL + `/plan/delete/${dateKey}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },   
+            }
+        );
 
+        const text = await res.text();
+        console.log("서버 응답:", text);
+
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch {
+            data = { result: res.ok, message: text };
+        }
+
+        const ok = !!data.result && res.ok;
+        setIsDeleteSuccess(ok);
+        setResultMessage( data.message );
+    }
+    catch(err){
+        setIsDeleteSuccess(false);
+        setResultMessage("네트워크 오류로 회원 탈퇴에 실패했습니다.");
+    }
+    closeCheckModal();
+    setIsResultModalOpen(true);
   }
 
   return (
