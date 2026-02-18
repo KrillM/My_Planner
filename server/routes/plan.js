@@ -16,7 +16,7 @@ router.get("/:dateKey", auth, CPlan.getPlanByDate);
 router.get("/editpage/:dateKey", auth, CPlan.getPlanForUpsert);
 
 // 일정 수정 실행
-// router.put("/upsert/:dateKey", auth, CPlan.upsertPlan);
+router.put("/upsert/:dateKey", auth, CPlan.upsertPlan);
 
 // 일정 삭제
 router.delete('/delete/:dateKey', auth, CPlan.deletePlan);

@@ -25,8 +25,8 @@ const Upsert = () => {
         if (!res.ok) {
             const errData = await res.json().catch(() => ({}));
             if (res.status === 404) {
-            navigate("/404", { replace: true });
-            return;
+                navigate("/404", { replace: true });
+                return;
             }
             throw new Error(errData.message || `HTTP ${res.status}`);
         }
@@ -76,6 +76,7 @@ const Upsert = () => {
       time,
       content,
       isUseAlarm,
+      isDone: "N"
     };
 
     setToDoList((prev) => [...prev, newTodo]);
@@ -382,7 +383,7 @@ const Upsert = () => {
 
       <ModalMemoUpsert open={isMemoModalOpen} onConfirm={handleCloseMemoModal} onSave={handleSaveMemo} memo={memo}/>
       <ModalMessage open={isResultModalOpen} message={resultMessage} onConfirm={handleResultConfirm} />
-      <ModalCheck open={isCheckModalOpen} onClose={closeCheckModal} onConfirm={handleDelete} message={deleteMessage}/>
+      <ModalCheck open={isCheckModalOpen} onClose={closeCheckModal} onConfirm={handleDelete} message={deleteMessage} btnMsg={`Delete`}/>
     </div>
   );
 };

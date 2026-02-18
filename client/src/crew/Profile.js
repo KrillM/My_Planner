@@ -371,7 +371,7 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
       </form>
       <button type="button" className="leave-btn" onClick={openLeaveModal}>Leave</button>
 
-      <ModalCheck open={isLeaveModalOpen} onClose={closeLeaveModal} onConfirm={handleLeave} message={leaveMessage}/>
+      <ModalCheck open={isLeaveModalOpen} onClose={closeLeaveModal} onConfirm={handleLeave} message={leaveMessage} btnMsg={`Leave`}/>
       <ModalMessage open={isResultModalOpen} message={resultMessage} onConfirm={handleResultConfirm} />
     </div>
     </>

@@ -282,6 +282,222 @@ const getPlanForUpsert = async (req, res) => {
     }   
 }
 
+// 일정 수정 실행
+const upsertPlan = async (req, res) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const crewId = req.user.crewId;
+    const { dateKey } = req.params;
+
+    const y = "20" + dateKey.slice(0, 2);
+    const m = dateKey.slice(2, 4);
+    const d = dateKey.slice(4, 6);
+
+    const dateRow = await PlanDate.findOne({
+      where: { crewId, year: y, month: m, day: d },
+      order: [["dateId", "DESC"]],
+      transaction,
+    });
+
+    if (!dateRow) {
+      await transaction.rollback();
+      return res.status(404).json({ message: "존재하지 않는 일정입니다." });
+    }
+
+    const dateId = dateRow.dateId;
+    const now = new Date();
+    let touched = false;
+
+    const {
+      year,
+      month,
+      day,
+      isTemporary,
+      isUseDDay,
+      toDoList = [],
+      memo,
+    } = req.body;
+
+    // Date 업데이트
+    const patch = {};
+
+    const nextYear = String(year);
+    const nextMonth = String(month).padStart(2, "0");
+    const nextDay = String(day).padStart(2, "0");
+    const nextTemp = isTemporary === "Y" ? "Y" : "N";
+    const nextDDay = isUseDDay ? "Y" : "N";
+
+    if (String(dateRow.year) !== nextYear) patch.year = nextYear;
+    if (String(dateRow.month).padStart(2, "0") !== nextMonth) patch.month = nextMonth;
+    if (String(dateRow.day).padStart(2, "0") !== nextDay) patch.day = nextDay;
+    if (dateRow.isTemporary !== nextTemp) patch.isTemporary = nextTemp;
+    if (dateRow.isUseDDay !== nextDDay) patch.isUseDDay = nextDDay;
+
+    if (Object.keys(patch).length > 0) {
+      patch.modifyTime = now;
+      await PlanDate.update(patch, { where: { crewId, dateId }, transaction });
+      touched = true;
+    }
+
+    // Memo 업데이트
+    const memoText = (memo ?? "").trim();
+
+    const memoRow = await DateMemo.findOne({
+      where: { crewId, dateId },
+      order: [["dateMemoId", "DESC"]],
+      transaction,
+    });
+
+    if (!memoRow) {
+      if (memoText !== "") {
+        await DateMemo.create(
+          {
+            crewId,
+            dateId,
+            content: memoText,
+            creationTime: now,
+            modifyTime: now,
+          },
+          { transaction }
+        );
+        touched = true;
+      }
+    } else {
+      if ((memoRow.content ?? "").trim() !== memoText) {
+        await DateMemo.update(
+          { content: memoText, modifyTime: now },
+          { where: { dateMemoId: memoRow.dateMemoId }, transaction }
+        );
+        touched = true;
+      }
+    }
+
+    // ToDo diff
+    const existingTodos = await ToDo.findAll({
+      where: { crewId, dateId },
+      transaction,
+    });
+
+    // 기존 toDo 저장
+    const existingMap = new Map(existingTodos.map((t) => [t.toDoId, t]));
+
+    // 신규 toDo 받아옴
+    const incoming = Array.isArray(toDoList) ? toDoList : [];
+
+    // incoming id set (기존 것들만)
+    const incomingIds = new Set(
+      incoming
+        .map((t) => Number(t.toDoId))
+        .filter((id) => Number.isFinite(id) && id > 0)
+    );
+
+    // 3-1) 삭제
+    const deleteIds = existingTodos
+      .map((t) => t.toDoId)
+      .filter((id) => !incomingIds.has(id));
+
+    if (deleteIds.length > 0) {
+      await ToDo.destroy({
+        where: { crewId, dateId, toDoId: deleteIds },
+        transaction,
+      });
+      touched = true;
+    }
+
+    // 시간 파싱
+    const parseTodoTime = (todo) => {
+      let planBegin = null;
+      let planEnd = null;
+      let isUseTimeSlot = "N";
+
+      if (todo.time?.includes(":")) {
+        isUseTimeSlot = "Y";
+        const [start, end] = todo.time.split(" ~ ");
+        planBegin = new Date(`${nextYear}-${nextMonth}-${nextDay}T${start}:00`);
+        planEnd = new Date(`${nextYear}-${nextMonth}-${nextDay}T${(end || start)}:00`);
+      } else {
+        const map = { "오전": "04:00", "오후": "12:00", "저녁": "18:00", "밤": "21:00" };
+        const t = map[todo.time] || "21:00";
+        planBegin = new Date(`${nextYear}-${nextMonth}-${nextDay}T${t}:00`);
+        planEnd = planBegin;
+      }
+
+      return { planBegin, planEnd, isUseTimeSlot };
+    };
+
+    // 3-2) 업데이트/생성
+    for (const t of incoming) {
+      const id = Number(t.toDoId);
+      const { planBegin, planEnd, isUseTimeSlot } = parseTodoTime(t);
+      const nextAlarm = t.isUseAlarm ? "Y" : "N";
+      const nextDone = t.isDone ? "Y" : "N";
+
+      // 기존이면 비교 후 update
+      if (Number.isFinite(id) && id > 0 && existingMap.has(id)) {
+        const old = existingMap.get(id);
+
+        const changed =
+          (old.content ?? "") !== (t.content ?? "") ||
+          old.isUseAlarm !== nextAlarm ||
+          old.isDone !== nextDone ||
+          old.isUseTimeSlot !== isUseTimeSlot ||
+          +new Date(old.planBegin) !== +new Date(planBegin) ||
+          +new Date(old.planEnd) !== +new Date(planEnd);
+
+        if (changed) {
+          await ToDo.update(
+            {
+              content: t.content,
+              isUseAlarm: nextAlarm,
+              isDone: nextDone,
+              isUseTimeSlot,
+              planBegin,
+              planEnd,
+              modifyTime: now,
+            },
+            { where: { crewId, dateId, toDoId: id }, transaction }
+          );
+          touched = true;
+        }
+      }
+      // 신규면 create (✅ 여기서 프론트가 임의 toDoId 만들면 충돌 가능)
+      else {
+        await ToDo.create(
+          {
+            dateId,
+            crewId,
+            content: t.content,
+            isUseTimeSlot,
+            planBegin,
+            planEnd,
+            isUseAlarm: nextAlarm,
+            isDone: "N",
+            creationTime: now,
+            modifyTime: now,
+          },
+          { transaction }
+        );
+        touched = true;
+      }
+    }
+
+    // 하나라도 바뀌면 Date.modifyTime 갱신 (memo/todo만 바뀐 경우 포함)
+    if (touched) {
+      await PlanDate.update(
+        { modifyTime: now },
+        { where: { crewId, dateId }, transaction }
+      );
+    }
+
+    await transaction.commit();
+    return res.status(200).json({ result: true, message: "일정이 수정되었습니다." });
+  } catch (err) {
+    await transaction.rollback();
+    console.error(err);
+    return res.status(500).json({ message: "일정 수정 중 오류" });
+  }
+};
+
 // 일정 삭제
 const deletePlan = async (req, res) => {
     try{
@@ -344,5 +560,6 @@ module.exports = {
     getTodayPlan,
     getPlanByDate,
     getPlanForUpsert,
+    upsertPlan,
     deletePlan
 }

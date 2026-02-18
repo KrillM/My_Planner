@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import "../styles/modal.scss";
 
-export default function ModalCheck({ open, onClose, onConfirm, message }) {
+export default function ModalCheck({ open, onClose, onConfirm, message, btnMsg }) {
   useEffect(() => {
     if (!open) return;
 
@@ -42,7 +42,7 @@ export default function ModalCheck({ open, onClose, onConfirm, message }) {
           </button>
 
           <button type="button" className="modal-btn leave" onClick={onConfirm}>
-            Leave
+            {btnMsg}
           </button>
         </div>
       </div>
