@@ -1,4 +1,5 @@
 const { sequelize, Crew, Date: PlanDate, DateMemo, ToDo } = require('../model');
+const { Op } = require("sequelize");
 
 // 신규 일정 생성
 const createPlan = async (req, res) => {
@@ -324,6 +325,26 @@ const upsertPlan = async (req, res) => {
     const nextYear = String(year);
     const nextMonth = String(month).padStart(2, "0");
     const nextDay = String(day).padStart(2, "0");
+
+    // 겹치는 날짜 확인
+    const checkDuplicateDate = await PlanDate.findOne({
+        where: {
+            crewId,
+            year: nextYear,
+            month: nextMonth,
+            day: nextDay,
+            dateId: { [Op.ne]: dateId } // 현재 row 제외
+        },
+        transaction
+    });
+
+    if (checkDuplicateDate) {
+        await transaction.rollback();
+        return res.status(409).json({
+            message: "이미 해당 날짜에 일정이 존재합니다."
+        });
+    }
+
     const nextTemp = isTemporary === "Y" ? "Y" : "N";
     const nextDDay = isUseDDay ? "Y" : "N";
 
@@ -490,7 +511,8 @@ const upsertPlan = async (req, res) => {
     }
 
     await transaction.commit();
-    return res.status(200).json({ result: true, message: "일정이 수정되었습니다." });
+    if (isTemporary === "Y") return res.status(200).json({ result: true, message: "일정이 임시 저장되었습니다." });
+    else return res.status(200).json({ result: true, message: "일정이 수정되었습니다." });
   } catch (err) {
     await transaction.rollback();
     console.error(err);

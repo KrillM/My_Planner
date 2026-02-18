@@ -205,21 +205,20 @@ const Upsert = () => {
   const [resultMessage, setResultMessage] = useState("");
 
   const handleResultConfirm = () => {
-        setIsResultModalOpen(false);
-        if(isDeleteSuccess){
-            navigate("/", { replace: true });
-        }
-        else {
-            if(submitTempRef.current === "Y") {
-                navigate("/", { replace: true });
-                return;
-            }
-            const yy = String(year).slice(-2);
-            const mm = String(month).padStart(2, "0");
-            const dd = String(day).padStart(2, "0");
-            
-            navigate(`/${yy}${mm}${dd}`, { replace: true });
-        }
+    setIsResultModalOpen(false);
+    if(isDeleteSuccess){
+        navigate("/", { replace: true });
+    }
+    else if (resultMessage ===  "이미 해당 날짜에 일정이 존재합니다."){
+        return;
+    }
+    else {
+        const yy = String(year).slice(-2);
+        const mm = String(month).padStart(2, "0");
+        const dd = String(day).padStart(2, "0");
+        
+        navigate(`/${yy}${mm}${dd}`, { replace: true });
+    }
   };
 
   // 경고 모달 창
@@ -264,7 +263,7 @@ const Upsert = () => {
     }
     catch(err){
         setIsDeleteSuccess(false);
-        setResultMessage("네트워크 오류로 회원 탈퇴에 실패했습니다.");
+        setResultMessage("네트워크 오류로 일정 삭제하지 못했습니다.");
     }
     closeCheckModal();
     setIsResultModalOpen(true);
@@ -302,14 +301,14 @@ const Upsert = () => {
             name="date" 
             className="hidden-date" 
             onChange={(e) => {
-            const value = e.target.value;
-            if (!value) return;
-            const [y, m, d] = value.split("-");
-            setYear(y);
-            setMonth(m);
-            setDay(d);
-            setDateSet(y+"년 "+m+"월 "+d+"일");
-            setIsDateEmpty(false);
+                const value = e.target.value;
+                if (!value) return;
+                const [y, m, d] = value.split("-");
+                setYear(y);
+                setMonth(m);
+                setDay(d);
+                setDateSet(y+"년 "+m+"월 "+d+"일");
+                setIsDateEmpty(false);
           }}
           />
           <span
