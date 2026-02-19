@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "../styles/input.scss";
 import "../styles/save.scss";
 
-const UpdateTodo = ({ todo, updateTodo, onCancel }) => {
+const UpdateTodo = ({ todo, todoKey, updateTodo, onCancel }) => {
   const [slot, setSlot] = useState("slot");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
@@ -77,7 +77,7 @@ const UpdateTodo = ({ todo, updateTodo, onCancel }) => {
 
     // ✅ 반드시 toDoId 포함해서 부모가 어떤 항목 수정할지 알게
     updateTodo?.({
-      toDoId: todo.toDoId,
+      key: todoKey,   
       slot,
       start,
       end,
