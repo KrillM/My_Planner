@@ -14,10 +14,9 @@ const New = () => {
   const [isUpdateInputOpen, setIsUpdateInputOpen] = useState(false);
   const [isButtonClickedWhenUpdateInputButtonOpen, setIsButtonClickedWhenUpdateInputButtonOpen] = useState(false);
 
-  const handleAddTodo = ({ slot, start, end, content, isUseAlarm }) => {
-    const newId =
-      toDoList.length === 0 ? 1 : Math.max(...toDoList.map((t) => t.toDoId)) + 1;
+  const tempIdRef = useRef(-1);
 
+  const handleAddTodo = ({ slot, start, end, content, isUseAlarm }) => {
     const time =
       slot === "slot"
         ? `${start}${end ? ` ~ ${end}` : ""}`
@@ -27,7 +26,8 @@ const New = () => {
         : "밤";
 
     const newTodo = {
-      toDoId: newId,
+      toDoId: null,
+      tempId: tempIdRef.current--,
       time,
       content,
       isUseAlarm,
@@ -36,6 +36,8 @@ const New = () => {
     setToDoList((prev) => [...prev, newTodo]);
     setIsTodoListNull(false);
   };
+
+  const getKey = (t) => t.toDoId ?? t.tempId;
 
   // 메모 모달창 상태
   const [isMemoModalOpen, setIsMemoModalOpen] = useState(false);
@@ -70,14 +72,12 @@ const New = () => {
   const [selectedTodoID, setSelectedTodoID] = useState(null);
 
   const showUpdateTodo = (todo) => {
-    setSelectedTodoID(prev =>
-      prev === todo.toDoId ? null : todo.toDoId
-    );
-
+    const k = getKey(todo);
+    setSelectedTodoID(prev => (prev === k ? null : k));
     setIsUpdateInputOpen(true);
   }
 
-  const updateTodo = ({ toDoId, slot, start, end, content, isUseAlarm }) => {
+  const updateTodo = ({ key, slot, start, end, content, isUseAlarm }) => {
     const time =
       slot === "slot"
         ? `${start}${end ? ` ~ ${end}` : ""}`
@@ -88,7 +88,7 @@ const New = () => {
 
     setToDoList(prev =>
       prev.map(t =>
-        t.toDoId === toDoId
+        getKey(t) === key
           ? { ...t, time, content, isUseAlarm, slot }
           : t
       )
@@ -160,15 +160,20 @@ const New = () => {
 
   const handleResultConfirm = () => {
     setIsResultModalOpen(false);
-    if(submitTempRef.current === "Y") {
-      navigate("/", { replace: true });
+    if(resultMessage ===  "이미 등록된 일정입니다."){
       return;
     }
-    const yy = String(year).slice(-2);
-    const mm = String(month).padStart(2, "0");
-    const dd = String(day).padStart(2, "0");
-    
-    navigate(`/${yy}${mm}${dd}`, { replace: true });
+    else{
+      if(submitTempRef.current === "Y") {
+        navigate("/", { replace: true });
+        return;
+      }
+      const yy = String(year).slice(-2);
+      const mm = String(month).padStart(2, "0");
+      const dd = String(day).padStart(2, "0");
+      
+      navigate(`/${yy}${mm}${dd}`, { replace: true });
+    }
   };
 
   return (
@@ -203,15 +208,15 @@ const New = () => {
             name="date" 
             className="hidden-date" 
             onChange={(e) => {
-            const value = e.target.value;
-            if (!value) return;
-            const [y, m, d] = value.split("-");
-            setYear(y);
-            setMonth(m);
-            setDay(d);
-            setDateSet(y+"년 "+m+"월 "+d+"일");
-            setIsDateEmpty(false);
-          }}
+              const value = e.target.value;
+              if (!value) return;
+              const [y, m, d] = value.split("-");
+              setYear(y);
+              setMonth(m);
+              setDay(d);
+              setDateSet(y+"년 "+m+"월 "+d+"일");
+              setIsDateEmpty(false);
+            }}
           />
           <span
             className={`material-symbols-outlined ${isDateEmpty ? "icon-error" : ""}`}
@@ -225,10 +230,11 @@ const New = () => {
 
       <div className="toDo-list">
         {toDoList.map((toDo) => (
-          <div key={toDo.toDoId}>
-            {selectedTodoID === toDo.toDoId ? (
+          <div key={getKey(toDo)}>
+            {selectedTodoID === getKey(toDo) ? (
               <UpdateTodo
                 todo={toDo}
+                todoKey={getKey(toDo)}
                 updateTodo={updateTodo}
                 onCancel={() => {
                   setSelectedTodoID(null);
@@ -254,7 +260,7 @@ const New = () => {
                   </span>
                   <span 
                     className="material-symbols-outlined toDo-checkbox-detail"
-                    onClick={() => removeTodo(toDo.toDoId)}
+                    onClick={() => removeTodo(toDo)}
                   >
                     delete
                   </span>

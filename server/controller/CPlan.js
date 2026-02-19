@@ -27,7 +27,7 @@ const createPlan = async (req, res) => {
 
         if(checkIsDateExist){
             await transaction.rollback();
-            return res.status(401).json({ message: "이미 등록된 일정입니다" });
+            return res.status(401).json({ message: "이미 등록된 일정입니다." });
         }
 
         const now = new Date();

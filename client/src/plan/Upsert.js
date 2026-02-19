@@ -8,7 +8,6 @@ import ModalCheck from "../modals/ModalCheck";
 import "../styles/date.scss";
 
 const Upsert = () => {
-
   const { dateKey } = useParams();
 
   useEffect(() => {
@@ -19,26 +18,26 @@ const Upsert = () => {
         const token = localStorage.getItem("token");
         const res = await fetch(
           process.env.REACT_APP_API_BASE_URL + `/plan/editpage/${dateKey}`,
-            { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            if (res.status === 404) {
-                navigate("/404", { replace: true });
-                return;
-            }
-            throw new Error(errData.message || `HTTP ${res.status}`);
+          const errData = await res.json().catch(() => ({}));
+          if (res.status === 404) {
+            navigate("/404", { replace: true });
+            return;
+          }
+          throw new Error(errData.message || `HTTP ${res.status}`);
         }
 
         const data = await res.json();
         
         const { year, month, day } = data.date ?? {};
         if (year && month && day) {
-            setYear(String(year));
-            setMonth(String(month).padStart(2, "0"));
-            setDay(String(day).padStart(2, "0"));
-            setDateSet(`${year}년 ${String(month).padStart(2, "0")}월 ${String(day).padStart(2, "0")}일`);
+          setYear(String(year));
+          setMonth(String(month).padStart(2, "0"));
+          setDay(String(day).padStart(2, "0"));
+          setDateSet(`${year}년 ${String(month).padStart(2, "0")}월 ${String(day).padStart(2, "0")}일`);
         }
 
         setToDoList(data.toDoList ?? []);
@@ -205,18 +204,19 @@ const Upsert = () => {
 
   const handleResultConfirm = () => {
     setIsResultModalOpen(false);
+    
     if(isDeleteSuccess){
-        navigate("/", { replace: true });
+      navigate("/", { replace: true });
     }
     else if (resultMessage ===  "이미 해당 날짜에 일정이 존재합니다."){
-        return;
+      return;
     }
     else {
-        const yy = String(year).slice(-2);
-        const mm = String(month).padStart(2, "0");
-        const dd = String(day).padStart(2, "0");
-        
-        navigate(`/${yy}${mm}${dd}`, { replace: true });
+      const yy = String(year).slice(-2);
+      const mm = String(month).padStart(2, "0");
+      const dd = String(day).padStart(2, "0");
+      
+      navigate(`/${yy}${mm}${dd}`, { replace: true });
     }
   };
 
@@ -236,33 +236,31 @@ const Upsert = () => {
 
   const handleDelete = async () => {
     try{
-        const token = localStorage.getItem("token");
-        const res = await fetch(
-            process.env.REACT_APP_API_BASE_URL + `/plan/delete/${dateKey}`, {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },   
-            }
-        );
-
-        const text = await res.text();
-        console.log("서버 응답:", text);
-
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch {
-            data = { result: res.ok, message: text };
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        process.env.REACT_APP_API_BASE_URL + `/plan/delete/${dateKey}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },   
         }
+      );
+      const text = await res.text();
 
-        const ok = !!data.result && res.ok;
-        setIsDeleteSuccess(ok);
-        setResultMessage( data.message );
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { result: res.ok, message: text };
+      }
+
+      const ok = !!data.result && res.ok;
+      setIsDeleteSuccess(ok);
+      setResultMessage( data.message );
     }
     catch(err){
-        setIsDeleteSuccess(false);
-        setResultMessage("네트워크 오류로 일정 삭제하지 못했습니다.");
+      setIsDeleteSuccess(false);
+      setResultMessage("네트워크 오류로 일정 삭제하지 못했습니다.");
     }
     closeCheckModal();
     setIsResultModalOpen(true);
@@ -300,15 +298,15 @@ const Upsert = () => {
             name="date" 
             className="hidden-date" 
             onChange={(e) => {
-                const value = e.target.value;
-                if (!value) return;
-                const [y, m, d] = value.split("-");
-                setYear(y);
-                setMonth(m);
-                setDay(d);
-                setDateSet(y+"년 "+m+"월 "+d+"일");
-                setIsDateEmpty(false);
-          }}
+              const value = e.target.value;
+              if (!value) return;
+              const [y, m, d] = value.split("-");
+              setYear(y);
+              setMonth(m);
+              setDay(d);
+              setDateSet(y+"년 "+m+"월 "+d+"일");
+              setIsDateEmpty(false);
+            }}
           />
           <span
             className={`material-symbols-outlined ${isDateEmpty ? "icon-error" : ""}`}
