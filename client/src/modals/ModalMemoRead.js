@@ -18,10 +18,10 @@ function ModalMemoRead({ open, close, memo }) {
         </button>
 
         <div className="modal-body">
-        {isMemoEmpty 
+          {isMemoEmpty 
             ? <p>저장된 메모가 없습니다.</p>
             : <div className="read-memo" dangerouslySetInnerHTML={{ __html: memo }} />
-        }
+          }
         </div>
       </div>
     </div>
