@@ -12,6 +12,7 @@ const DatePlan = () => {
   const [memo, setMemo] = useState("");
   const [dateLabel, setDateLabel] = useState("");
   const [isDateExist, setIsDateExist] = useState(false);
+  const [isTemporary, setIsTemporary] = useState("N");
 
   useEffect(() => {
     const fetchDate = async () => {
@@ -26,6 +27,7 @@ const DatePlan = () => {
 
         const data = await res.json();
         setToDoList(data.toDoList ?? []);
+        setIsTemporary(data.isTemporary ?? "N");
 
         if((data.toDoList ?? []).length > 0) setIsDateExist(true);
         else setIsDateExist(false);
@@ -88,13 +90,15 @@ const DatePlan = () => {
                 {toDo.isUseAlarm && <span className="material-symbols-outlined notif-icon">notifications</span>}
               </div>
             </div>
-            <div className="toDo-checkbox">
-              {toDo.isDone ? (
-                <span className="material-symbols-outlined check-icon active">select_check_box</span>
-              ) : (
-                <span className="material-symbols-outlined check-icon">check_box_outline_blank</span>
-              )}
-            </div>
+            {isTemporary === "N" && (
+              <div className="toDo-checkbox">
+                {toDo.isDone ? (
+                  <span className="material-symbols-outlined check-icon active">select_check_box</span>
+                ) : (
+                  <span className="material-symbols-outlined check-icon">check_box_outline_blank</span>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>

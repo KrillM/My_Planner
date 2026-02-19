@@ -220,6 +220,7 @@ const getPlanByDate = async (req, res) => {
 
         return res.status(200).json({
             date: { year: date.year, month: date.month, day: date.day },
+            isTemporary: date.isTemporary,
             memo: memo?.content ?? "",
             toDoList,
         });
