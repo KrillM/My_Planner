@@ -90,6 +90,11 @@
   background-color: mp.$brand-color;
 }
 
+.day.disabled {
+  cursor: default;
+  pointer-events: none; // disabled랑 같이 쓰면 더 확실
+}
+
 // 다크모드
 body.dark {
   .day{

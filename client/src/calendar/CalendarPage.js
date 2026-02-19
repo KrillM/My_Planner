@@ -114,13 +114,17 @@ export default function Calendar() {
           const isOutMonth = d.getMonth() !== viewMonth;
           const isToday = isSameDay(d, today);
 
-          // ✅ 너 조건 반영: 임시저장(노랑), 일정있음(진함), 없음(희미)
+          // 일정이 있는 날만 이동 가능
+          const canMove = !isOutMonth && info.hasPlan
+
+          // 굵은 글자 - 계획, 이텔릭체 - 임시, 희미한 글자 - 일정 없음
           const classCondition = [
             "day",
             isOutMonth ? "out" : "",
             isToday ? "today" : "",
             info.isTemporary ? "temp" : "",
             info.hasPlan ? "has" : "empty",
+            canMove ? "can-click" : "disabled"
           ].filter(Boolean).join(" ");
 
           return (
@@ -128,9 +132,9 @@ export default function Calendar() {
               key={key}
               type="button"
               className={classCondition}
+              disabled={!canMove}
               onClick={() => {
-                // 클릭시 상세 페이지로 가고 싶으면 여기서 navigate
-                // 예: /260220 형태
+                if(!canMove) return;
                 const yy = String(d.getFullYear()).slice(-2);
                 const mm = pad2(d.getMonth() + 1);
                 const dd = pad2(d.getDate());
