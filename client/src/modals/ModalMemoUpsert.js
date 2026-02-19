@@ -14,16 +14,16 @@ const ModalMemoUpsert = ({ open, onConfirm, onSave, memo }) => {
     const maxTries = 10;
 
     const hydrate = () => {
-        const inst = editorRef.current?.getInstance?.();
-        if (!inst) return;
+      const inst = editorRef.current?.getInstance?.();
+      if (!inst) return;
 
-        const html = (memo && memo.trim() !== "") ? memo : "<p></p>";
-        inst.setHTML(html);
+      const html = (memo && memo.trim() !== "") ? memo : "<p></p>";
+      inst.setHTML(html);
 
-        tries += 1;
-        if (tries < maxTries) {
-            setTimeout(hydrate, 30);
-        }
+      tries += 1;
+      if (tries < maxTries) {
+        setTimeout(hydrate, 30);
+      }
     };
 
     setTimeout(hydrate, 0);
