@@ -209,8 +209,7 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
 
       // 방어적으로 text로 받고 JSON 파싱 시도
       const text = await res.text();
-      console.log("서버 응답:", text);
-
+      
       let data;
       try {
         data = JSON.parse(text);
@@ -221,19 +220,14 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
       const ok = !!data.result && res.ok;
 
       setIsLeaveSuccess(ok);
-      setResultMessage(
-        data.message || (ok ? "회원 탈퇴가 완료되었습니다." : "회원 탈퇴에 실패했습니다.")
-      );
-
-      closeLeaveModal();
-      setIsResultModalOpen(true);
+      setResultMessage(data.message);
     } catch (err) {
       console.error("회원탈퇴 통신 에러:", err);
       setIsLeaveSuccess(false);
       setResultMessage("네트워크 오류로 회원 탈퇴에 실패했습니다.");
-      closeLeaveModal();
-      setIsResultModalOpen(true);
     }
+    closeLeaveModal();
+    setIsResultModalOpen(true);
   };
 
   // 완료 모달 확인 버튼 눌렀을 때만 로그아웃/이동
