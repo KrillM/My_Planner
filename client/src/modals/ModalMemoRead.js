@@ -1,7 +1,7 @@
 import "../styles/modal.scss";
 
 function ModalMemoRead({ open, close, memo }) {
-  const isMemoEmpty = (memo.trim() === "");
+  const isMemoEmpty = (memo.trim() === "" || memo === `<p><br></p>`);
 
   if (!open) return null;
 
