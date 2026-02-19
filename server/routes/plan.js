@@ -12,6 +12,9 @@ router.get("/today", auth, CPlan.getTodayPlan);
 // 다른 날짜 일정 조회
 router.get("/:dateKey", auth, CPlan.getPlanByDate);
 
+// todo 업데이트
+router.patch("/:toDoId", auth, CPlan.toDoToggle);
+
 // 일정 수정 조회
 router.get("/editpage/:dateKey", auth, CPlan.getPlanForUpsert);
 

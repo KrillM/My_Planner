@@ -230,6 +230,34 @@ const getPlanByDate = async (req, res) => {
     }
 };
 
+// todo 업데이트
+const toDoToggle = async (req, res) => {
+  try {
+    const { toDoId } = req.params;
+    const crewId = req.user.crewId;
+
+    const todo = await ToDo.findOne({ where: { toDoId, crewId } });
+
+    if (!todo) {
+      return res.status(404).json({ message: "존재하지 않는 할 일 입니다." });
+    }
+
+    const next = todo.isDone === "Y" ? "N" : "Y";
+
+    await todo.update({ isDone: next });
+
+    return res.json({
+      result: true,
+      isDone: next,
+      toDoId: todo.toDoId
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "할 일을 수정할 수 없습니다." });
+  }
+};
+
 // 일정 수정 조회
 const getPlanForUpsert = async (req, res) => {
     try {
@@ -582,6 +610,7 @@ module.exports = {
     createPlan,
     getTodayPlan,
     getPlanByDate,
+    toDoToggle,
     getPlanForUpsert,
     upsertPlan,
     deletePlan

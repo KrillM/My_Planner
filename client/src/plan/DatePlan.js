@@ -73,6 +73,47 @@ const DatePlan = () => {
     }
   }
 
+  // toDo 업데이트
+  const todoToggle = async (toDoId) => {
+
+    const token = localStorage.getItem("token");
+    const current = toDoList.find(t => t.toDoId === toDoId);
+    if (!current) return;
+
+    const nextValue = !current.isDone;
+
+    setToDoList(prev =>
+      prev.map(t =>
+        t.toDoId === toDoId
+          ? { ...t, isDone: nextValue }
+          : t
+      )
+    );
+
+    try {
+      const res = await fetch(
+        process.env.REACT_APP_API_BASE_URL + `/plan/${toDoId}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error("server error");
+    } catch (e) {
+      console.error("체크 토글 실패", e);
+      setToDoList(prev =>
+        prev.map(t =>
+          t.toDoId === toDoId
+            ? { ...t, isDone: !nextValue }
+            : t
+        )
+      );
+    }
+  };
+
   return (
     <div className="date-container">
       <div className="planner-header">
@@ -92,11 +133,12 @@ const DatePlan = () => {
             </div>
             {isTemporary === "N" && (
               <div className="toDo-checkbox">
-                {toDo.isDone ? (
-                  <span className="material-symbols-outlined check-icon active">select_check_box</span>
-                ) : (
-                  <span className="material-symbols-outlined check-icon">check_box_outline_blank</span>
-                )}
+                <span
+                  className={`material-symbols-outlined check-icon ${toDo.isDone ? "active" : ""}`}
+                  onClick={() => todoToggle(toDo.toDoId)}
+                >
+                  {toDo.isDone ? "select_check_box" : "check_box_outline_blank"}
+                </span>
               </div>
             )}
           </div>
