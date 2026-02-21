@@ -125,7 +125,7 @@ const getTodayPlan = async (req, res) => {
     });
     // date 없으면 빈 데이터 반환
     if (!date) {
-    return res.status(200).json({
+      return res.status(200).json({
         date: { year: y, month: m, day: d },
         memo: "",
         toDoList: [],
@@ -178,7 +178,7 @@ const getPlanByDate = async (req, res) => {
 
     // date 없으면 빈 데이터 반환
     if (!date) {
-    return res.status(200).json({
+      return res.status(200).json({
         date: { year: y, month: m, day: d },
         memo: "",
         toDoList: [],
