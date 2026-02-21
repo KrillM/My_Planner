@@ -4,6 +4,7 @@ import InputTodo from "./InputTodo";
 import ModalMemoUpsert from "../modals/ModalMemoUpsert";
 import UpdateTodo from "./UpdateTodo";
 import ModalMessage from '../modals/ModalMessage';
+import CalendarPopover from "../calendar/CalendarPopover";
 import "../styles/date.scss";
 
 const New = () => {
@@ -58,8 +59,6 @@ const New = () => {
     setIsMemoModalOpen(false);
   };
 
-  const calendarRef = useRef(null);
-
   // 날짜 설정
   const isDateNotSet = "날짜를 달력에서 선택하세요.";
   const [year, setYear] = useState("");
@@ -100,10 +99,9 @@ const New = () => {
   };
 
   // toDo 삭제
-  const removeTodo = (todoId) => {
-    setToDoList(prev =>
-      prev.filter(t => t.toDoId !== todoId)
-    );
+  const removeTodo = (todo) => {
+    const k = getKey(todo);
+    setToDoList(prev => prev.filter(t => getKey(t) !== k));
   }
 
   // 디데이 사용 여부
@@ -111,6 +109,10 @@ const New = () => {
 
   // 임시 저장 여부
   const submitTempRef = useRef("N");
+
+  // 달력 
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const selectedKey = year && month && day ? `${year}-${month}-${day}` : "";
   
   // 저장
   const handleSubmit = async (isTemp) => {
@@ -202,28 +204,36 @@ const New = () => {
           </div>
         </div>
         <div className="doc-icon">
-          <input 
-            ref={calendarRef} 
-            type="date" 
-            name="date" 
-            className="hidden-date" 
-            onChange={(e) => {
-              const value = e.target.value;
-              if (!value) return;
-              const [y, m, d] = value.split("-");
-              setYear(y);
-              setMonth(m);
-              setDay(d);
-              setDateSet(y+"년 "+m+"월 "+d+"일");
-              setIsDateEmpty(false);
-            }}
-          />
-          <span
-            className={`material-symbols-outlined ${isDateEmpty ? "icon-error" : ""}`}
-            onClick={() => calendarRef.current?.showPicker()}
-          >
-            calendar_month
-          </span>
+          <div className="cal-anchor">
+            <span
+              className={`material-symbols-outlined ${isDateEmpty ? "icon-error" : ""}`}
+              onClick={() => setIsCalendarOpen((v) => !v)}
+            >
+              calendar_month
+            </span>
+
+            {isCalendarOpen && (
+              <div className="cal-popover">
+                <CalendarPopover
+                  selectedKey={selectedKey}
+                  canSelect={({ isOutMonth, info }) => !isOutMonth && !info.hasPlan}
+                  onSelectDate={(d) => {
+                    const y = String(d.getFullYear());
+                    const m = String(d.getMonth() + 1).padStart(2, "0");
+                    const dd = String(d.getDate()).padStart(2, "0");
+
+                    setYear(y);
+                    setMonth(m);
+                    setDay(dd);
+                    setDateSet(`${y}년 ${m}월 ${dd}일`);
+                    setIsDateEmpty(false);
+                    setIsCalendarOpen(false);
+                  }}
+                  onClose={() => setIsCalendarOpen(false)}
+                />
+              </div>
+            )}
+          </div>
           <span className="material-symbols-outlined" onClick={openMemoModal}>description</span>
         </div>
       </div>

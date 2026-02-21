@@ -69,6 +69,27 @@ $font-color: mp.$font-color;
       display: flex;
         
       &:hover { color: $font-color; }
+
+      .cal-anchor {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .cal-popover {
+        position: absolute;
+        top: calc(100% + 6px);
+        right: 0;
+        z-index: 9999;
+
+        width: 280px;
+        max-width: 90vw;
+
+        background: mp.$main-bg-color;
+        border-radius: 12px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+        padding: 10px;
+      }
     }
 
     .icon-error{
@@ -145,7 +166,13 @@ body.dark {
       }
       
       .date-title { color: mp.$font-color-dark; }
-      .doc-icon { color: mp.$font-color-dark; }
+      .doc-icon { 
+        color: mp.$font-color-dark; 
+
+        .cal-popover {
+          background: mp.$main-bg-color-dark;
+        }
+      }
     }
 
     .schedule-list {
