@@ -118,7 +118,14 @@ const DatePlan = () => {
     <div className="date-container">
       <div className="planner-header">
         <h1 className="date-content">{dateLabel}</h1>
-        <span className="material-symbols-outlined doc-icon" onClick={openMemoModal}>description</span>
+        {toDoList.length > 0 && (
+          <span
+            className="material-symbols-outlined doc-icon"
+            onClick={openMemoModal}
+          >
+            description
+          </span>
+        )}
       </div>
 
       <div className="toDo-list">
