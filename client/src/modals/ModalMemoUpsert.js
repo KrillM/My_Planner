@@ -35,6 +35,14 @@ const ModalMemoUpsert = ({ open, onConfirm, onSave, memo }) => {
 
   const isDark = document.body.classList.contains("dark");
 
+  // 클리어
+  const handleClear = () => {
+    const inst = editorRef.current?.getInstance?.();
+    if (!inst) return;
+    inst.setHTML("<p></p>");
+  }
+
+  // 저장
   const handleSave = () => {
     const inst = editorRef.current.getInstance();
     const data = inst.getHTML();
@@ -66,6 +74,9 @@ const ModalMemoUpsert = ({ open, onConfirm, onSave, memo }) => {
         <div className="modal-actions">
           <button type="button" className="modal-btn return" onClick={handleSave}>
             SAVE
+          </button>
+          <button type="button" className="modal-btn leave" onClick={handleClear}>
+            CLEAR
           </button>
         </div>
       </div>
