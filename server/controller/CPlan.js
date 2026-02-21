@@ -529,8 +529,8 @@ const deletePlan = async (req, res) => {
 
     // date 찾기
     const date = await PlanDate.findOne({
-        where: { crewId, year: y, month: m, day: d },
-        order: [["dateId", "DESC"]],
+      where: { crewId, year: y, month: m, day: d },
+      order: [["dateId", "DESC"]],
     });
 
     // date 없으면 빈 데이터 반환
