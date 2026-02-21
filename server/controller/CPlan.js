@@ -38,18 +38,16 @@ const createPlan = async (req, res) => {
     const dateId = newDate.dateId;
 
     // 메모 작성
-    if (memo && memo.trim() !== "") {
-      await DateMemo.create(
-        {
-          crewId,
-          dateId,
-          content: memo,
-          creationTime: now,
-          modifyTime: now,
-        },
-        { transaction: transaction }
-      );
-    }
+    await DateMemo.create(
+      {
+        crewId,
+        dateId,
+        content: memo,
+        creationTime: now,
+        modifyTime: now,
+      },
+      { transaction: transaction }
+    );
 
     // 일정 작성
     const todos = toDoList.map(todo => {

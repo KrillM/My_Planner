@@ -32,6 +32,10 @@ app.use("/plan", planRouter);
 const calendarRouter = require('./routes/calendar');
 app.use("/calendar", calendarRouter);
 
+// Memo
+const memoRouter = require('./routes/memo');
+app.use("/memo", memoRouter);
+
 app.get("/", (req, res) => {
   res.send({ message: "Server and Client connected" });
 });

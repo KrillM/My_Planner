@@ -3,7 +3,7 @@
 // 변수 설정
 $saveBtn-bg: mp.$brand-color;
 $findBtn-bg: #D9D9D9;
-$editBtn-bg: #FFD700;
+$editBtn-bg: mp.$edit-color;
 $delete-bg: mp.$warn-color;
 
 @mixin base-btn($bg-color) {

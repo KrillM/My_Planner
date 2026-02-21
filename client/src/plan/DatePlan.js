@@ -114,6 +114,29 @@ const DatePlan = () => {
     }
   };
 
+  // 메모 수정
+  const handleMemoSave = async (html) => {
+    setMemo(html);
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(process.env.REACT_APP_API_BASE_URL + `/memo/${dateKey}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ memo: html }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message);
+    } catch (e) {
+      console.error(e);
+      alert("메모 저장에 실패했습니다.");
+    }
+  };
+
   return (
     <div className="date-container">
       <div className="planner-header">
@@ -152,7 +175,12 @@ const DatePlan = () => {
         ))}
       </div>
 
-      <ModalMemoRead open={isMemoModalOpen} close={handleCloseMemoModal} memo={memo} />
+      <ModalMemoRead
+        open={isMemoModalOpen}
+        close={handleCloseMemoModal}
+        memo={memo}
+        onSave={handleMemoSave}
+      />
       <UpdateIcon onClick={move}/>
     </div>
   );

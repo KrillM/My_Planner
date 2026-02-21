@@ -118,6 +118,11 @@ $font-color: mp.$font-color;
   color: $bg-color;
 }
 
+.modal-btn.cancel {
+  background: mp.$edit-color;
+  color: $font-color;
+}
+
 .read-memo {
   width: 100%;
   text-align: left;
