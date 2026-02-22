@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
   return sequelize.define('FrequencyMemo', {
-    frequencyMemo: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
+    frequencyMemoId: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
     frequencyId: { type: DataTypes.BIGINT, primaryKey: true },
     crewId: { type: DataTypes.STRING(40), primaryKey: true },
     content: { type: DataTypes.TEXT, allowNull: false },
