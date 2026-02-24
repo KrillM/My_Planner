@@ -22,6 +22,11 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
     navigate('/new')
   }
 
+  // 자주 사용하는 일정 페이지로 이동
+  const handleFrequencyPlan = () => {
+    navigate('/frequency/list')
+  }
+
   // 프로필 화면 이동
   const handleProfile = () => {
     navigate('/profile')
@@ -107,7 +112,7 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
                 <span className="material-symbols-outlined">edit</span>
                 Update
               </div> */}
-              <div className="sub-item">
+              <div className="sub-item" onClick={handleFrequencyPlan}>
                 <span className="material-symbols-outlined">repeat</span>
                 Frequency
               </div>

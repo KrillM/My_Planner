@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
-import InputTodo from "./InputTodo";
+import InputTodo from "../upsert/InputTodo";
 import ModalMemoUpsert from "../modals/ModalMemoUpsert";
-import UpdateTodo from "./UpdateTodo";
+import UpdateTodo from "../upsert/UpdateTodo";
 import ModalMessage from '../modals/ModalMessage';
 import CalendarPopover from "../calendar/CalendarPopover";
 import "../styles/date.scss";

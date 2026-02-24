@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
-import InputTodo from "./InputTodo";
+import InputTodo from "../upsert/InputTodo";
 import ModalMemoUpsert from "../modals/ModalMemoUpsert";
-import UpdateTodo from "./UpdateTodo";
+import UpdateTodo from "../upsert/UpdateTodo";
 import ModalMessage from '../modals/ModalMessage';
 import ModalCheck from "../modals/ModalCheck";
 import CalendarPopover from "../calendar/CalendarPopover";

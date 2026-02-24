@@ -12,6 +12,8 @@ import NewPlan from './plan/NewPlan';
 import UpsertPlan from './plan/UpsertPlan';
 import DarkMode from './components/DarkMode';
 import CalendarPage from './calendar/CalendarPage';
+import FrequencyList from './frequency/FrequencyList';
+import NewFrequency from './frequency/NewFrequency';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import ProtectedRoute from './components/ProtectedRoute';
@@ -80,6 +82,11 @@ function App() {
             <Route path="/:dateKey" element={<DatePlan />} />
             <Route path="/upsert/:dateKey" element={<UpsertPlan />} />
             <Route path='/calendar' element={<CalendarPage />} />
+            
+            <Route path="/frequency">
+              <Route path="list" element={<FrequencyList />} />
+              <Route path="new" element={<NewFrequency />} />
+            </Route>
           </Route>
 
           {/* 404 */}
