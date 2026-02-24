@@ -7,7 +7,7 @@ import ModalMessage from '../modals/ModalMessage';
 import CalendarPopover from "../calendar/CalendarPopover";
 import "../styles/date.scss";
 
-const New = () => {
+const NewPlan = () => {
   const navigate = useNavigate();
   
   const [toDoList, setToDoList] = useState([]);
@@ -303,4 +303,4 @@ const New = () => {
   );
 };
 
-export default New;
+export default NewPlan;

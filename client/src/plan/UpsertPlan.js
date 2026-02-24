@@ -8,7 +8,7 @@ import ModalCheck from "../modals/ModalCheck";
 import CalendarPopover from "../calendar/CalendarPopover";
 import "../styles/date.scss";
 
-const Upsert = () => {
+const UpsertPlan = () => {
   const { dateKey } = useParams();
 
   useEffect(() => {
@@ -396,4 +396,4 @@ const Upsert = () => {
   );
 };
 
-export default Upsert;
+export default UpsertPlan;
