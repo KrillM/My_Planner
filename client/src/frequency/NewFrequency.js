@@ -54,7 +54,7 @@ const NewFrequency = () => {
   const getKey = (t) => t.listId ?? t.tempId;
   const openMemoModal = () => setIsMemoModalOpen(true);
 
-  const handleCloseMemoModal = (data) => {
+  const handleCloseMemoModal = () => {
     setIsMemoModalOpen(false);
   };
 

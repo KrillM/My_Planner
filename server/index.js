@@ -36,6 +36,10 @@ app.use("/calendar", calendarRouter);
 const memoRouter = require('./routes/memo');
 app.use("/memo", memoRouter);
 
+// Frequency
+const frequencyRouter = require('./routes/frequency');
+app.use("/frequency", frequencyRouter);
+
 app.get("/", (req, res) => {
   res.send({ message: "Server and Client connected" });
 });
