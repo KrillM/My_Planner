@@ -14,6 +14,61 @@ $font-color: mp.$font-color;
     align-items: center;
     margin-bottom: 25px;
 
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .header-top {
+      font-family: mp.$brand-font;
+      font-size: 1.2rem; 
+      font-weight: 500;
+      color: #222;
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+
+    .header-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border: 2px solid rgba(0, 0, 0, 0.12);
+      border-radius: 999px;
+      background: transparent;
+      width: fit-content;
+
+      .pill-text {
+        width: 140px;
+        text-align: center;
+        font-family: mp.$brand-font;
+        font-size: 0.8rem;
+        color: #222;
+        letter-spacing: -0.5px;
+      }
+      
+      .icon-error{
+        color: mp.$warn-color;
+      }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 4px; // 아이콘 간격
+      padding-top: 4px; // 살짝 내려서 사진 느낌
+    }
+
+    .header-icon {
+      font-size: 2rem;
+      color: #111;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
     .date-title{
       display: flex;
       gap: 5px;
@@ -94,6 +149,7 @@ $font-color: mp.$font-color;
         position: relative;
         display: inline-flex;
         align-items: center;
+        flex: 0 0 auto;
       }
 
       .cal-popover {
@@ -164,6 +220,21 @@ $font-color: mp.$font-color;
   }
 }
 
+.cal-popover-fixed {
+  position: fixed;
+  z-index: 9999;
+
+  width: 360px;
+  max-width: 92vw;
+  max-height: 80vh;
+  overflow: auto;
+
+  background: mp.$main-bg-color;
+  border-radius: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+  padding: 12px;
+}
+
 // 다크모드
 body.dark {
   .date-container {
@@ -175,6 +246,19 @@ body.dark {
     }
 
     .planner-header {
+      .header-top,
+      .header-pill .pill-text {
+        color: mp.$font-color-dark;
+      }
+
+      .header-pill {
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+
+      .header-icon {
+        color: mp.$font-color-dark;
+      }
+
       .date-detail { 
         background-color: mp.$main-bg-color-dark;
         color: mp.$font-color-dark; 
@@ -206,5 +290,9 @@ body.dark {
         }
       }
     }
+  }
+
+  .cal-popover-fixed {
+    background: mp.$main-bg-color-dark;
   }
 }

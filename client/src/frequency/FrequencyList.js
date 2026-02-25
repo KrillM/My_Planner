@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import UpdateIcon from "../upsert/UpdateIcon";
 import '../styles/date.scss';
 
@@ -40,13 +40,12 @@ const FrequencyList = () => {
       <div className="toDo-list">
         {frequencyList.map((frequency) => (
           <div key={frequency.frequencyId} className="toDo-detail">
-            <div className="toDo-content">
+            <div className="toDo-content"
+              onClick={() => navigate(`/frequency/${frequency.frequencyId}`)}
+              style={{ cursor: "pointer" }}
+            >
               <div className="content-row">
-                {/* <span className="toDo-content">{frequency.title}</span> */}
-                <Link to={`/frequency/${frequency.frequencyId}`}
-                className="toDo-content">
-                  {frequency.title}
-                </Link>
+                {frequency.title}
               </div>
             </div>
             
