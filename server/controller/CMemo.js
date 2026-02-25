@@ -73,6 +73,7 @@ const upsertFrequencyMemo = async (req, res) => {
     // frequency 찾기
     const frequency = await Frequency.findOne({
       where: { crewId, frequencyId: freqId },
+      transaction
     });
 
     if (!frequency) {
