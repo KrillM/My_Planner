@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ModalMemoRead from "../modals/ModalMemoRead";
+import ModalMemoUpsert from "../modals/ModalMemoUpsert";
+import ModalMessage from '../modals/ModalMessage';
 import UpdateIcon from "../upsert/UpdateIcon";
 import CalendarPopover from "../calendar/CalendarPopover";
 import '../styles/date.scss';
@@ -148,7 +150,43 @@ const FrequencyDetail = () => {
       setIsDateEmpty(true);
       return;
     }
+
+    const addPlan = {year, month, day, isTemporary: "N", isUseDDay, toDoList: frequencyList, memo};
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/plan/new", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(addPlan),
+      });
+
+      const data = await res.json();
+      console.log("서버 응답:", data);
+
+      setResultMessage(data.message);
+      setIsResultModalOpen(true);
+    } catch (err) {
+      console.error("전송 실패:", err);
+    }
   }
+
+  // 메시지 모달 창
+  const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+  const [resultMessage, setResultMessage] = useState("");
+
+  const handleResultConfirm = () => {
+    setIsResultModalOpen(false);
+    
+    const yy = String(year).slice(-2);
+    const mm = String(month).padStart(2, "0");
+    const dd = String(day).padStart(2, "0");
+    
+    navigate(`/${yy}${mm}${dd}`, { replace: true });
+  };
 
   return (
     <div className="date-container">
@@ -250,6 +288,7 @@ const FrequencyDetail = () => {
         onSave={handleMemoSave}
       />
       <UpdateIcon onClick={move}/>
+      <ModalMessage open={isResultModalOpen} message={resultMessage} onConfirm={handleResultConfirm} />
     </div>
   );
 };
