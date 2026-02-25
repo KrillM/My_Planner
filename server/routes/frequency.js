@@ -9,4 +9,7 @@ router.post('/new', auth, CFrequency.createFrequency);
 // 자주 사용하는 일정 목록 조회
 router.get('/list', auth, CFrequency.frequencyList); 
 
+// 자주 사용하는 일정 상세 목록 조회
+router.get('/:frequencyId', auth, CFrequency.frequencyDetail)
+
 module.exports = router;

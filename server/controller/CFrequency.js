@@ -59,10 +59,10 @@ const createFrequency = async (req, res) => {
         // 오전/오후/저녁/밤
         else {
             const map = {
-              "오전": "04:00",
-              "오후": "12:00",
-              "저녁": "18:00",
-              "밤": "21:00"
+                "오전": "04:00",
+                "오후": "12:00",
+                "저녁": "18:00",
+                "밤": "21:00"
             };
     
             const t = map[fList.time];
@@ -112,7 +112,78 @@ const frequencyList = async (req, res) => {
     }
 }
 
+// 자주 사용하는 일정 상세 페이지
+const frequencyDetail = async (req, res) => {
+    try {
+        const crewId = req.user.crewId;
+        const { frequencyId }= req.params;
+        const freqId = Number(frequencyId);
+
+        // frequency 찾기
+        const frequency = await Frequency.findOne({
+            where: { crewId, frequencyId: freqId },
+        });
+
+        if (!frequency) {
+            return res.status(404).json({ message: "자주 사용하는 일정이 없습니다." });
+        }
+
+        // memo 찾기(있으면)
+        const memo = await FrequencyMemo.findOne({
+            where: { crewId, frequencyId: freqId }
+        });
+
+        // frequency list 리스트 찾기
+        const lists = await FrequencyList.findAll({
+            where: { crewId, frequencyId: freqId },
+            order: [["planBegin", "ASC"]],
+        });
+
+        // 프론트가 쓰기 편하게 변환
+        const frequencyList = lists.map(t => ({
+            listId: t.listId,
+            content: t.content,
+            isUseAlarm: t.isUseAlarm === "Y",
+            time: formatTimeLabel(t.isUseTimeSlot, t.planBegin, t.planEnd),
+        }));
+
+        return res.status(200).json({
+            title: frequency.title,
+            memo: memo?.content ?? "",
+            frequencyList,
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "자주 사용하는 일정 조회 중 오류" });
+    }
+};
+
+// begin/end: "HH:MM:SS" 또는 "HH:MM" or null
+function formatTimeLabel(isUseTimeSlot, begin, end) {
+    const toHHMM = (t) => {
+        if (!t) return null;
+        // "07:00:00" -> "07:00"
+        const [hh, mm] = String(t).split(":");
+        return `${hh.padStart(2, "0")}:${(mm ?? "00").padStart(2, "0")}`;
+    };
+
+    const b = toHHMM(begin);
+    const e = toHHMM(end) ?? b;
+
+    if (isUseTimeSlot === "Y") {
+        if (!b) return "";
+        return b === e ? b : `${b} ~ ${e}`;
+    }
+
+    // 슬롯 라벨은 begin 시간 기준
+    const hour = Number((b ?? "00:00").slice(0, 2));
+    if (hour === 4) return "오전";
+    if (hour === 12) return "오후";
+    if (hour === 18) return "저녁";
+    return "밤";
+}
 module.exports = {
     createFrequency,
-    frequencyList
+    frequencyList,
+    frequencyDetail
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import UpdateIcon from "../upsert/UpdateIcon";
 import '../styles/date.scss';
 
@@ -42,7 +42,11 @@ const FrequencyList = () => {
           <div key={frequency.frequencyId} className="toDo-detail">
             <div className="toDo-content">
               <div className="content-row">
-                <span className="toDo-content">{frequency.title}</span>
+                {/* <span className="toDo-content">{frequency.title}</span> */}
+                <Link to={`/frequency/${frequency.frequencyId}`}
+                className="toDo-content">
+                  {frequency.title}
+                </Link>
               </div>
             </div>
             
