@@ -117,7 +117,7 @@ const FrequencyDetail = () => {
 
   // 일정 작성 || 수정 페이지 이동
   const move = () => {
-
+    navigate(`/frequency/upsert/${frequencyId}`);
   }
 
   // 메모 수정

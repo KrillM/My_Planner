@@ -12,4 +12,7 @@ router.get('/list', auth, CFrequency.frequencyList);
 // 자주 사용하는 일정 상세 목록 조회
 router.get('/:frequencyId', auth, CFrequency.frequencyDetail)
 
+// 자주 사용하는 일정 삭제
+router.delete('/delete/:frequencyId', auth, CFrequency.deleteFrequency);
+
 module.exports = router;

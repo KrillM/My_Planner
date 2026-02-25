@@ -158,6 +158,34 @@ const frequencyDetail = async (req, res) => {
     }
 };
 
+// 자주 사용하는 일정 삭제
+const deleteFrequency = async (req, res) => {
+    try {
+        const crewId = req.user.crewId;
+        const { frequencyId }= req.params;
+        const freqId = Number(frequencyId);
+
+        // frequency 찾기
+        const frequency = await Frequency.findOne({
+            where: { crewId, frequencyId: freqId },
+        });
+
+        if (!frequency) {
+            return res.status(404).json({ message: "자주 사용하는 일정이 없습니다." });
+        }
+
+        await Frequency.destroy({
+        where: { crewId, frequencyId: freqId }
+    });
+
+        return res.json({ result: true, message: '일정이 삭제되었습니다.' });
+    }
+    catch(error) {
+        console.error('Error deleting crew', error);
+        return res.status(500).send('Internal Server Error');
+    }
+}
+
 // begin/end: "HH:MM:SS" 또는 "HH:MM" or null
 function formatTimeLabel(isUseTimeSlot, begin, end) {
     const toHHMM = (t) => {
@@ -185,5 +213,6 @@ function formatTimeLabel(isUseTimeSlot, begin, end) {
 module.exports = {
     createFrequency,
     frequencyList,
-    frequencyDetail
+    frequencyDetail,
+    deleteFrequency
 }

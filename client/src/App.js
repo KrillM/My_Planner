@@ -15,6 +15,7 @@ import CalendarPage from './calendar/CalendarPage';
 import FrequencyList from './frequency/FrequencyList';
 import NewFrequency from './frequency/NewFrequency';
 import FrequencyDetail from './frequency/FrequencyDetail';
+import UpsertFrequency from './frequency/UpsertFrequency';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import ProtectedRoute from './components/ProtectedRoute';
@@ -88,6 +89,7 @@ function App() {
               <Route path="list" element={<FrequencyList />} />
               <Route path="new" element={<NewFrequency />} />
               <Route path=":frequencyId" element={<FrequencyDetail />} />
+              <Route path="upsert/:frequencyId" element={<UpsertFrequency />} />
             </Route>
           </Route>
 

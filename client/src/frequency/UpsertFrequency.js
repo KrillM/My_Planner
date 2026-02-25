@@ -1,12 +1,14 @@
-import { useState, useRef } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, useParams } from 'react-router-dom';
 import InputTodo from "../upsert/InputTodo";
 import ModalMemoUpsert from "../modals/ModalMemoUpsert";
 import ModalMessage from '../modals/ModalMessage';
+import ModalCheck from "../modals/ModalCheck";
 import UpdateTodo from "../upsert/UpdateTodo";
 import "../styles/date.scss";
 
-const NewFrequency = () => {
+const UpsertFrequency = () => {
+  const { frequencyId } = useParams();
   const navigate = useNavigate();
   
   const [title, setTitle] = useState("");
@@ -20,8 +22,40 @@ const NewFrequency = () => {
   const [memo, setMemo] = useState("");
   const [isMemoModalOpen, setIsMemoModalOpen] = useState(false);
   const [selectedTodoID, setSelectedTodoID] = useState(null);
-  const [createdFrequencyId, setCreatedFrequencyId] = useState("");
 
+  useEffect(() => {
+    if (!frequencyId) return;
+
+    const fetchExisting = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          process.env.REACT_APP_API_BASE_URL + `/frequency/${frequencyId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          if (res.status === 404) {
+            navigate("/404", { replace: true });
+            return;
+          }
+          throw new Error(errData.message || `HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        
+        setTitle(data.title);
+        setFrequencyList(data.frequencyList ?? []);
+        setMemo(data.memo ?? "");
+      } catch (e) {
+        console.error("기존 일정 조회 실패:", e);
+      }
+    };
+
+    if (frequencyId) fetchExisting();
+  }, [frequencyId]);
+  
   const validateTitle = (value)=> {
     setTitle(value);
 
@@ -116,17 +150,17 @@ const NewFrequency = () => {
 
     if(titleEmpty) return;
 
-    const addFrequency = {title, frequencyList, memo};
+    const upsertFrequency = {title, frequencyList, memo};
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/frequency/new", {
-        method: "POST",
+      const res = await fetch(process.env.REACT_APP_API_BASE_URL + `/frequency/upsert/${frequencyId}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(addFrequency),
+        body: JSON.stringify(upsertFrequency),
       });
 
       const data = await res.json();
@@ -134,7 +168,6 @@ const NewFrequency = () => {
 
       setResultMessage(data.message);
       setIsResultModalOpen(true);
-      setCreatedFrequencyId(data.freqId);
     } catch (err) {
       console.error("전송 실패:", err);
     }
@@ -142,8 +175,59 @@ const NewFrequency = () => {
 
   const handleResultConfirm = () => {
     setIsResultModalOpen(false);
-    navigate(`/frequency/${createdFrequencyId}`, {replace: true});
+
+    if(isDeleteSuccess){
+      navigate("/", { replace: true });
+    } else {
+      navigate(`/frequency/${frequencyId}`, {replace: true});
+    }
   };
+
+    // 경고 모달 창
+  const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
+  const [isDeleteSuccess, setIsDeleteSuccess] = useState(false);
+  const openCheckModal = () => setIsCheckModalOpen(true);
+  const closeCheckModal = () => setIsCheckModalOpen(false);
+
+  const deleteMessage = (
+    <>
+      일정을 삭제하시겠습니까?
+      <br />
+      이 작업은 되돌릴 수 없습니다.
+    </>
+  );
+
+  const handleDelete = async () => {
+    try{
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        process.env.REACT_APP_API_BASE_URL + `/frequency/delete/${frequencyId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },   
+        }
+      );
+      const text = await res.text();
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { result: res.ok, message: text };
+      }
+
+      const ok = !!data.result && res.ok;
+      setIsDeleteSuccess(ok);
+      setResultMessage( data.message );
+    }
+    catch(err){
+      setIsDeleteSuccess(false);
+      setResultMessage("네트워크 오류로 일정 삭제하지 못했습니다.");
+    }
+    closeCheckModal();
+    setIsResultModalOpen(true);
+  }
 
   return (
     <div className="date-container">
@@ -156,6 +240,7 @@ const NewFrequency = () => {
         />
         <div className="doc-icon">
           <span className="material-symbols-outlined" onClick={openMemoModal}>description</span>
+          <span className="material-symbols-outlined" onClick={openCheckModal}>delete</span>
         </div>
       </div>
 
@@ -225,8 +310,9 @@ const NewFrequency = () => {
 
       <ModalMemoUpsert open={isMemoModalOpen} onConfirm={handleCloseMemoModal} onSave={handleSaveMemo} memo={memo}/>
       <ModalMessage open={isResultModalOpen} message={resultMessage} onConfirm={handleResultConfirm} />
+      <ModalCheck open={isCheckModalOpen} onClose={closeCheckModal} onConfirm={handleDelete} message={deleteMessage} btnMsg={`Delete`}/>
     </div>
   );
 };
 
-export default NewFrequency;
+export default UpsertFrequency;

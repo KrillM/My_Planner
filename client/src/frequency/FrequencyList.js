@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import UpdateIcon from "../upsert/UpdateIcon";
+import AddIcon from "../upsert/AddIcon.";
 import '../styles/date.scss';
 
 const FrequencyList = () => {
@@ -49,13 +49,16 @@ const FrequencyList = () => {
               </div>
             </div>
             
-            <div className="toDo-checkbox">
-                <span className="material-symbols-outlined">edit</span>
+            <div className="toDo-checkbox"
+              onClick={() => navigate(`/frequency/upsert/${frequency.frequencyId}`)}
+              style={{ cursor: "pointer" }}
+            >
+              <span className="material-symbols-outlined">edit</span>
             </div>
           </div>
         ))}
       </div>
-      <UpdateIcon onClick={move}/>
+      <AddIcon onClick={move}/>
     </div>
   );
 };
