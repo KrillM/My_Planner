@@ -1,4 +1,4 @@
-const { Date: PlanDate, DateMemo, sequelize } = require("../model");
+const { Date: PlanDate, DateMemo, sequelize, Frequency, FrequencyMemo } = require("../model");
 
 const parseDateKey = (dateKey) => {
   const y = "20" + dateKey.slice(0, 2);
@@ -7,7 +7,8 @@ const parseDateKey = (dateKey) => {
   return { y, m, d };
 };
 
-const upsertMemo = async (req, res) => {
+// 일정 메모 수정
+const upsertDateMemo = async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
     const crewId = req.user.crewId;
@@ -59,6 +60,52 @@ const upsertMemo = async (req, res) => {
   }
 };
 
+// 자주 사용하는 일정 수정
+const upsertFrequencyMemo = async (req, res) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const crewId = req.user.crewId;
+    const { frequencyId }= req.params;
+    const freqId = Number(frequencyId);
+    const memoText = (req.body.memo ?? "").trim();
+    const now = new Date();
+
+    // frequency 찾기
+    const frequency = await Frequency.findOne({
+      where: { crewId, frequencyId: freqId },
+    });
+
+    if (!frequency) {
+      return res.status(404).json({ message: "자주 사용하는 일정이 없습니다." });
+    }
+
+    // memo 찾기(있으면)
+    const memo = await FrequencyMemo.findOne({
+      where: { crewId, frequencyId: freqId },
+      transaction
+    });
+
+    if (!memo) {
+      await transaction.rollback();
+      return res.status(404).json({ result: false, message: "수정할 메모가 없습니다." });
+    }
+
+    // 여기서는 "내용 비우기(업데이트)"로 처리
+    await FrequencyMemo.update(
+      { content: memoText, modifyTime: now },
+      { where: { crewId, frequencyId: freqId, frequencyMemoId: memo.frequencyMemoId }, transaction }
+    );
+
+    await transaction.commit();
+    return res.status(200).json({ result: true, message: "메모가 수정되었습니다." });
+  } catch (err) {
+    await transaction.rollback();
+    console.error(err);
+    return res.status(500).json({ result: false, message: "메모 수정 중 오류" });
+  }
+};
+
 module.exports = {
-  upsertMemo
+  upsertDateMemo,
+  upsertFrequencyMemo
 }
