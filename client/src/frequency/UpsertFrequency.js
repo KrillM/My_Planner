@@ -177,7 +177,7 @@ const UpsertFrequency = () => {
     setIsResultModalOpen(false);
 
     if(isDeleteSuccess){
-      navigate("/", { replace: true });
+      navigate("/frequency/list", { replace: true });
     } else {
       navigate(`/frequency/${frequencyId}`, {replace: true});
     }

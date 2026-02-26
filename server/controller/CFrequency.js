@@ -158,6 +158,39 @@ const frequencyDetail = async (req, res) => {
     }
 };
 
+// 업데이트 횟수 추가
+const addConut = async (req, res) => {
+    const transaction = await sequelize.transaction();
+        try{
+        const crewId = req.user.crewId;
+        const { frequencyId } = req.params;
+        const freqId = Number(frequencyId);
+
+        // frequency 찾기
+        const frequency = await Frequency.findOne({
+            where: { crewId, frequencyId: freqId },
+            transaction
+        });
+
+        if (!frequency) {
+            await transaction.rollback();
+            return res.status(404).json({ message: "자주 사용하는 일정이 없습니다." });
+        }
+
+        await Frequency.increment(
+            { frequencyCount: 1 },
+            { where: { crewId, frequencyId: freqId }, transaction }
+        );
+
+        await transaction.commit();
+        return res.status(200).json({ result: true, message: "횟수가 증가되었습니다." });
+    } catch(err){
+        await transaction.rollback();
+        console.error(err);
+        return res.status(500).json({ message: "일정 수정 중 오류" });   
+    }
+}
+
 // 자주 사용하는 일정 수정
 const upsertFrequency = async (req, res) => {
     const transaction = await sequelize.transaction();
@@ -265,7 +298,6 @@ const upsertFrequency = async (req, res) => {
             const id = Number(t.listId);
             const { planBegin, planEnd, isUseTimeSlot } = parseTodoTime(t);
             const nextAlarm = t.isUseAlarm ? "Y" : "N";
-            const nextDone = t.isDone ? "Y" : "N";
     
             // 기존이면 비교 후 update
             if (Number.isFinite(id) && id > 0 && existingMap.has(id)) {
@@ -386,6 +418,7 @@ module.exports = {
     createFrequency,
     frequencyList,
     frequencyDetail,
+    addConut,
     upsertFrequency,
     deleteFrequency
 }

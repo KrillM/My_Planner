@@ -10,7 +10,10 @@ router.post('/new', auth, CFrequency.createFrequency);
 router.get('/list', auth, CFrequency.frequencyList); 
 
 // 자주 사용하는 일정 상세 목록 조회
-router.get('/:frequencyId', auth, CFrequency.frequencyDetail)
+router.get('/:frequencyId', auth, CFrequency.frequencyDetail);
+
+// 업데이트 횟수 추가
+router.patch('/addcount/:frequencyId', auth, CFrequency.addConut);
 
 // 자주 사용하는 일정 수정
 router.put('/upsert/:frequencyId', auth, CFrequency.upsertFrequency);

@@ -154,7 +154,7 @@ const FrequencyDetail = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/plan/new", {
+      const res1 = await fetch(process.env.REACT_APP_API_BASE_URL + "/plan/new", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -163,10 +163,32 @@ const FrequencyDetail = () => {
         body: JSON.stringify(addPlan),
       });
 
-      const data = await res.json();
-      console.log("서버 응답:", data);
+      const data1 = await res1.json();
+      console.log("서버 응답 1:", data1);
 
-      setResultMessage(data.message);
+      if (!res1.ok) {
+        throw new Error(data1.message);
+      }
+
+      // 첫 번째가 성공했을 때만 실행
+      const res2 = await fetch(
+        process.env.REACT_APP_API_BASE_URL + `/frequency/addcount/${frequencyId}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data2 = await res2.json();
+      console.log("서버 응답 2:", data2);
+
+      if (!res2.ok) {
+        throw new Error(data2.message);
+      }
+
+      setResultMessage(data1.message);
       setIsResultModalOpen(true);
     } catch (err) {
       console.error("전송 실패:", err);
