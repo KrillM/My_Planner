@@ -158,6 +158,178 @@ const frequencyDetail = async (req, res) => {
     }
 };
 
+// 자주 사용하는 일정 수정
+const upsertFrequency = async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try{
+        const crewId = req.user.crewId;
+        const { frequencyId } = req.params;
+        const freqId = Number(frequencyId);
+
+        // frequency 찾기
+        const frequency = await Frequency.findOne({
+            where: { crewId, frequencyId: freqId },
+            transaction
+        });
+
+        if (!frequency) {
+            await transaction.rollback();
+            return res.status(404).json({ message: "자주 사용하는 일정이 없습니다." });
+        }
+
+        let touched = false;
+        const now = new Date();
+        const {title, frequencyList = [], memo} = req.body;
+
+        // Frequency 업데이트
+        const patch = {};
+        const revisedTitle = String(title);
+        if(String(frequency.title) !== revisedTitle) patch.title = revisedTitle;
+        if (Object.keys(patch).length > 0) {
+            patch.modifyTime = now;
+            await Frequency.update(patch, { where: { crewId, frequencyId: freqId }, transaction });
+            touched = true;
+        }
+
+        // Memo 업데이트
+        const memoText = (memo ?? "").trim();
+    
+        const memoRow = await FrequencyMemo.findOne({
+            where: { crewId, frequencyId: freqId },
+            transaction,
+        });
+    
+        if ((memoRow.content ?? "").trim() !== memoText) {
+            await FrequencyMemo.update(
+                { content: memoText, modifyTime: now },
+                { where: { frequencyMemoId: memoRow.frequencyMemoId }, transaction }
+            );
+            touched = true;
+        }
+
+        // list diff
+        const existLists = await FrequencyList.findAll({
+            where: { crewId, frequencyId: freqId },
+            transaction,
+        });
+        
+        // 기존 list 저장
+        const existingMap = new Map(existLists.map((t) => [t.listId, t]));
+    
+        // 신규 list 받아옴
+        const incoming = Array.isArray(frequencyList) ? frequencyList : [];
+        
+        // incoming id set (기존 것들만)
+        const incomingIds = new Set(
+            incoming
+            .map((t) => Number(t.listId))
+            .filter((id) => Number.isFinite(id) && id > 0)
+        );
+        
+        // 3-1) 삭제
+        const deleteIds = existLists
+            .map((t) => t.frequencyId)
+            .filter((id) => !incomingIds.has(id));
+    
+        if (deleteIds.length > 0) {
+            await FrequencyList.destroy({
+                where: { crewId, frequencyId: freqId, listId: deleteIds },
+                transaction,
+            });
+            touched = true;
+        }
+        
+        // 시간 파싱
+        const parseTodoTime = (freqList) => {
+            let planBegin = null;
+            let planEnd = null;
+            let isUseTimeSlot = "N";
+    
+            if (freqList.time?.includes(":")) {
+                isUseTimeSlot = "Y";
+                const [start, end] = freqList.time.split(" ~ ");
+                planBegin = `${start}:00`;
+                planEnd = `${(end || start)}:00`;
+            } else {
+                const map = { "오전": "04:00", "오후": "12:00", "저녁": "18:00", "밤": "21:00" };
+                const t = map[freqList.time] || "21:00";
+                planBegin = `${t}:00`;
+                planEnd = planBegin;
+            }
+        
+            return { planBegin, planEnd, isUseTimeSlot };
+        };
+    
+        // 3-2) 업데이트/생성
+        for (const t of incoming) {
+            const id = Number(t.listId);
+            const { planBegin, planEnd, isUseTimeSlot } = parseTodoTime(t);
+            const nextAlarm = t.isUseAlarm ? "Y" : "N";
+            const nextDone = t.isDone ? "Y" : "N";
+    
+            // 기존이면 비교 후 update
+            if (Number.isFinite(id) && id > 0 && existingMap.has(id)) {
+            const old = existingMap.get(id);
+    
+            const changed =
+                (old.content ?? "") !== (t.content ?? "") ||
+                old.isUseAlarm !== nextAlarm ||
+                old.isUseTimeSlot !== isUseTimeSlot ||
+                +new Date(old.planBegin) !== +new Date(planBegin) ||
+                +new Date(old.planEnd) !== +new Date(planEnd);
+    
+            if (changed) {
+                await FrequencyList.update(
+                    {
+                        content: t.content,
+                        isUseAlarm: nextAlarm,
+                        isUseTimeSlot,
+                        planBegin,
+                        planEnd,
+                        modifyTime: now,
+                    },
+                    { where: { crewId, frequencyId: freqId, listId: id }, transaction }
+                    );
+                    touched = true;
+                }
+            }
+            // 신규면 create
+            else {
+                await FrequencyList.create(
+                    {
+                        frequencyId: freqId,
+                        crewId,
+                        content: t.content,
+                        isUseTimeSlot,
+                        planBegin,
+                        planEnd,
+                        isUseAlarm: nextAlarm,
+                        creationTime: now,
+                        modifyTime: now,
+                    },
+                    { transaction }
+                );
+            touched = true;
+            }
+        }
+        
+        // 하나라도 바뀌면 modifyTime 갱신
+        if (touched) {
+            await Frequency.update(
+                { modifyTime: now },
+                { where: { crewId, frequencyId:freqId }, transaction }
+            );
+        }
+
+        await transaction.commit();
+        return res.status(200).json({ result: true, message: "일정이 수정되었습니다." });
+    } catch(err){
+        await transaction.rollback();
+        console.error(err);
+        return res.status(500).json({ message: "일정 수정 중 오류" });   
+    }
+}
+
 // 자주 사용하는 일정 삭제
 const deleteFrequency = async (req, res) => {
     try {
@@ -214,5 +386,6 @@ module.exports = {
     createFrequency,
     frequencyList,
     frequencyDetail,
+    upsertFrequency,
     deleteFrequency
 }
