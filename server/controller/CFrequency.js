@@ -159,7 +159,7 @@ const frequencyDetail = async (req, res) => {
 };
 
 // 업데이트 횟수 추가
-const addConut = async (req, res) => {
+const addCount = async (req, res) => {
     const transaction = await sequelize.transaction();
         try{
         const crewId = req.user.crewId;
@@ -418,7 +418,7 @@ module.exports = {
     createFrequency,
     frequencyList,
     frequencyDetail,
-    addConut,
+    addCount,
     upsertFrequency,
     deleteFrequency
 }
