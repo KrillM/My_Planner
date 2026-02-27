@@ -25,6 +25,11 @@ const DatePlan = () => {
           },
         });
 
+        if (res.status === 404) {
+          navigate("/404");
+          return;
+        }
+
         const data = await res.json();
         setToDoList(data.toDoList ?? []);
         setIsTemporary(data.isTemporary ?? "N");

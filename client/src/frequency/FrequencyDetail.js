@@ -38,6 +38,16 @@ const FrequencyDetail = () => {
         });
 
         const data = await res.json();
+
+        if (res.status === 404) {
+          navigate("/404");
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error(`일정 조회 실패: ${res.status}`);
+        }
+
         setTitle(data.title ?? "")
         setFrequencyList(data.frequencyList ?? []);        
         setMemo(data.memo ?? "");

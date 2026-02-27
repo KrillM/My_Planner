@@ -18,7 +18,7 @@ const UpsertPlan = () => {
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(
-          process.env.REACT_APP_API_BASE_URL + `/plan/editpage/${dateKey}`,
+          process.env.REACT_APP_API_BASE_URL + `/plan/${dateKey}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 

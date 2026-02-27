@@ -15,9 +15,6 @@ router.get("/:dateKey", auth, CPlan.getPlanByDate);
 // todo 업데이트
 router.patch("/:toDoId", auth, CPlan.toDoToggle);
 
-// 일정 수정 조회
-router.get("/editpage/:dateKey", auth, CPlan.getPlanForUpsert);
-
 // 일정 수정 실행
 router.put("/upsert/:dateKey", auth, CPlan.upsertPlan);
 
