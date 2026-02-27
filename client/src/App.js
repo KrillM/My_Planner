@@ -20,6 +20,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from './components/NotFound';
+import EventList from './event/EventList';
 
 function App() {
   const [message, setMessage] = useState("")
@@ -84,6 +85,7 @@ function App() {
             <Route path="/:dateKey" element={<DatePlan />} />
             <Route path="/upsert/:dateKey" element={<UpsertPlan />} />
             <Route path='/calendar' element={<CalendarPage />} />
+            <Route path="event" element={<EventList />} />
             
             <Route path="/frequency">
               <Route path="list" element={<FrequencyList />} />

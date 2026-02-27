@@ -40,18 +40,16 @@ const FrequencyList = () => {
       <div className="toDo-list">
         {frequencyList.map((frequency) => (
           <div key={frequency.frequencyId} className="toDo-detail">
-            <div className="toDo-content"
+            <div className="toDo-content get-pointer"
               onClick={() => navigate(`/frequency/${frequency.frequencyId}`)}
-              style={{ cursor: "pointer" }}
             >
               <div className="content-row">
                 {frequency.title}
               </div>
             </div>
             
-            <div className="toDo-checkbox"
+            <div className="toDo-checkbox get-pointer"
               onClick={() => navigate(`/frequency/upsert/${frequency.frequencyId}`)}
-              style={{ cursor: "pointer" }}
             >
               <span className="material-symbols-outlined">edit</span>
             </div>

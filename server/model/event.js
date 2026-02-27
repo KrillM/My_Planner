@@ -8,7 +8,6 @@ module.exports = (sequelize) => {
     date_begin: { type: DataTypes.DATE, allowNull: false },
     date_end: { type: DataTypes.DATE, allowNull: false },
     repeat: { type: DataTypes.STRING(8), defaultValue: 'NONE', allowNull: false },
-    is_temporary: { type: DataTypes.CHAR(1), defaultValue: 'N', allowNull: false },
     isUsedDay: { type: DataTypes.CHAR(1), defaultValue: 'N', allowNull: false },
     creationTime: { type: DataTypes.DATE, allowNull: false },
     modifyTime: { type: DataTypes.DATE, allowNull: false }

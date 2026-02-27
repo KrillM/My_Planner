@@ -190,12 +190,9 @@ const NewPlan = () => {
             readOnly
           />
           <div 
-            className="set-toggle" 
+            className={`set-toggle ${isUseDDay ? "toggle-d-day-on" : "toggle-d-day-off"}`}
             onClick={() => setIsUseDDay(prev => !prev)}
-            style={{
-              cursor: "pointer",
-              color: isUseDDay ? "#4caf50" : "#bbb"
-            }}>
+          >
             { isUseDDay ? (
               <span className="material-symbols-outlined">toggle_on</span>) : (
               <span className="material-symbols-outlined">toggle_off</span>

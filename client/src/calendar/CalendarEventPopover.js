@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { pad2, ymdKey, buildCalendarCells } from "./CalendarUtils";
-import { useNavigate } from 'react-router-dom';
 import '../styles/calendar.scss';
 
-export default function CalendarPage() {
-  const navigate = useNavigate();
+export default function CalendarEventPopover({onSelectDate, canSelect, onClose}) {
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth()); // 0~11
@@ -40,11 +38,6 @@ export default function CalendarPage() {
     fetchMonth();
   }, [viewYear, viewMonth]);
 
-  const isSameDay = (a, b) =>
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate();
-
   return (
     <div className="cal">
       <div className="cal-header">
@@ -73,6 +66,14 @@ export default function CalendarPage() {
         >
           {">"}
         </button>
+
+        <button
+          type="button"
+          className="cal-close"
+          onClick={onClose}
+        >
+          ×
+        </button>
       </div>
 
       <div className="cal-weekdays">
@@ -83,37 +84,24 @@ export default function CalendarPage() {
 
       <div className="cal-grid">
         {cells.map((d) => {
-          const key = ymdKey(d);
-          const info = dayMap[key] || { hasPlan: false, isTemporary: false };
-
+          const key = ymdKey(d); // "YYYY-MM-DD"
+          const info = dayMap[key] || { hasPlan:false, isTemporary:false };
           const isOutMonth = d.getMonth() !== viewMonth;
-          const isToday = isSameDay(d, today);
-
-          // 일정이 있는 날만 이동 가능
-          const canMove = !isOutMonth && info.hasPlan
-
-          // 굵은 글자 - 계획, 이텔릭체 - 임시, 희미한 글자 - 일정 없음
-          const classCondition = [
-            "day",
-            isOutMonth ? "out" : "",
-            isToday ? "today" : "",
-            info.isTemporary ? "temp" : "",
-            info.hasPlan ? "has" : "empty",
-            canMove ? "can-click" : "disabled"
-          ].filter(Boolean).join(" ");
-
+          const selectable =  canSelect({ date: d, key, info, isOutMonth })
+        
           return (
             <button
               key={key}
               type="button"
-              className={classCondition}
-              disabled={!canMove}
+              className={[
+                "day",
+                isOutMonth ? "out" : "",
+                "has",
+                "can-click",
+              ].filter(Boolean).join(" ")}
               onClick={() => {
-                if(!canMove) return;
-                const yy = String(d.getFullYear()).slice(-2);
-                const mm = pad2(d.getMonth() + 1);
-                const dd = pad2(d.getDate());
-                navigate(`/${yy}${mm}${dd}`);
+                if (!selectable) return;
+                onSelectDate?.(d);
               }}
             >
               <span className="num">{d.getDate()}</span>

@@ -40,6 +40,10 @@ app.use("/memo", memoRouter);
 const frequencyRouter = require('./routes/frequency');
 app.use("/frequency", frequencyRouter);
 
+// Event
+const eventRouter = require('./routes/event');
+app.use("/event", eventRouter);
+
 app.get("/", (req, res) => {
   res.send({ message: "Server and Client connected" });
 });

@@ -27,6 +27,11 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
     navigate('/frequency/list')
   }
 
+  // 이벤트 페이지로 이동
+  const handleEvent = () => {
+    navigate('/event')
+  }
+
   // 프로필 화면 이동
   const handleProfile = () => {
     navigate('/profile')
@@ -120,7 +125,7 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
                 <span className="material-symbols-outlined">calendar_view_day</span>
                 Long Term
               </div>
-              <div className="sub-item">
+              <div className="sub-item" onClick={handleEvent}>
                 <span class="material-symbols-outlined">event</span>
                 Event
               </div>

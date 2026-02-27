@@ -228,12 +228,9 @@ const FrequencyDetail = () => {
 
         <div className="header-right">
           <div 
-            className="set-toggle" 
+            className={`set-toggle ${isUseDDay ? "toggle-d-day-on" : "toggle-d-day-off"}`}
             onClick={() => setIsUseDDay(prev => !prev)}
-            style={{
-              cursor: "pointer",
-              color: isUseDDay ? "#4caf50" : "#bbb"
-            }}>
+          >
             { isUseDDay ? (
               <span className="material-symbols-outlined">toggle_on</span>) : (
               <span className="material-symbols-outlined">toggle_off</span>
@@ -242,9 +239,8 @@ const FrequencyDetail = () => {
           </div>
           <span
             ref={calBtnRef}
-            className={`material-symbols-outlined ${isDateEmpty ? "icon-error" : ""}`}
+            className={`material-symbols-outlined ${isDateEmpty ? "icon-error" : ""} get-pointer`}
             onClick={openCalendar}
-            style={{ cursor: "pointer" }}
           >
             calendar_month
           </span>
