@@ -294,6 +294,19 @@ $font-color: mp.$font-color;
   padding: 22px 22px 26px;
 }
 
+.event-date-line{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  opacity: 0.75;
+  margin-bottom: 4px;
+}
+
+.event-dday{
+  font-weight: 700;
+}
+
 // 다크모드
 body.dark {
   .date-container {

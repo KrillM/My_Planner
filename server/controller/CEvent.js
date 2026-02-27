@@ -6,7 +6,7 @@ const eventList = async (req, res) => {
         const crewId = req.user.crewId;   
         const events = await EventList.findAll({
             where: { crewId },
-            order: [["date_begin", "DESC"]],
+            order: [["date_begin", "ASC"]],
         });
         return res.status(200).json({ eventList: events });
     }
