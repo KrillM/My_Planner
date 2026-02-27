@@ -289,7 +289,7 @@ $font-color: mp.$font-color;
   width: 360px;                  /* 원하는 사이즈로 */
   max-width: calc(100vw - 24px);
   border-radius: 32px;
-  background: #fff;
+  background: mp.$main-bg-color;
   box-shadow: 0 20px 60px rgba(0,0,0,0.18);
   padding: 22px 22px 26px;
 }
@@ -365,6 +365,9 @@ body.dark {
   }
 
   .cal-popover-fixed {
+    background: mp.$main-bg-color-dark;
+  }
+  .cal-modal{
     background: mp.$main-bg-color-dark;
   }
 }
