@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import InputEvent from "./InputEvent";
+import UpdateEvent from "./UpdateEvent";
 import AddIcon from "../upsert/AddIcon.";
 import "../styles/date.scss";
 
@@ -54,9 +54,9 @@ function formatDDay(targetDate) {
 }
 
 const EventList = () => {
-  const navigate = useNavigate();
   const [eventList, setEventList] = useState([]);
   const [showInputEvent, setShowInputEvent] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState(null);
 
   const fetchEvent = async () => {
     try {
@@ -84,47 +84,63 @@ const EventList = () => {
       </div>
 
       <div className="toDo-list">
-        {eventList.map((event) => {
-          // ✅ 어떤 키로 오든 최대한 커버
-          const beginRaw =
-            event.dateBegin ?? event.date_begin ?? event.dateBeginTime ?? event.date_begin_time;
-          const endRaw =
-            event.dateEnd ?? event.date_end ?? event.dateEndTime ?? event.date_end_time;
+        {eventList.map((event) => (
+          <div key={event.eventId}>
+            {selectedEventId === event.eventId ? (
+              <UpdateEvent
+                eventId={event.eventId}
+                event={event} 
+                onSaved={() => {
+                  fetchEvent();
+                  setSelectedEventId(null);
+                }}
+                onCancel={() => setSelectedEventId(null)}
+              />
+            ) : (
+              <div className="toDo-detail">
+                <div className="toDo-content get-pointer">
+                  {(() => {
+                    const beginRaw =
+                      event.dateBegin ?? event.date_begin ?? event.dateBeginTime ?? event.date_begin_time;
+                    const endRaw =
+                      event.dateEnd ?? event.date_end ?? event.dateEndTime ?? event.date_end_time;
 
-          const beginDate = parseYmd(beginRaw);
-          const endDate = parseYmd(endRaw) || beginDate;
+                    const beginDate = parseYmd(beginRaw);
+                    const endDate = parseYmd(endRaw) || beginDate;
 
-          const dateText =
-            beginDate && endDate
-              ? (isSameYmd(beginDate, endDate)
-                  ? formatKoreanDate(beginDate)
-                  : `${formatKoreanDate(beginDate)} ~ ${formatKoreanDate(endDate)}`)
-              : "";
+                    const dateText =
+                      beginDate && endDate
+                        ? (isSameYmd(beginDate, endDate)
+                            ? formatKoreanDate(beginDate)
+                            : `${formatKoreanDate(beginDate)} ~ ${formatKoreanDate(endDate)}`)
+                        : "";
 
-          const isUseDDay = (event.isUseDDay ?? event.isUsedDay ?? event.is_use_dday) === "Y";
-          const ddayText = isUseDDay && beginDate ? formatDDay(beginDate) : "";
+                    const isUseDDay = (event.isUseDDay ?? event.isUsedDay ?? event.is_use_dday) === "Y";
+                    const ddayText = isUseDDay && beginDate ? formatDDay(beginDate) : "";
 
-          return (
-            <div key={event.eventId} className="toDo-detail">
-              <div className="toDo-content get-pointer">
-                {dateText && (
-                  <div className="event-date-line">
-                    <span className="event-date">{dateText}</span>
-                    {ddayText && <span className="event-dday">{ddayText}</span>}
-                  </div>
-                )}
-                <div className="content-row">{event.content}</div>
+                    return dateText ? (
+                      <div className="event-date-line">
+                        <span className="event-date">{dateText}</span>
+                        {ddayText && <span className="event-dday">{ddayText}</span>}
+                      </div>
+                    ) : null;
+                  })()}
+
+                  <div className="content-row">{event.content}</div>
+                </div>
+
+                <div className="toDo-checkbox get-pointer">
+                  <span
+                    className="material-symbols-outlined"
+                    onClick={() => setSelectedEventId(event.eventId)}  // ✅ 인라인 편집 열기
+                  >
+                    edit
+                  </span>
+                </div>
               </div>
-
-              <div
-                className="toDo-checkbox get-pointer"
-                onClick={() => navigate(`/event/upsert/${event.eventId}`)}
-              >
-                <span className="material-symbols-outlined">edit</span>
-              </div>
-            </div>
-          );
-        })}
+            )}
+          </div>
+        ))}
       </div>
 
       {showInputEvent && (

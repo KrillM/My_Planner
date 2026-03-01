@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import CalendarEventPopover from "../calendar/CalendarEventPopover";
 import ModalMessage from "../modals/ModalMessage";
+import ModalCheck from "../modals/ModalCheck";
 import "../styles/input.scss";
 import '../styles/save.scss';
 
-const InputEvent = ({onCancel, onSaved}) => {
+const UpdateEvent = ({eventId, event, onCancel, onSaved}) => {
     const [slot, setSlot] = useState("period");
     const [repeat, setRepeat] = useState("none");
     const [dateBegin, setDateBegin] = useState("");
@@ -22,6 +23,9 @@ const InputEvent = ({onCancel, onSaved}) => {
 
     const [isResultModalOpen, setIsResultModalOpen] = useState(false);
     const [resultMessage, setResultMessage] = useState("");
+
+    const [shouldCloseAfterModal, setShouldCloseAfterModal] = useState(false);
+    const [shouldRefreshAfterModal, setShouldRefreshAfterModal] = useState(false);
     
     const validateContent = (value)=> {
         setContent(value);
@@ -30,18 +34,6 @@ const InputEvent = ({onCancel, onSaved}) => {
             if(value.trim()!=='') setIsContentEmpty(false);
         }
     } 
-
-    const resetEvent = () => {
-        setSlot("period");
-        setRepeat("none");
-        setIsUseTimeSlot(true);
-        setDateBegin("");
-        setDateEnd("");
-        setContent("");
-        setIsContentEmpty(false);
-        setIsWrongTimeSlot(false);
-        setIsDateEmpty(false);
-    }
 
     const setDate = (dateBegin) => {
         if(dateBegin !== "") setIsDateEmpty(false);
@@ -52,6 +44,31 @@ const InputEvent = ({onCancel, onSaved}) => {
             dateBegin && dateEnd ? dateBegin > dateEnd : false
         );
     }, [dateBegin, dateEnd]);
+
+    useEffect(() => {
+        if (!event) return;
+
+        // 서버 키가 snake_case일 가능성도 있으니 둘 다 커버
+        const contentVal = event.content ?? "";
+        const repeatVal = event.repeat ?? "none";
+
+        const begin = String(event.dateBegin ?? event.date_begin ?? "").slice(0, 10);
+        const end = String(event.dateEnd ?? event.date_end ?? "").slice(0, 10);
+
+        setContent(contentVal);
+        setRepeat(repeatVal);
+
+        setDateBegin(begin);
+        setDateEnd(end || begin);
+
+        const useDDay = (event.isUseDDay ?? event.isUsedDay ?? event.is_use_dday) === "Y";
+        setIsUseDDay(useDDay);
+
+        // begin!=end면 period, 같으면 singleDay
+        const isPeriod = begin && end && begin !== end;
+        setSlot(isPeriod ? "period" : "singleDay");
+        setIsUseTimeSlot(isPeriod);
+    }, [event]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -65,19 +82,26 @@ const InputEvent = ({onCancel, onSaved}) => {
         setIsDateEmpty(timeEmpty);
 
         if(contentEmpty || wrongTimeSlot || timeEmpty) return;
-        if(dateEnd === "") setDateEnd(dateBegin);
+        const finalDateEnd = dateEnd?.trim() ? dateEnd : dateBegin;
 
-        const addEvent = {content, dateBegin, dateEnd, isUseDDay, repeat};
+        
+        const upsertEvent = {
+            content,
+            dateBegin,
+            dateEnd: finalDateEnd,
+            isUseDDay,
+            repeat,
+        };
 
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/event/new", {
-                method: "POST",
+            const res = await fetch(process.env.REACT_APP_API_BASE_URL + `/event/upsert/${eventId}`, {
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(addEvent),
+                body: JSON.stringify(upsertEvent),
             });
 
             const data = await res.json();
@@ -85,7 +109,10 @@ const InputEvent = ({onCancel, onSaved}) => {
 
             setResultMessage(data.message);
             setIsResultModalOpen(true);
-            if (res.ok) onSaved?.();
+            if (res.ok) {
+                setShouldRefreshAfterModal(true);
+                setShouldCloseAfterModal(true);
+            }
         } catch (err) {
             console.error("전송 실패:", err);
         }
@@ -93,8 +120,53 @@ const InputEvent = ({onCancel, onSaved}) => {
 
     const handleResultConfirm = () => {
         setIsResultModalOpen(false);
-        resetEvent();
-        onCancel?.(); 
+
+        if (shouldRefreshAfterModal) onSaved?.();
+        if (shouldCloseAfterModal) onCancel?.();
+
+        setShouldRefreshAfterModal(false);
+        setShouldCloseAfterModal(false);
+    };
+
+    // 경고 모달 창
+    const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
+    const openCheckModal = () => setIsCheckModalOpen(true);
+    const closeCheckModal = () => setIsCheckModalOpen(false);
+
+    const deleteMessage = (
+        <>
+        이벤트를 삭제하시겠습니까?
+        <br />
+        이 작업은 되돌릴 수 없습니다.
+        </>
+    );
+
+    const removeEvent = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(
+            process.env.REACT_APP_API_BASE_URL + `/event/delete/${eventId}`,
+                {
+                    method: "DELETE",
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            const data = await res.json().catch(() => ({}));
+
+            const ok = res.ok && data.result;
+            setResultMessage(data.message);
+
+            if (ok) {
+                setShouldRefreshAfterModal(true);
+                setShouldCloseAfterModal(true);
+            }
+        } catch (err) {
+            setResultMessage("네트워크 오류로 일정 삭제하지 못했습니다.");
+        }
+
+        closeCheckModal();
+        setIsResultModalOpen(true);
     };
 
     return (
@@ -202,6 +274,12 @@ const InputEvent = ({onCancel, onSaved}) => {
                     <button type="submit" className="icon-btn add" aria-label="addTodo">
                         <span className="material-symbols-outlined">edit</span>
                     </button>
+                    <span 
+                        className="material-symbols-outlined get-pointer"
+                        onClick={openCheckModal}
+                    >
+                        delete
+                    </span>
                 </div>
             </div>
 
@@ -236,8 +314,9 @@ const InputEvent = ({onCancel, onSaved}) => {
             )}
 
             <ModalMessage open={isResultModalOpen} message={resultMessage} onConfirm={handleResultConfirm} />
+            <ModalCheck open={isCheckModalOpen} onClose={closeCheckModal} onConfirm={removeEvent} message={deleteMessage} btnMsg={`Delete`}/>
         </form>
     );
   }
 
-  export default InputEvent;
+  export default UpdateEvent;
