@@ -1,0 +1,325 @@
+@use 'my_planner_main' as mp;
+
+.calendar-page {
+    /* =========================
+    Calendar Root
+    ========================= */
+    .cal {
+        width: 100%;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 10px 12px 24px;
+    }
+
+    /* =========================
+    Header
+    ========================= */
+    .cal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+
+        button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 22px;
+            color: mp.$font-color;
+
+            &:hover {
+            opacity: 0.7;
+            }
+        }
+
+        .cal-title {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: mp.$font-color;
+        }
+
+
+        /* pill dropdown 공통 */
+        .cal-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+
+            height: 30px;
+            padding: 0 44px 0 18px; /* 오른쪽 화살표 공간 */
+            border-radius: 999px;
+
+            border: 2px solid rgba(0,0,0,0.14);
+            background-color: transparent;
+
+            font-size: 24px;
+            font-weight: 500;
+            color: mp.$font-color;
+
+            cursor: pointer;
+            outline: none;
+
+            /* 오른쪽 chevron */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'%3E%3Cpath fill='rgba(0,0,0,0.55)' d='M7 10l5 5l5-5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 22px 22px;
+
+            &:hover {
+                border-color: rgba(0,0,0,0.22);
+            }
+
+            &:focus-visible {
+                border-color: rgba(0,0,0,0.35);
+            }
+        }
+
+        /* 연/월 크기만 살짝 조절 */
+        .cal-select.year {
+            min-width: 100px;
+        }
+
+        .cal-select.month {
+            min-width: 80px;
+        }
+    }
+
+    /* =========================
+    Weekdays
+    ========================= */
+    .cal-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        margin: 5px 0 6px;
+
+        .wd {
+            text-align: center;
+            font-size: 18px;
+            color: mp.$font-color;
+        }
+
+        .wd:nth-child(1) {
+            color: mp.$warn-color;
+        }
+
+        .wd:nth-child(7) {
+            color: mp.$primary-color;
+        }
+    }
+
+    /* =========================
+    Weeks
+    ========================= */
+    .cal-weeks {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* =========================
+    Week Row
+    ========================= */
+    .week-row {
+        position: relative;
+        margin: 12px 0;
+    }
+
+    .week-cells {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+    }
+
+    /* =========================
+    Day Cell
+    ========================= */
+    .day {
+        position: relative;
+        height: 140px;
+        border: none;
+        background: transparent;
+        padding: 0;
+        border-radius: 12px;
+        color: mp.$font-color;
+        cursor: default;
+
+        &:focus {
+            outline: none;
+        }
+
+        &.out {
+            opacity: 0.3;
+        }
+
+        &.disabled {
+            opacity: 0.5;
+        }
+
+        &.can-click {
+            cursor: pointer;
+
+            &:hover {
+                background: rgba(0,0,0,0.04);
+            }
+        }
+    }
+
+    /* =========================
+    Day Number
+    ========================= */
+    .day .num {
+        position: absolute;
+        top: 0px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        display: inline-flex;
+        width: 34px;
+        height: 34px;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 999px;
+        font-size: 18px;
+        font-weight: 300;
+        color: mp.$font-color;
+    }
+
+    /* today circle */
+    .day.today .num {
+        background: mp.$brand-color;
+    }
+
+    /* sunday */
+    .week-row .day:nth-child(1) .num {
+        color: mp.$warn-color;
+    }
+
+    /* saturday */
+    .week-row .day:nth-child(7) .num {
+        color: mp.$primary-color;
+    }
+
+    /* =========================
+    Period Bars
+    ========================= */
+    .week-bars {
+        position: absolute;
+        left: 0;
+        right: 0;
+
+        top: 36px;
+        height: 18px;
+
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .bar {
+        position: absolute;
+        height: 16px;
+        border-radius: 10px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0 8px;
+
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .bar-text {
+        font-size: 12px;
+        line-height: 1;
+        color: rgba(0,0,0,0.75);
+    }
+
+    /* =========================
+    Single Events
+    ========================= */
+    .day .single-list {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 92%;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* bar 존재 */
+    .week-row.has-bars .day .single-list {
+        top: 60px;
+    }
+
+    /* bar 없음 */
+    .week-row.no-bars .day .single-list {
+        top: 32px;
+    }
+
+    .single-item {
+        width: 100%;
+        max-width: 160px;
+
+        padding: 4px 10px;
+        border-radius: 12px;
+
+        font-size: 12px;
+        line-height: 1.1;
+        text-align: center;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .single-item.normal {
+        background: mp.$main-bg-color;
+    }
+
+    .single-item.dday {
+        color: mp.$warn-color;
+    }
+}
+
+/* =========================
+DARK MODE
+========================= */
+.dark {
+    .calendar-page {
+        .day.can-click:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .cal-title {
+            color: mp.$font-color-dark;
+        }
+            
+        .wd {
+            color: mp.$font-color-dark;
+        }
+
+        .num {
+            color: mp.$font-color-dark;
+        }
+
+        .single-item.normal {
+            background-color: mp.$main-bg-color-dark;
+            color: mp.$font-color-dark;
+        }
+
+        .day.today .num {
+            background: mp.$brand-color-dark;
+        }
+
+        .cal-select {
+            border: 2px solid mp.$font-color-dark;
+            color: mp.$font-color-dark;
+        }
+    }
+}
