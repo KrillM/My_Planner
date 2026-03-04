@@ -15,9 +15,6 @@ db.Sequelize = Sequelize;
 
 // 1. 모델 로드
 db.Crew = require('./crew')(sequelize);
-db.YearlyPlan = require('./yearlyPlan')(sequelize);
-db.MonthlyPlan = require('./monthlyPlan')(sequelize);
-db.Goal = require('./goal')(sequelize);
 db.Date = require('./date')(sequelize);
 db.ToDo = require('./toDo')(sequelize);
 db.FrequencyMemo = require('./frequencyMemo')(sequelize);
@@ -30,17 +27,9 @@ db.Event = require('./event')(sequelize);
 const cascadeOptions = { onDelete: 'CASCADE', onUpdate: 'CASCADE' };
 
 // Crew 기반 1:N 관계
-db.Crew.hasMany(db.YearlyPlan, { foreignKey: 'crewId', ...cascadeOptions });
-db.Crew.hasMany(db.Goal, { foreignKey: 'crewId', ...cascadeOptions });
 db.Crew.hasMany(db.Date, { foreignKey: 'crewId', ...cascadeOptions });
 db.Crew.hasMany(db.Frequency, { foreignKey: 'crewId', ...cascadeOptions });
 db.Crew.hasMany(db.Event, { foreignKey: 'crewId', ...cascadeOptions });
-
-// YearlyPlan -> MonthlyPlan
-db.YearlyPlan.hasMany(db.MonthlyPlan, { 
-  foreignKey: 'yearlyPlanId', // 복합 키의 경우 실제 쿼리 시 crewId 매핑도 확인 필요
-  ...cascadeOptions 
-});
 
 // Date 기반 관계
 db.Date.hasMany(db.ToDo, { foreignKey: 'dateId', ...cascadeOptions });
@@ -51,9 +40,6 @@ db.Frequency.hasMany(db.List, { foreignKey: 'frequencyId', ...cascadeOptions });
 db.Frequency.hasMany(db.FrequencyMemo, { foreignKey: 'frequencyId', ...cascadeOptions });
 
 // belongsTo 설정 (역방향)
-db.YearlyPlan.belongsTo(db.Crew, { foreignKey: 'crewId' });
-db.MonthlyPlan.belongsTo(db.YearlyPlan, { foreignKey: 'yearlyPlanId' });
-db.Goal.belongsTo(db.Crew, { foreignKey: 'crewId' });
 db.Date.belongsTo(db.Crew, { foreignKey: 'crewId' });
 db.ToDo.belongsTo(db.Date, { foreignKey: 'dateId' });
 db.DateMemo.belongsTo(db.Date, { foreignKey: 'dateId' });
