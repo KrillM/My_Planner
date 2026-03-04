@@ -113,18 +113,14 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
                 <span class="material-symbols-outlined">add_notes</span>
                 New
               </div>
-              {/* <div className="sub-item">
-                <span className="material-symbols-outlined">edit</span>
-                Update
-              </div> */}
               <div className="sub-item" onClick={handleFrequencyPlan}>
                 <span className="material-symbols-outlined">repeat</span>
                 Frequency
               </div>
-              <div className="sub-item">
+              {/* <div className="sub-item">
                 <span className="material-symbols-outlined">calendar_view_day</span>
                 Long Term
-              </div>
+              </div> */}
               <div className="sub-item" onClick={handleEvent}>
                 <span class="material-symbols-outlined">event</span>
                 Event
