@@ -1,4 +1,4 @@
-const { sequelize, Crew, Date: PlanDate, DateMemo, ToDo } = require('../model');
+const { sequelize, Crew, Date: PlanDate, DateMemo, ToDo, Event } = require('../model');
 const { Op } = require("sequelize");
 
 // 신규 일정 생성
@@ -121,19 +121,43 @@ const getTodayPlan = async (req, res) => {
       where: { crewId, year: y, month: m, day: d, isTemporary: "N" },
       order: [["dateId", "DESC"]],
     });
+
+    // 이 날짜의 시작 ~ 종료시간 전부 조회
+    const dayStart = new Date(Number(y), Number(m) - 1, Number(d), 0, 0, 0);
+    const dayEnd = new Date(Number(y), Number(m) - 1, Number(d), 23, 59, 59);
+
+    const events = await Event.findAll({
+      where: {
+        crewId,
+        date_begin: { [Op.lte]: dayEnd },
+        date_end: { [Op.gte]: dayStart },
+      },
+      attributes: ["eventId", "content", "date_begin", "date_end", "isUsedDay", "creationTime"],
+      order: [["creationTime", "ASC"]],
+    });
+
+    // 이벤트를 프론트가 쓰기 편하게 변환해서 같이 내려줌
+    const eventList = events.map((e) => ({
+      eventId: e.eventId,
+      content: e.content,
+    }));
+
     // date 없으면 빈 데이터 반환
     if (!date) {
       return res.status(200).json({
         date: { year: y, month: m, day: d },
         memo: "",
         toDoList: [],
+        eventList
       });
     }
+    
     // memo 찾기(있으면)
     const memo = await DateMemo.findOne({
       where: { crewId, dateId: date.dateId },
       order: [["dateMemoId", "DESC"]],
     });
+
     // todo 리스트 찾기
     const todos = await ToDo.findAll({
       where: { crewId, dateId: date.dateId },
@@ -151,6 +175,7 @@ const getTodayPlan = async (req, res) => {
       date: { year: date.year, month: date.month, day: date.day },
       memo: memo?.content ?? "",
       toDoList,
+      eventList
     });
   } catch (err) {
     console.error(err);
@@ -168,52 +193,77 @@ const getPlanByDate = async (req, res) => {
     const m = dateKey.slice(2,4);
     const d = dateKey.slice(4,6);
 
+    // 이 날짜의 시작 ~ 종료시간 전부 조회
+    const dayStart = new Date(Number(y), Number(m) - 1, Number(d), 0, 0, 0);
+    const dayEnd = new Date(Number(y), Number(m) - 1, Number(d), 23, 59, 59);
+
     // date 찾기
     const date = await PlanDate.findOne({
       where: { crewId, year: y, month: m, day: d },
       order: [["dateId", "DESC"]],
     });
 
-    // date 없으면 빈 데이터 반환
-    // if (!date) {
-    //   return res.status(200).json({
-    //     date: { year: y, month: m, day: d },
-    //     memo: "",
-    //     toDoList: [],
-    //   });
-    // }
+    // 이 날짜에 걸치는 이벤트 찾기 (PlanDate 없어도 조회)
+    const events = await Event.findAll({
+      where: {
+        crewId,
+        date_begin: { [Op.lte]: dayEnd },
+        date_end: { [Op.gte]: dayStart },
+      },
+      attributes: ["eventId", "content", "date_begin", "date_end", "isUsedDay", "creationTime"],
+      order: [["creationTime", "ASC"]],
+    });
 
-    // date 없으면 404 처리
-    if (!date) {
+    // date, event 둘 다 없으면 404 처리
+    if (!date && events.length === 0) {
       return res.status(404).json({ message: "존재하지 않는 일정입니다." });
     }
 
-    // memo 찾기(있으면)
-    const memo = await DateMemo.findOne({
-      where: { crewId, dateId: date.dateId },
-      order: [["dateMemoId", "DESC"]],
-    });
+    // PlanDate가 있을 때만 memo/todo 조회 (없으면 빈 값)
+    let memoContent = "";
+    let toDoList = [];
+    let isTemporary = "N";
 
-    // todo 리스트 찾기
-    const todos = await ToDo.findAll({
-      where: { crewId, dateId: date.dateId },
-      order: [["planBegin", "ASC"]],
-    });
+    if(date){
+      isTemporary = date.isTemporary;
 
-    // 프론트가 쓰기 편하게 변환
-    const toDoList = todos.map(t => ({
-      toDoId: t.toDoId,
-      content: t.content,
-      isUseAlarm: t.isUseAlarm === "Y",
-      isDone: t.isDone === "Y",
-      time: formatTimeLabel(t.isUseTimeSlot, t.planBegin, t.planEnd),
+      // memo 찾기(있으면)
+      const memo = await DateMemo.findOne({
+        where: { crewId, dateId: date.dateId },
+        order: [["dateMemoId", "DESC"]],
+      });
+
+      // todo 리스트 찾기
+      const todos = await ToDo.findAll({
+        where: { crewId, dateId: date.dateId },
+        order: [["planBegin", "ASC"]],
+      });
+
+      // 프론트가 쓰기 편하게 변환
+      memoContent = memo?.content ?? "";
+      toDoList = todos.map(t => ({
+        toDoId: t.toDoId,
+        content: t.content,
+        isUseAlarm: t.isUseAlarm === "Y",
+        isDone: t.isDone === "Y",
+        time: formatTimeLabel(t.isUseTimeSlot, t.planBegin, t.planEnd),
+      }));
+    }
+
+    // 이벤트를 프론트가 쓰기 편하게 변환해서 같이 내려줌
+    const eventList = events.map((e) => ({
+      eventId: e.eventId,
+      content: e.content,
     }));
 
     return res.status(200).json({
-      date: { year: date.year, month: date.month, day: date.day },
-      isTemporary: date.isTemporary,
-      memo: memo?.content ?? "",
+      date: { year: y, month: m, day: d },
+      isTemporary,
+      memo: memoContent,
       toDoList,
+      eventList,
+      hasPlan: Boolean(date),
+      hasEvent: eventList.length > 0,
     });
   } catch (err) {
     console.error(err);

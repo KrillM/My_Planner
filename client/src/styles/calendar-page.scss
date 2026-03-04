@@ -278,10 +278,6 @@
         white-space: nowrap;
     }
 
-    .single-item.normal {
-        background: mp.$main-bg-color;
-    }
-
     .single-item.dday {
         color: mp.$warn-color;
     }
@@ -309,7 +305,6 @@ DARK MODE
         }
 
         .single-item.normal {
-            background-color: mp.$main-bg-color-dark;
             color: mp.$font-color-dark;
         }
 

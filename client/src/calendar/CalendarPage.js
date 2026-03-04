@@ -98,6 +98,22 @@ export default function CalendarPage() {
     return singleEvents.filter((e) => toDateOnlyKey(e.begin) === key);
   };
 
+  const hasAnyEventOnDate = (dateObj) => {
+    const key = toDateOnlyKey(dateObj);
+
+    // 단일 이벤트
+    const hasSingle = singleEvents.some((e) => toDateOnlyKey(e.begin) === key);
+
+    // 기간 이벤트(오늘이 begin~end 사이면 true)
+    const hasRange = rangeEvents.some((e) => {
+      const d0 = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate(), 0, 0, 0);
+      const d1 = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate(), 23, 59, 59);
+      return e.begin <= d1 && e.end >= d0;
+    });
+
+    return hasSingle || hasRange;
+  };
+
   const buildWeekBars = (weekDates) => {
     const weekStart = new Date(
       weekDates[0].getFullYear(),
@@ -270,15 +286,18 @@ export default function CalendarPage() {
                     const isOutMonth = d.getMonth() !== viewMonth;
                     const isToday = isSameDay(d, today);
 
-                    // 기존: 일정(PlanDate) 있는 날만 이동
-                    const canMove = !isOutMonth && info.hasPlan;
+                    const hasEvent = !isOutMonth && hasAnyEventOnDate(d);
+
+                    // 기존: 일정(PlanDate), 이벤트(EventList) 있는 날만 이동
+                    const planVisible = !isOutMonth &&  (info.hasPlan || hasEvent);
+                    const canMove = planVisible;
 
                     const classCondition = [
                       "day",
                       isOutMonth ? "out" : "",
                       isToday ? "today" : "",
                       info.isTemporary ? "temp" : "",
-                      info.hasPlan ? "has" : "empty",
+                      planVisible ? "has" : "empty",
                       canMove ? "can-click" : "disabled",
                     ].filter(Boolean).join(" ");
 

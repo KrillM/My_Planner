@@ -13,6 +13,7 @@ const DatePlan = () => {
   const [dateLabel, setDateLabel] = useState("");
   const [isDateExist, setIsDateExist] = useState(false);
   const [isTemporary, setIsTemporary] = useState("N");
+  const [eventList, setEventList] = useState([]);
 
   useEffect(() => {
     const fetchDate = async () => {
@@ -32,6 +33,7 @@ const DatePlan = () => {
 
         const data = await res.json();
         setToDoList(data.toDoList ?? []);
+        setEventList(data.eventList ?? []);
         setIsTemporary(data.isTemporary ?? "N");
 
         if((data.toDoList ?? []).length > 0) setIsDateExist(true);
@@ -157,6 +159,20 @@ const DatePlan = () => {
       </div>
 
       <div className="toDo-list">
+        {eventList.length > 0 && (
+          <>
+            {eventList.map((e) => {
+              return (
+                <div key={e.eventId} className="toDo-detail">
+                  <div className={`content-row`}>
+                    <span className="toDo-content">{e.content}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </>
+        )}
+
         {toDoList.map((toDo) => (
           <div key={toDo.toDoId} className="toDo-detail">
             <div className="toDo-content">
