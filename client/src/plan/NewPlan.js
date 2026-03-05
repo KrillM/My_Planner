@@ -5,6 +5,7 @@ import ModalMemoUpsert from "../modals/ModalMemoUpsert";
 import UpdateTodo from "../upsert/UpdateTodo";
 import ModalMessage from '../modals/ModalMessage';
 import CalendarPopover from "../calendar/CalendarPopover";
+import { buildTodoTime, applyTodoUpdate } from "./PlanUtils";
 import "../styles/date.scss";
 
 const NewPlan = () => {
@@ -18,13 +19,7 @@ const NewPlan = () => {
   const tempIdRef = useRef(-1);
 
   const handleAddTodo = ({ slot, start, end, content, isUseAlarm }) => {
-    const time =
-      slot === "slot"
-        ? `${start}${end ? ` ~ ${end}` : ""}`
-        : slot === "morning" ? "오전"
-        : slot === "afternoon" ? "오후"
-        : slot === "evening" ? "저녁"
-        : "밤";
+    const time = buildTodoTime({slot, start, end})
 
     const newTodo = {
       toDoId: null,
@@ -76,23 +71,8 @@ const NewPlan = () => {
     setIsUpdateInputOpen(true);
   }
 
-  const updateTodo = ({ key, slot, start, end, content, isUseAlarm }) => {
-    const time =
-      slot === "slot"
-        ? `${start}${end ? ` ~ ${end}` : ""}`
-        : slot === "morning" ? "오전"
-        : slot === "afternoon" ? "오후"
-        : slot === "evening" ? "저녁"
-        : "밤";
-
-    setToDoList(prev =>
-      prev.map(t =>
-        getKey(t) === key
-          ? { ...t, time, content, isUseAlarm, slot }
-          : t
-      )
-    );
-
+  const updateTodo = (payload) => {
+    setToDoList((prev) => applyTodoUpdate(prev, getKey, payload));
     setSelectedTodoID(null);
     setIsUpdateInputOpen(false);
     setIsButtonClickedWhenUpdateInputButtonOpen(false); 

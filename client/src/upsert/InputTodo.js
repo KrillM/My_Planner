@@ -1,4 +1,5 @@
   import { useState, useEffect } from "react";
+  import { SelectTimeSlot } from "./SelectTimeSlot";
   import "../styles/input.scss";
   import '../styles/save.scss';
 
@@ -23,18 +24,6 @@
       setIsWrongTimeSlot(false);
       setIsTimeEmpty(false);
     }
-
-    // const setEndTimeDefault = (start) => {
-    //   if(!start) return "";
-
-    //   const [hour, minute] = start.split(":").map(Number);
-    //   let endTime = hour * 60 + minute + 60;
-    //   endTime %= 24 * 60;
-
-    //   const setHour = String(Math.floor(endTime / 60)).padStart(2, "0");
-    //   const setMinutes = String(endTime % 60).padStart(2, "0");
-    //   return `${setHour}:${setMinutes}`
-    // }
 
     const setTime = (start) => {
       if(start !== "") setIsTimeEmpty(false);
@@ -80,24 +69,17 @@
     return (
       <form className="input-wrap" onSubmit={handleSubmit}>
         <div className="slot-row">     
-          <select
-            name="timeSlotType"
-            id="timeSlotType"
-            className="pill pill-label"
-            value={slot}
-            onChange={(e) => {
-              const val = e.target.value;
+          <SelectTimeSlot
+            slot={slot}
+            onChange={(val) => {
               setSlot(val);
               setIsUseTimeSlot(val === "slot");
+              if (val !== "slot") {
+                setStart("");
+                setEnd("");
+              }
             }}
-            >
-            <option value="slot">Slot</option>
-            <option value="morning">Morning</option>
-            <option value="afternoon">Afternoon</option>
-            <option value="evening">Evening</option>
-            <option value="night">Night</option>
-          </select>
-
+          />
           {isUseTimeSlot && (
           <div className="time-group">
             <input
@@ -107,7 +89,6 @@
               onChange={(e) => {
                 const setEndTime = e.target.value;
                 setStart(setEndTime);
-                // setEnd(setEndTimeDefault(setEndTime))
                 setTime(setEndTime)
               }}
             />
@@ -160,23 +141,9 @@
           </div>
         </div>
 
-        {isContentEmpty && (
-          <p className="warning-message">
-            계획을 입력해주세요.
-          </p>
-        )}
-
-        {(isWrongTimeSlot && isUseTimeSlot) && (
-          <p className="warning-message">
-            종료시간은 시작시간보다 빠를 수 없습니다.
-          </p>
-        )}
-
-        {(isTimeEmpty && isUseTimeSlot) && (
-          <p className="warning-message">
-            시작 시간을 입력해주세요.
-          </p>
-        )}
+        {isContentEmpty && <p className="warning-message">계획을 입력해주세요.</p>}
+        {(isWrongTimeSlot && isUseTimeSlot) && <p className="warning-message">종료시간은 시작시간보다 빠를 수 없습니다.</p>}
+        {(isTimeEmpty && isUseTimeSlot) && <p className="warning-message">시작 시간을 입력해주세요.</p>}
       </form>
     );
   }

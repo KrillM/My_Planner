@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { SelectTimeSlot } from "./SelectTimeSlot";
 import "../styles/input.scss";
 import "../styles/save.scss";
 
@@ -89,22 +90,17 @@ const UpdateTodo = ({ todo, todoKey, updateTodo, onCancel }) => {
   return (
     <form className="input-wrap" onSubmit={handleSubmit}>
       <div className="slot-row">
-        <select
-          className="pill pill-label"
-          value={slot}
-          onChange={(e) => {
-            const val = e.target.value;
+        <SelectTimeSlot
+          slot={slot}
+          onChange={(val) => {
             setSlot(val);
             setIsUseTimeSlot(val === "slot");
-            if (val !== "slot") { setStart(""); setEnd(""); }
+            if (val !== "slot") {
+              setStart("");
+              setEnd("");
+            }
           }}
-        >
-          <option value="slot">Slot</option>
-          <option value="morning">Morning</option>
-          <option value="afternoon">Afternoon</option>
-          <option value="evening">Evening</option>
-          <option value="night">Night</option>
-        </select>
+        />
 
         {isUseTimeSlot && (
           <div className="time-group">
@@ -147,7 +143,7 @@ const UpdateTodo = ({ todo, todoKey, updateTodo, onCancel }) => {
             <span className="material-symbols-outlined">add_alert</span>
           </button>
 
-          {/* ✅ 수정 저장 버튼 */}
+          {/* 수정 저장 버튼 */}
           <button type="submit" className="icon-btn add">
             <span className="material-symbols-outlined">check</span>
           </button>
