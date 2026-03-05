@@ -371,3 +371,39 @@ body.dark {
     background: mp.$main-bg-color-dark;
   }
 }
+
+// 모바일
+@media (max-width: 600px) {
+  .date-container {
+    .planner-header {
+      .date-content {
+        font-size: 1.4rem;
+      }
+    }
+
+    .toDo-list {
+      .toDo-detail {
+        .toDo-content {
+          font-size: 1.15rem;
+        }
+        .toDo-time {
+          font-size: 0.7rem;
+        }
+      }
+    }
+  }
+  .header-icon {
+    font-size: 1.6rem;
+  }
+
+  .check-icon {
+    font-size: 1.3rem;
+  }
+
+  .cal-popover-fixed {
+    position: fixed !important;
+    top: 58% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+}

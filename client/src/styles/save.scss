@@ -71,3 +71,14 @@ $delete-bg: mp.$warn-color;
     }
   }
 }
+
+@media (max-width: 600px) {
+  .save-btn,
+  .find-btn,
+  .temp-btn,
+  .leave-btn {
+    padding: 6px;
+    font-size: 0.82rem;
+    border-radius: 999px;
+  }
+}

@@ -178,7 +178,7 @@ const EventForm = ({
 
   return (
     <form className="input-wrap" onSubmit={handleSubmit}>
-      <div className="slot-row">
+      <div className="slot-row slot-row-event">
         <select
           name="timeSlotType"
           id="timeSlotType"
@@ -206,7 +206,7 @@ const EventForm = ({
           <option value="monthly">Monthly</option>
         </select>
 
-        <div className="time-group">
+        <div className="time-group time-group-event">
           <div className="pill-wrapper">
             <input className="pill pill-time" type="text" value={dateBegin} readOnly />
             <span
