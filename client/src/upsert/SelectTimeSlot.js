@@ -10,6 +10,7 @@ export const SelectTimeSlot = ({ slot, onChange }) => {
       <option value="afternoon">Afternoon</option>
       <option value="evening">Evening</option>
       <option value="night">Night</option>
+      <option value="allday">All Day</option>
     </select>
   );
 };

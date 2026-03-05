@@ -19,7 +19,7 @@ const UpsertPlan = () => {
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(
-          process.env.REACT_APP_API_BASE_URL + `/plan/${dateKey}`,
+          process.env.REACT_APP_API_BASE_URL + `/plan/${dateKey}?mode=edit`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -43,6 +43,7 @@ const UpsertPlan = () => {
         }
 
         setToDoList(data.toDoList ?? []);
+        setEventList(data.eventList ?? []);
         setMemo(data.memo ?? "");
         setIsUseDDay(data.isUseDDay === "Y");
       } catch (e) {
@@ -60,14 +61,30 @@ const UpsertPlan = () => {
   const [isUpdateInputOpen, setIsUpdateInputOpen] = useState(false);
   const [isButtonClickedWhenUpdateInputButtonOpen, setIsButtonClickedWhenUpdateInputButtonOpen] = useState(false);
 
-  const tempIdRef = useRef(-1);
+  const tempTodoIdRef = useRef(-1);
+  const tempEventIdRef = useRef(-1);
 
   const handleAddTodo = ({ slot, start, end, content, isUseAlarm }) => {
+
+    // EventList
+    if (slot === "allday") {
+      const newEvent = {
+        eventId: null,
+        tempId: tempEventIdRef.current--, // 프론트용 임시키
+        content,
+      };
+
+      setEventList((prev) => [...prev, newEvent]);
+      setIsTodoListNull(false); // 메시지 재사용하면 그대로 둬도 됨
+      return;
+    }
+
+    // ToDoList
     const time = buildTodoTime({slot, start, end})
 
     const newTodo = {
       toDoId: null,
-      tempId: tempIdRef.current--,
+      tempId: tempTodoIdRef.current--,
       time,
       content,
       isUseAlarm,
@@ -78,7 +95,8 @@ const UpsertPlan = () => {
     setIsTodoListNull(false);
   };
 
-  const getKey = (t) => t.toDoId ?? t.tempId;
+  const getToDoKey = (t) => t.toDoId ?? t.tempId;
+  const getEventKey = (e) => e.eventId ?? e.tempId;
 
   // 메모 모달창 상태
   const [isMemoModalOpen, setIsMemoModalOpen] = useState(false);
@@ -111,13 +129,27 @@ const UpsertPlan = () => {
   const [selectedTodoID, setSelectedTodoID] = useState(null);
 
   const showUpdateTodo = (todo) => {
-    const k = getKey(todo);
+    const k = getToDoKey(todo);
     setSelectedTodoID(prev => (prev === k ? null : k));
     setIsUpdateInputOpen(true);
   }
 
   const updateTodo = (payload) => {
-    setToDoList((prev) => applyTodoUpdate(prev, getKey, payload));
+    if (payload.slot === "allday") {
+      setToDoList(prev => prev.filter(t => getToDoKey(t) !== payload.key));
+
+      setEventList(prev => [
+        ...prev,
+        { eventId: payload.key, content: payload.content } // eventId는 임시로 key 써도 됨
+      ]);
+
+      setSelectedTodoID(null);
+      setIsUpdateInputOpen(false);
+      setIsButtonClickedWhenUpdateInputButtonOpen(false);
+      return;
+    }
+
+    setToDoList((prev) => applyTodoUpdate(prev, getToDoKey, payload));
     setSelectedTodoID(null);
     setIsUpdateInputOpen(false);
     setIsButtonClickedWhenUpdateInputButtonOpen(false); 
@@ -125,8 +157,8 @@ const UpsertPlan = () => {
 
   // toDo 삭제
   const removeTodo = (todo) => {
-    const k = getKey(todo);
-    setToDoList(prev => prev.filter(t => getKey(t) !== k));
+    const k = getToDoKey(todo);
+    setToDoList(prev => prev.filter(t => getToDoKey(t) !== k));
   }
 
   // 디데이 사용 여부
@@ -138,7 +170,55 @@ const UpsertPlan = () => {
   // 달력 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const selectedKey = year && month && day ? `${year}-${month}-${day}` : "";
-  
+
+  // 이벤트
+  const [eventList, setEventList] = useState([]);
+  const [selectedEventID, setSelectedEventID] = useState(null);
+
+  const showUpdateEvent = (event) => {
+    setSelectedEventID(getEventKey(event));
+    setIsUpdateInputOpen(true);
+  };
+
+  const updateEvent = (payload) => {
+    if (payload.slot !== "allday") {
+      setEventList(prev => prev.filter(e => e.eventId !== payload.key));
+
+      const time = buildTodoTime({ slot: payload.slot, start: payload.start, end: payload.end });
+
+      setToDoList(prev => [
+        ...prev,
+        {
+          toDoId: null,
+          tempId: tempTodoIdRef.current--,
+          time,
+          content: payload.content,
+          isUseAlarm: payload.isUseAlarm,
+          isDone: "N",
+          slot: payload.slot
+        }
+      ]);
+
+      setSelectedEventID(null);
+      setIsUpdateInputOpen(false);
+      setIsButtonClickedWhenUpdateInputButtonOpen(false);
+      return;
+    }
+
+    setEventList(prev =>
+      prev.map(e => (e.eventId === payload.key ? { ...e, content: payload.content } : e))
+    );
+
+    setSelectedEventID(null);
+    setIsUpdateInputOpen(false);
+    setIsButtonClickedWhenUpdateInputButtonOpen(false);
+  };
+
+  const removeEvent = (event) => {
+    const k = getEventKey(event);
+    setEventList(prev => prev.filter(e => getEventKey(e) !== k));
+  }
+      
   // 저장
   const handleSubmit = async (isTemp) => {
     submitTempRef.current = isTemp;
@@ -158,7 +238,7 @@ const UpsertPlan = () => {
       return;
     }
 
-    const addPlan = {year, month, day, isTemporary: isTemp, isUseDDay, toDoList, memo};
+    const addPlan = {year, month, day, isTemporary: isTemp, isUseDDay, toDoList, eventList, memo};
 
     try {
       const token = localStorage.getItem("token");
@@ -308,12 +388,60 @@ const UpsertPlan = () => {
       </div>
 
       <div className="toDo-list">
+        {eventList.map((event) => {
+          const eKey = getEventKey(event);
+
+          return(
+            <div key={`event-${eKey}`}>
+              {selectedEventID === eKey ? (
+                <UpdateTodo
+                  todo={{
+                    content: event.content,
+                    time: "Event", 
+                    isUseAlarm: false
+                  }}
+                  todoKey={event.eventId}
+                  updateTodo={updateEvent}
+                  onCancel={() => {
+                    setSelectedEventID(null);
+                    setIsUpdateInputOpen(false);
+                  }}
+                />
+              ) : (
+                <div className="toDo-detail">
+                  <div className="toDo-content">
+                    <span className="toDo-time">Event</span>
+                    <div className="content-row">
+                      <span className="toDo-content">{event.content}</span>
+                    </div>
+                  </div>
+
+                  <div className="toDo-checkbox">
+                    <span
+                      className="material-symbols-outlined toDo-checkbox-detail"
+                      onClick={() => showUpdateEvent(event)}
+                    >
+                      edit
+                    </span>
+                    <span 
+                      className="material-symbols-outlined toDo-checkbox-detail"
+                      onClick={() => removeEvent(event)}
+                    >
+                      delete
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+
         {toDoList.map((toDo) => (
-          <div key={getKey(toDo)}>
-            {selectedTodoID === getKey(toDo) ? (
+          <div key={getToDoKey(toDo)}>
+            {selectedTodoID === getToDoKey(toDo) ? (
               <UpdateTodo
                 todo={toDo}
-                todoKey={getKey(toDo)}
+                todoKey={getToDoKey(toDo)}
                 updateTodo={updateTodo}
                 onCancel={() => {
                   setSelectedTodoID(null);

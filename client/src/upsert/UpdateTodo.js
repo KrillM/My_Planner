@@ -9,11 +9,11 @@ const UpdateTodo = ({ todo, todoKey, updateTodo, onCancel }) => {
   const [end, setEnd] = useState("");
   const [content, setContent] = useState("");
   const [isUseTimeSlot, setIsUseTimeSlot] = useState(true);
-  const [isUseAlarm, setIsUseAlarm] = useState(false);
-
   const [isContentEmpty, setIsContentEmpty] = useState(false);
   const [isWrongTimeSlot, setIsWrongTimeSlot] = useState(false);
   const [isTimeEmpty, setIsTimeEmpty] = useState(false);
+  const [isUseAlarm, setIsUseAlarm] = useState(false);
+  const isAllDay = slot === "allday";
 
   // todo 바뀔 때마다 폼 채우기
   useEffect(() => {
@@ -38,7 +38,7 @@ const UpdateTodo = ({ todo, todoKey, updateTodo, onCancel }) => {
       const [s, e] = t.split(" ~ ").map(v => v.trim());
       setStart(s || "");
       setEnd(e || "");
-    } else if (t === "오전" || t === "오후" || t === "저녁" || t === "밤") {
+    } else if (t === "오전" || t === "오후" || t === "저녁" || t === "밤" || t === "Event") {
       setIsUseTimeSlot(false);
       setStart("");
       setEnd("");
@@ -47,6 +47,7 @@ const UpdateTodo = ({ todo, todoKey, updateTodo, onCancel }) => {
       if (t === "오후") setSlot("afternoon");
       if (t === "저녁") setSlot("evening");
       if (t === "밤") setSlot("night");
+      if (t === "Event") setSlot("allday");
     }
 
     // 에러 메시지 리셋
@@ -95,6 +96,11 @@ const UpdateTodo = ({ todo, todoKey, updateTodo, onCancel }) => {
           onChange={(val) => {
             setSlot(val);
             setIsUseTimeSlot(val === "slot");
+
+            if (val === "allday") {
+              setIsUseAlarm(false);
+            }
+
             if (val !== "slot") {
               setStart("");
               setEnd("");
@@ -135,15 +141,18 @@ const UpdateTodo = ({ todo, todoKey, updateTodo, onCancel }) => {
         />
 
         <div className="content-icons">
-          <button
-            type="button"
-            className={`icon-btn alert ${isUseAlarm ? "active" : ""}`}
-            onClick={() => setIsUseAlarm(prev => !prev)}
-          >
-            <span className="material-symbols-outlined">add_alert</span>
-          </button>
-
-          {/* 수정 저장 버튼 */}
+          {!isAllDay && (
+            <button
+              type="button"
+              className={`icon-btn alert ${isUseAlarm ? "active" : ""}`}
+              aria-label="setAlert"
+              onClick={() => setIsUseAlarm(prev => !prev)}
+            >
+              <span className="material-symbols-outlined">
+                add_alert
+              </span>
+            </button>
+          )}
           <button type="submit" className="icon-btn add">
             <span className="material-symbols-outlined">check</span>
           </button>

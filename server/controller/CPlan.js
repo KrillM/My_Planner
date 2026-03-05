@@ -49,36 +49,60 @@ const createPlan = async (req, res) => {
       { transaction: transaction }
     );
 
-    // 일정 작성
-    const todos = toDoList.map(todo => {
+    // 일정, 이벤트 작성
+    const todos = [];
+    const events = [];
+
+    for (const todo of toDoList) {
+      const timeStr = (todo.time ?? "").trim();
+
+      if (timeStr === "Event") {
+        // 이벤트는 날짜 범위로 잡아두는 게 안전함(하루짜리)
+        const dateBegin = new Date(`${year}-${month}-${day}T00:00:00`);
+        const dateEnd = new Date(`${year}-${month}-${day}T23:59:59`);
+
+        events.push({
+          crewId,
+          content: todo.content,
+          date_begin: dateBegin,
+          date_end: dateEnd,
+          // PlanDate의 isUseDDay를 Event의 isUsedDay로 반영
+          isUsedDay: isUseDDay ? "Y" : "N",
+          // repeat는 기본값 NONE이라 생략 가능
+          creationTime: now,
+          modifyTime: now,
+        });
+
+        continue;
+      }
+
+      // 나머지는 ToDo로 저장(기존 로직)
       let planBegin = null;
       let planEnd = null;
       let isUseTimeSlot = "N";
 
       // "HH:MM ~ HH:MM" 케이스
-      if (todo.time.includes(":")) {
+      if (timeStr.includes(":")) {
         isUseTimeSlot = "Y";
 
-        const [start, end] = todo.time.split(" ~ ");
-
+        const [start, end] = timeStr.split(" ~ ");
         planBegin = new Date(`${year}-${month}-${day}T${start}:00`);
-        planEnd = new Date(`${year}-${month}-${day}T${end || start}:00`);
-      } 
-      // 오전/오후/저녁/밤
-      else {
+        planEnd = new Date(`${year}-${month}-${day}T${(end || start)}:00`);
+      } else {
+        // 오전/오후/저녁/밤
         const map = {
           "오전": "04:00",
           "오후": "12:00",
           "저녁": "18:00",
-          "밤": "21:00"
+          "밤": "21:00",
         };
 
-        const t = map[todo.time];
+        const t = map[timeStr] ?? "00:00";
         planBegin = new Date(`${year}-${month}-${day}T${t}:00`);
         planEnd = planBegin;
       }
 
-      return {
+      todos.push({
         dateId,
         crewId,
         content: todo.content,
@@ -88,12 +112,16 @@ const createPlan = async (req, res) => {
         isUseAlarm: todo.isUseAlarm ? "Y" : "N",
         isDone: "N",
         creationTime: now,
-        modifyTime: now
-      };
-    });
+        modifyTime: now,
+      });
+    }
 
     if (todos.length > 0) {
       await ToDo.bulkCreate(todos, { transaction: transaction });
+    }
+
+    if (events.length > 0) {
+      await Event.bulkCreate(events, { transaction });
     }
 
     await transaction.commit();
@@ -185,6 +213,8 @@ const getTodayPlan = async (req, res) => {
 
 // 다른 일정
 const getPlanByDate = async (req, res) => {
+  const { mode } = req.query;
+
   try {
     const crewId = req.user.crewId;
     const { dateKey } = req.params;
@@ -203,14 +233,34 @@ const getPlanByDate = async (req, res) => {
       order: [["dateId", "DESC"]],
     });
 
-    // 이 날짜에 걸치는 이벤트 찾기 (PlanDate 없어도 조회)
-    const events = await Event.findAll({
-      where: {
+    let eventWhere;
+
+    if (mode === "edit") {
+      // UpsertPlan
+      eventWhere = {
+        crewId,
+        date_begin: { [Op.gte]: dayStart },
+        date_end: { [Op.lte]: dayEnd },
+      };
+    } else {
+      // PlanDate
+      eventWhere = {
         crewId,
         date_begin: { [Op.lte]: dayEnd },
         date_end: { [Op.gte]: dayStart },
-      },
-      attributes: ["eventId", "content", "date_begin", "date_end", "isUsedDay", "creationTime"],
+      };
+    }
+
+    const events = await Event.findAll({
+      where: eventWhere,
+      attributes: [
+        "eventId",
+        "content",
+        "date_begin",
+        "date_end",
+        "isUsedDay",
+        "creationTime",
+      ],
       order: [["creationTime", "ASC"]],
     });
 
@@ -477,7 +527,7 @@ const upsertPlan = async (req, res) => {
           touched = true;
         }
       }
-      // 신규면 create (✅ 여기서 프론트가 임의 toDoId 만들면 충돌 가능)
+      // 신규면 create (여기서 프론트가 임의 toDoId 만들면 충돌 가능)
       else {
         await ToDo.create(
           {
@@ -489,6 +539,115 @@ const upsertPlan = async (req, res) => {
             planEnd,
             isUseAlarm: nextAlarm,
             isDone: "N",
+            creationTime: now,
+            modifyTime: now,
+          },
+          { transaction }
+        );
+        touched = true;
+      }
+    }
+
+    // Event diff (singleDay only)
+    const incomingEvents = Array.isArray(req.body.eventList) ? req.body.eventList : [];
+
+    // 이 날짜의 singleDay 기준
+    const dayStart = new Date(Number(y), Number(m) - 1, Number(d), 0, 0, 0);
+    const dayEnd   = new Date(Number(y), Number(m) - 1, Number(d), 23, 59, 59);
+
+    // "이 날짜에 속하는 singleDay 이벤트"만 기존으로 잡는다
+    const existingEvents = await Event.findAll({
+      where: {
+        crewId,
+        date_begin: { [Op.gte]: dayStart },
+        date_end: { [Op.lte]: dayEnd },
+      },
+      transaction,
+    });
+
+    const existingEventMap = new Map(existingEvents.map(e => [e.eventId, e]));
+
+    // incoming 중 "기존 이벤트" id만 추출
+    const incomingEventIds = new Set(
+      incomingEvents
+        .map(e => Number(e.eventId))
+        .filter(id => Number.isFinite(id) && id > 0)
+    );
+
+    // 1) 삭제: 기존인데 incoming에 없는 애들
+    const deleteEventIds = existingEvents
+      .map(e => e.eventId)
+      .filter(id => !incomingEventIds.has(id));
+
+    if (deleteEventIds.length > 0) {
+      await Event.destroy({
+        where: { crewId, eventId: deleteEventIds },
+        transaction,
+      });
+      touched = true;
+    }
+
+    // 2) 업데이트/생성
+    const nextUsedDay = (isUseDDay ? "Y" : "N"); // ✅ 일정의 D-Day를 이벤트에도 동일 적용
+
+    // 기존 날짜 기준
+    const oldYear = String(dateRow.year);
+    const oldMonth = String(dateRow.month).padStart(2, "0");
+    const oldDay = String(dateRow.day).padStart(2, "0");
+
+    // 새 날짜 기준
+    const newDayStart = new Date(Number(nextYear), Number(nextMonth) - 1, Number(nextDay), 0, 0, 0);
+    const newDayEnd   = new Date(Number(nextYear), Number(nextMonth) - 1, Number(nextDay), 23, 59, 59);
+
+    for (const e of incomingEvents) {
+      const id = Number(e.eventId);
+      const nextContent = (e.content ?? "").trim();
+
+      // content가 비었으면 스킵(원하면 여기서 validation으로 막아도 됨)
+      if (!nextContent) continue;
+
+      // 2-1) 기존 이벤트면 비교 후 update
+      if (Number.isFinite(id) && id > 0 && existingEventMap.has(id)) {
+        const old = existingEventMap.get(id);
+
+        const changed =
+          (old.content ?? "") !== nextContent ||
+          old.isUsedDay !== nextUsedDay;
+
+        const isDateChanged =
+          oldYear !== nextYear || oldMonth !== nextMonth || oldDay !== nextDay;
+
+        if (changed || isDateChanged) {
+          const updatePayload = {
+            content: nextContent,
+            isUsedDay: nextUsedDay,
+            modifyTime: now,
+          };
+
+          // 날짜가 바뀌었으면 singleDay 범위도 새 날짜로 이동
+          if (isDateChanged) {
+            updatePayload.date_begin = newDayStart;
+            updatePayload.date_end = newDayEnd;
+          }
+
+          await Event.update(
+            updatePayload,
+            { where: { crewId, eventId: id }, transaction }
+          );
+
+          touched = true;
+        }
+      }
+      // 2-2) 신규 이벤트면 create
+      else {
+        await Event.create(
+          {
+            crewId,
+            content: nextContent,
+            date_begin: dayStart,
+            date_end: dayEnd,
+            repeat: "none",
+            isUsedDay: nextUsedDay,
             creationTime: now,
             modifyTime: now,
           },

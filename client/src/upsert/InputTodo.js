@@ -13,6 +13,7 @@
     const [isWrongTimeSlot, setIsWrongTimeSlot] = useState(false);
     const [isTimeEmpty, setIsTimeEmpty] = useState(false);
     const [isUseAlarm, setIsUseAlarm] = useState(false);
+    const isAllDay = slot === "allday";
 
     const resetTodo = () => {
       setSlot("slot");
@@ -74,6 +75,11 @@
             onChange={(val) => {
               setSlot(val);
               setIsUseTimeSlot(val === "slot");
+
+              if (val === "allday") {
+                setIsUseAlarm(false);
+              }
+
               if (val !== "slot") {
                 setStart("");
                 setEnd("");
@@ -125,16 +131,18 @@
           />
 
           <div className="content-icons">
-            <button
-              type="button"
-              className={`icon-btn alert ${isUseAlarm ? "active" : ""}`}
-              aria-label="setAlert"
-              onClick={() => setIsUseAlarm(prev => !prev)}
-            >
-              <span className="material-symbols-outlined">
-                add_alert
-              </span>
-            </button>
+            {!isAllDay && (
+              <button
+                type="button"
+                className={`icon-btn alert ${isUseAlarm ? "active" : ""}`}
+                aria-label="setAlert"
+                onClick={() => setIsUseAlarm(prev => !prev)}
+              >
+                <span className="material-symbols-outlined">
+                  add_alert
+                </span>
+              </button>
+            )}
             <button type="submit" className="icon-btn add" aria-label="addTodo">
               <span className="material-symbols-outlined">edit</span>
             </button>

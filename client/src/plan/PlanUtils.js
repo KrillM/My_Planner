@@ -3,7 +3,8 @@ export const buildTodoTime = ({ slot, start, end }) => {
   if (slot === "morning") return "오전";
   if (slot === "afternoon") return "오후";
   if (slot === "evening") return "저녁";
-  return "밤";
+  if (slot === "night") return "밤";
+  return "Event";
 };
 
 export const applyTodoUpdate = (prevList, getKey, payload) => {
