@@ -152,6 +152,20 @@ $text-color: mp.$crew-txt-color;
       }
     }
   }
+
+  .darkmode-toggle {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 8px;
+
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    color: mp.$font-color; // 기본(라이트) 아이콘 색
+    font-size: 14px;
+  }
 }
 
 // 다크 모드
@@ -181,4 +195,11 @@ body.dark .login-container {
       border-top-color: mp.$font-color-dark;
     }
   }
+  .darkmode-toggle {
+    color: mp.$main-bg-color; // 다크일 때 아이콘 색
+  }
+}
+
+.darkmode-toggle .material-symbols-outlined {
+  font-size: 22px;
 }

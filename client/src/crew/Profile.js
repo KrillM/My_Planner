@@ -2,11 +2,31 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ModalCheck from '../modals/ModalCheck';
 import ModalMessage from '../modals/ModalMessage';
+import DarkMode from '../components/DarkMode';
 import '../styles/login.scss';
 import '../styles/save.scss';
 
 const Profile = ({crew, setCrew, setIsLogin }) => {
   const navigate = useNavigate();
+  const [isDark, setIsDark] = useState(false);
+
+  // 최초 로드시 저장값 반영
+  useEffect(() => {
+    const saved = localStorage.getItem("theme"); // "dark" | "light"
+    const initialDark = saved === "dark";
+    setIsDark(initialDark);
+    document.body.classList.toggle("dark", initialDark);
+  }, []);
+
+  // 토글 함수
+  const changeMode = () => {
+    setIsDark((prev) => {
+      const next = !prev;
+      document.body.classList.toggle("dark", next);
+      localStorage.setItem("theme", next ? "dark" : "light");
+      return next;
+    });
+  };
 
   // 기본 프로필 이미지
   const defaultProfileImage = process.env.PUBLIC_URL + '/static/profileImages/basic_profile.png';
@@ -360,6 +380,8 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
             onChange={(e) => setMotto(e.target.value)}
             />
         </div>
+
+        <DarkMode isDark={isDark} changeMode={changeMode} />
 
         <button type="submit" className="save-btn">Edit</button>
       </form>

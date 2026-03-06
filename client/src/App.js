@@ -10,7 +10,6 @@ import Profile from './crew/Profile';
 import DatePlan from './plan/DatePlan';
 import NewPlan from './plan/NewPlan';
 import UpsertPlan from './plan/UpsertPlan';
-import DarkMode from './components/DarkMode';
 import CalendarPage from './calendar/CalendarPage';
 import FrequencyList from './frequency/FrequencyList';
 import NewFrequency from './frequency/NewFrequency';
@@ -27,7 +26,6 @@ function App() {
   const [isLogin, setIsLogin] = useState(false);
   const [crew, setCrew] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
-  const [isDark, setIsDark] = useState(false);
 
   useEffect(()=>{
     axios.get(process.env.REACT_APP_API_BASE_URL)
@@ -48,24 +46,6 @@ function App() {
     setAuthChecked(true);
     if(crewInfo) setCrew(JSON.parse(crewInfo));
   }, []);
-
-   // 최초 로드시 저장값 반영
-  useEffect(() => {
-    const saved = localStorage.getItem("theme"); // "dark" | "light"
-    const initialDark = saved === "dark";
-    setIsDark(initialDark);
-    document.body.classList.toggle("dark", initialDark);
-  }, []);
-
-  // 토글 함수
-  const changeMode = () => {
-    setIsDark((prev) => {
-      const next = !prev;
-      document.body.classList.toggle("dark", next);
-      localStorage.setItem("theme", next ? "dark" : "light");
-      return next;
-    });
-  };
 
   return (
     <BrowserRouter>
@@ -100,7 +80,6 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </GoogleOAuthProvider>
-      <DarkMode isDark={isDark} changeMode={changeMode}/>
     </BrowserRouter>
   );
 }
