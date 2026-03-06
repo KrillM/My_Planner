@@ -271,7 +271,7 @@ const resetPassword = async (req, res) => {
 // 회원 정보 수정
 const editProfile = async (req, res) => {
   try {
-    const { nickname, password, motto } = req.body;
+    const { nickname, password, motto, isUseAlarm, alarmType, alarm } = req.body;
     const uploadedImage = req.file ? req.file.filename : null;
     const crewId = req.user.crewId;
 
@@ -284,8 +284,18 @@ const editProfile = async (req, res) => {
     const updateData = {
       nickname,
       motto,
+      isUseAlarm: isUseAlarm === "Y" ? "Y" : "N",
       modifyTime: new Date(),
     };
+
+     if (isUseAlarm === "Y") {
+      const parsedAlarm = Number(alarm);
+      updateData.alarmType = alarmType;
+      updateData.alarm = parsedAlarm;
+    } else {
+      updateData.alarmType = null;
+      updateData.alarm = null;
+    }
 
     // 비밀번호 처리
     if (password && password.trim() !== "") {
@@ -313,7 +323,7 @@ const editProfile = async (req, res) => {
     // 변경 후 데이터 내려주기 (프론트 기준 통일)
     const updatedCrew = await Crew.findOne({
       where: { crewId },
-      attributes: ["email", "nickname", "profileImage", "motto"],
+      attributes: ["email", "nickname", "profileImage", "motto","isUseAlarm","alarmType","alarm",],
     });
 
     return res.json({ 
@@ -323,6 +333,9 @@ const editProfile = async (req, res) => {
         nickname: updatedCrew.nickname,
         profileImage: updatedCrew.profileImage,
         motto: updatedCrew.motto,
+        isUseAlarm: updatedCrew.isUseAlarm,
+        alarmType: updatedCrew.alarmType,
+        alarm: updatedCrew.alarm,
       },
       message: "회원 정보가 수정되었습니다."
     });

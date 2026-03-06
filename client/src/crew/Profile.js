@@ -124,11 +124,31 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
     setNickname(crew.nickname);
     setMotto(crew.motto ?? "");
 
+    const useAlarm = crew.isUseAlarm === "Y";
+    setIsUseAlarm(useAlarm);
+
+    if (useAlarm) {
+      setAlarmValue(crew.alarm ?? 1);
+      setAlarmUnit(crew.alarmType ?? "hour");
+    } else {
+      setAlarmValue("");
+      setAlarmUnit("");
+    }
+
     // 프로필 이미지 파일명만 표시
     if (crew.profileImage) {
       setProfileImageFileFileName(crew.profileImage);
     }
   }, [crew]);
+
+  // 알람
+  const [isUseAlarm, setIsUseAlarm] = useState(false);
+  const [alarmValue, setAlarmValue] = useState(1);
+  const [alarmUnit, setAlarmUnit] = useState("hour");
+  
+  const handleAlarmToggle = () => {
+    setIsUseAlarm((prev) => !prev);
+  };
 
   // 폼 제출
   const handleSubmit = async (e) => {
@@ -152,6 +172,15 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
       const formData = new FormData();
       formData.append("nickname", nickname);
       formData.append("motto", motto);
+      formData.append("isUseAlarm", isUseAlarm ? "Y" : "N");
+
+      if (isUseAlarm) {
+        formData.append("alarmType", alarmUnit);
+        formData.append("alarm", alarmValue);
+      } else {
+        formData.append("alarmType", "");
+        formData.append("alarm", "");
+      }
 
       if (isChangingPassword) {
         formData.append("password", password);
@@ -189,6 +218,9 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
         nickname: data.crew.nickname,
         motto: data.crew.motto,
         profileImage: data.crew.profileImage, // null 가능
+        isUseAlarm: data.crew.isUseAlarm,
+        alarmType: data.crew.alarmType,
+        alarm: data.crew.alarm,
       };
 
       localStorage.setItem("crew", JSON.stringify(crewUpdate));
@@ -381,8 +413,54 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
             />
         </div>
 
-        <DarkMode isDark={isDark} changeMode={changeMode} />
+        <div className="alarm-setting">
+          <div className="alarm-row">
+            <span className="alarm-label">Alarm</span>
 
+            <button
+              type="button"
+              className={`alarm-toggle ${isUseAlarm ? "alarm-toggle-on" : "alarm-toggle-off"}`}
+              onClick={handleAlarmToggle}
+              aria-label={isUseAlarm ? "알람 끄기" : "알람 켜기"}
+            >
+              <span className="material-symbols-outlined">
+                {isUseAlarm ? "toggle_on" : "toggle_off"}
+              </span>
+            </button>
+
+            {isUseAlarm && (
+              <>
+                <input
+                  type="number"
+                  min="1"
+                  className="alarm-number"
+                  value={alarmValue}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "") {
+                      setAlarmValue("");
+                      return;
+                    }
+                    setAlarmValue(Math.max(1, Number(value)));
+                  }}
+                />
+
+                <select
+                  className="alarm-unit"
+                  value={alarmUnit}
+                  onChange={(e) => setAlarmUnit(e.target.value)}
+                >
+                  <option value="minute">분</option>
+                  <option value="hour">시간</option>
+                  <option value="day">일</option>
+                </select>
+
+                <span className="alarm-suffix">전</span>
+              </>
+            )}
+          </div>
+        </div>
+        <DarkMode isDark={isDark} changeMode={changeMode} />
         <button type="submit" className="save-btn">Edit</button>
       </form>
       <button type="button" className="leave-btn" onClick={openLeaveModal}>Leave</button>

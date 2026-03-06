@@ -114,11 +114,11 @@ $font-color: mp.$font-color;
     }
 
     .toggle-d-day-on{
-      color: #4caf50;
+      color: mp.$toggle-on;
     }
     
     .toggle-d-day-off {
-      color: #bbb;
+      color: mp.$toggle-off;
     }
 
     .date-detail {
