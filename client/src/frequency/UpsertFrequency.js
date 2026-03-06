@@ -5,6 +5,7 @@ import ModalMemoUpsert from "../modals/ModalMemoUpsert";
 import ModalMessage from '../modals/ModalMessage';
 import ModalCheck from "../modals/ModalCheck";
 import UpdateTodo from "../upsert/UpdateTodo";
+import { FREQUENCY_TIME_SLOT_OPTIONS } from "../upsert/TimeSlotUtils";
 import "../styles/date.scss";
 
 const UpsertFrequency = () => {
@@ -256,6 +257,7 @@ const UpsertFrequency = () => {
                   setSelectedTodoID(null);
                   setIsUpdateInputOpen(false);
                 }}
+                timeSlotOptions={FREQUENCY_TIME_SLOT_OPTIONS}
               />
             ) : (
               <div className="toDo-detail">
@@ -286,7 +288,7 @@ const UpsertFrequency = () => {
           </div>
         ))}
       </div>
-      <InputTodo addTodo={handleAddList}/>
+      <InputTodo addTodo={handleAddList} timeSlotOptions={FREQUENCY_TIME_SLOT_OPTIONS}/>
 
       {isFrequencyListNull && (
         <p className="warning-message">

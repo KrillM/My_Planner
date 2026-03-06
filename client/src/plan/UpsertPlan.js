@@ -7,6 +7,7 @@ import ModalMessage from '../modals/ModalMessage';
 import ModalCheck from "../modals/ModalCheck";
 import CalendarPopover from "../calendar/CalendarPopover";
 import { buildTodoTime, applyTodoUpdate } from "./PlanUtils";
+import { PLAN_TIME_SLOT_OPTIONS } from "../upsert/TimeSlotUtils";
 import "../styles/date.scss";
 
 const UpsertPlan = () => {
@@ -406,6 +407,7 @@ const UpsertPlan = () => {
                     setSelectedEventID(null);
                     setIsUpdateInputOpen(false);
                   }}
+                  timeSlotOptions={PLAN_TIME_SLOT_OPTIONS}
                 />
               ) : (
                 <div className="toDo-detail">
@@ -477,7 +479,7 @@ const UpsertPlan = () => {
           </div>
         ))}
       </div>
-      <InputTodo addTodo={handleAddTodo}/>
+      <InputTodo addTodo={handleAddTodo} timeSlotOptions={PLAN_TIME_SLOT_OPTIONS}/>
 
       {isTodoListNull && (
         <p className="warning-message">
