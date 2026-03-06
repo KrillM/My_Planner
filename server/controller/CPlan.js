@@ -273,9 +273,11 @@ const getPlanByDate = async (req, res) => {
     let memoContent = "";
     let toDoList = [];
     let isTemporary = "N";
+    let isUseDDay = "N";
 
     if(date){
       isTemporary = date.isTemporary;
+      isUseDDay = date.isUseDDay;
 
       // memo 찾기(있으면)
       const memo = await DateMemo.findOne({
@@ -309,6 +311,7 @@ const getPlanByDate = async (req, res) => {
     return res.status(200).json({
       date: { year: y, month: m, day: d },
       isTemporary,
+      isUseDDay,
       memo: memoContent,
       toDoList,
       eventList,
