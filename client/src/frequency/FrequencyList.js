@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AddIcon from "../upsert/AddIcon.";
+import AddIcon from "../components/AddIcon.";
 import '../styles/date.scss';
 
 const FrequencyList = () => {

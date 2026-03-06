@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import InputEvent from "./InputEvent";
 import UpdateEvent from "./UpdateEvent";
-import AddIcon from "../upsert/AddIcon.";
+import AddIcon from "../components/AddIcon.";
 import "../styles/date.scss";
 
 // v가 뭐가 오든 최대한 안전하게 YYYY-MM-DD만 뽑아 Date로 변환

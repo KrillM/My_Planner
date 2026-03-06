@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ModalMemoRead from "../modals/ModalMemoRead";
-import UpdateIcon from "../upsert/UpdateIcon";
+import UpdateIcon from "../todo/UpdateIcon";
 import '../styles/date.scss';
 
 const DatePlan = () => {

@@ -1,10 +1,10 @@
 import { useState, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
-import InputTodo from "../upsert/InputTodo";
+import InputTodo from "../todo/InputTodo";
 import ModalMemoUpsert from "../modals/ModalMemoUpsert";
 import ModalMessage from '../modals/ModalMessage';
-import UpdateTodo from "../upsert/UpdateTodo";
-import { FREQUENCY_TIME_SLOT_OPTIONS } from "../upsert/TimeSlotUtils";
+import UpdateTodo from "../todo/UpdateTodo";
+import { FREQUENCY_TIME_SLOT_OPTIONS } from "../todo/TimeSlotUtils";
 import "../styles/date.scss";
 
 const NewFrequency = () => {
