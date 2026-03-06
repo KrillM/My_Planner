@@ -8,6 +8,7 @@ $profile-size: 30px;
 $icon-color: mp.$crew-txt-color;
 
 .header-container {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -54,4 +55,59 @@ $icon-color: mp.$crew-txt-color;
       }
     }
   }
+}
+
+.alarm-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 40px;
+  width: 260px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 16px 14px;
+  z-index: 9999;
+}
+
+.alarm-item {
+  padding: 8px 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 8px;
+  }
+}
+
+.alarm-desc,
+.alarm-dday {
+  margin: 0 0 4px 0;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.alarm-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111;
+  line-height: 1.2;
+}
+
+// 다크모드
+.dark .alarm-dropdown {
+  background: #2b2b2b;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.dark .alarm-item:not(:last-child) {
+  border-bottom: 1px solid #444;
+}
+
+.dark .alarm-desc,
+.dark .alarm-dday {
+  color: #ccc;
+}
+
+.dark .alarm-title {
+  color: #f5f5f5;
 }

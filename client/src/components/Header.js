@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Sidebar from './Sidebar';
 import '../styles/header.scss';
 
@@ -26,6 +26,31 @@ const Header = ({isLogin, setIsLogin, crew, setCrew}) => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+   // 알림창
+  const [isAlarmOpen, setIsAlarmOpen] = useState(false);
+  const alarmRef = useRef(null);
+
+  const toggleAlarm = () => {
+    setIsAlarmOpen((prev) => !prev);
+  };
+
+  // 바깥 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (alarmRef.current && !alarmRef.current.contains(e.target)) {
+        setIsAlarmOpen(false);
+      }
+    };
+
+    if (isAlarmOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isAlarmOpen]);
+
   return (
     <header className="header-container">
       {/* 왼쪽: 로고/타이틀 */}
@@ -35,12 +60,37 @@ const Header = ({isLogin, setIsLogin, crew, setCrew}) => {
 
       {/* 오른쪽: 로그인 상태일 때만 검색, 메뉴, 프로필 아이콘을 렌더링 */}
       {isLogin && (
-        <div className="header-actions">
+        <div className="header-actions" ref={alarmRef}>
           <div className="profile-circle">
             <img src={crewProfileImage} alt="Profile" />
           </div>
           <span className="material-symbols-outlined icon">search</span>
-          <span class="material-symbols-outlined icon" onClick={toggleSidebar}>menu</span>
+          <span className="material-symbols-outlined icon" onClick={toggleAlarm}>notifications</span>
+          <span className="material-symbols-outlined icon" onClick={toggleSidebar}>menu</span>
+
+          {isAlarmOpen && (
+            <div className="alarm-dropdown">
+              <div className="alarm-item">
+                <p className="alarm-desc">10분 뒤 일정이 있습니다.</p>
+                <p className="alarm-title">운동</p>
+              </div>
+
+              <div className="alarm-item">
+                <p className="alarm-dday">D-Day</p>
+                <p className="alarm-title">친구 결혼식</p>
+              </div>
+
+              <div className="alarm-item">
+                <p className="alarm-dday">D-7</p>
+                <p className="alarm-title">라그만 먹방</p>
+              </div>
+
+              <div className="alarm-item">
+                <p className="alarm-dday">D-16</p>
+                <p className="alarm-title">가고시마 출발</p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

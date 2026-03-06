@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ModalCheck from '../modals/ModalCheck';
 import ModalMessage from '../modals/ModalMessage';
-import DarkMode from '../components/DarkMode';
+import DarkMode from './DarkMode';
 import '../styles/login.scss';
 import '../styles/save.scss';
 
