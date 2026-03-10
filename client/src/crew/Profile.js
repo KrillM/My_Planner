@@ -341,13 +341,13 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
               닉네임을 입력해주세요.
             </p>
           )}
-          
+
           {crew?.loginType === "MY_PLANNER" && (
             <>
             <input 
               type="password" 
               placeholder="password" 
-              className="underline-input" ㄴ
+              className="underline-input"
               value={password}
               onChange={handlePasswordChange}
             />
