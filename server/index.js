@@ -44,6 +44,10 @@ app.use("/frequency", frequencyRouter);
 const eventRouter = require('./routes/event');
 app.use("/event", eventRouter);
 
+// Alarm
+const alarmRouter = require('./routes/alarm');
+app.use("/alarm", alarmRouter);
+
 app.get("/", (req, res) => {
   res.send({ message: "Server and Client connected" });
 });

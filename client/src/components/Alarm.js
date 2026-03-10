@@ -1,27 +1,29 @@
 import "../styles/header.scss";
 
-const Alarm = () => {
+const Alarm = ({ alarms = [] }) => {
   return (
     <div className="alarm-dropdown">
-      <div className="alarm-item">
-        <p className="alarm-desc">10분 뒤 일정이 있습니다.</p>
-        <p className="alarm-title">운동</p>
-      </div>
-
-      <div className="alarm-item">
-        <p className="alarm-dday">D-Day</p>
-        <p className="alarm-title">친구 결혼식</p>
-      </div>
-
-      <div className="alarm-item">
-        <p className="alarm-dday">D-7</p>
-        <p className="alarm-title">라그만 먹방</p>
-      </div>
-
-      <div className="alarm-item">
-        <p className="alarm-dday">D-16</p>
-        <p className="alarm-title">가고시마 출발</p>
-      </div>
+      {alarms.length === 0 ? (
+        <div className="alarm-item">
+          <p className="alarm-desc">표시할 알림이 없습니다.</p>
+        </div>
+      ) : (
+        alarms.map((alarm, idx) => (
+          <div className="alarm-item" key={`${alarm.type}-${alarm.dateKey}-${idx}`}>
+            {alarm.type === "event" ? (
+              <>
+                <p className="alarm-desc">{alarm.message}</p>
+                <p className="alarm-title">{alarm.title}</p>
+              </>
+            ) : (
+              <>
+                <p className="alarm-dday">{alarm.dday}</p>
+                <p className="alarm-title">{alarm.title}</p>
+              </>
+            )}
+          </div>
+        ))
+      )}
     </div>
   );
 };

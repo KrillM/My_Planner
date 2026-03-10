@@ -31,8 +31,10 @@ const Header = ({isLogin, setIsLogin, crew, setCrew}) => {
   const [isAlarmOpen, setIsAlarmOpen] = useState(false);
   const alarmRef = useRef(null);
 
-  const toggleAlarm = () => {
-    setIsAlarmOpen((prev) => !prev);
+  const toggleAlarm = async () => {
+    const next = !isAlarmOpen;
+    if (next) await fetchAlarms();
+    setIsAlarmOpen(next);
   };
 
   // 바깥 클릭 시 닫기
@@ -52,6 +54,33 @@ const Header = ({isLogin, setIsLogin, crew, setCrew}) => {
     };
   }, [isAlarmOpen]);
 
+  // 알람 목록
+  const [alarmList, setAlarmList] = useState([]);
+
+  const fetchAlarms = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(process.env.REACT_APP_API_BASE_URL + "/alarm", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "알람 조회 실패");
+
+      setAlarmList(data.alarms || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    if (isLogin) {
+      fetchAlarms();
+    }
+  }, [isLogin]);
+
   return (
     <header className="header-container">
       {/* 왼쪽: 로고/타이틀 */}
@@ -69,7 +98,7 @@ const Header = ({isLogin, setIsLogin, crew, setCrew}) => {
           <span className="material-symbols-outlined icon" onClick={toggleAlarm}>notifications</span>
           <span className="material-symbols-outlined icon" onClick={toggleSidebar}>menu</span>
 
-          {isAlarmOpen && <Alarm />}
+          {isAlarmOpen && <Alarm alarms={alarmList}/>}
         </div>
       )}
 

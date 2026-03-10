@@ -1,4 +1,3 @@
-const { where } = require('sequelize');
 const { sequelize, Crew, Event: EventList } = require('../model');
 
 // 이벤트 목록 조회
