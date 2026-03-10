@@ -108,6 +108,7 @@ const login = async (req, res) => {
       token: token,
       email: crew.email,
       nickname: crew.nickname,
+      loginType: crew.loginType,
       profileImage: crew.profileImage,
       motto: crew.motto
     });

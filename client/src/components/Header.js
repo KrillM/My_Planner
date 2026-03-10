@@ -94,7 +94,7 @@ const Header = ({isLogin, setIsLogin, crew, setCrew}) => {
           <div className="profile-circle">
             <img src={crewProfileImage} alt="Profile" />
           </div>
-          <span className="material-symbols-outlined icon">search</span>
+          {/* <span className="material-symbols-outlined icon">search</span> */}
           <span className="material-symbols-outlined icon" onClick={toggleAlarm}>notifications</span>
           <span className="material-symbols-outlined icon" onClick={toggleSidebar}>menu</span>
 

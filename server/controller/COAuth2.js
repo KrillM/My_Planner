@@ -1,212 +1,200 @@
-const { Crew } = require('../model'); 
-const { OAuth2Client } = require('google-auth-library');
-const { createCrewId } = require('../static/createCrewId');
-const jwt = require('jsonwebtoken');
-const axios = require('axios');
+const { Crew } = require("../model");
+const { OAuth2Client } = require("google-auth-library");
+const { createCrewId } = require("../static/createCrewId");
+const jwt = require("jsonwebtoken");
+const axios = require("axios");
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  'postmessage' // 프론트엔드 flow: 'auth-code' 설정과 일치해야 함
+  "postmessage"
 );
+
+// 중복 없는 crewId 생성
+const generateUniqueCrewId = async (loginType) => {
+  while (true) {
+    const crewId = createCrewId(loginType);
+
+    const exists = await Crew.findOne({
+      where: { crewId },
+      attributes: ["crewId"],
+    });
+
+    if (!exists) return crewId;
+  }
+};
+
+// OAuth 유저 upsert
+const findOrCreateOAuthCrew = async ({
+  email,
+  nickname,
+  profileImage,
+  loginType,
+}) => {
+  const now = new Date();
+
+  let crew = await Crew.findOne({ where: { email } });
+  let isCreated = false;
+
+  if (crew) {
+    const updateData = {};
+
+    if (crew.loginType !== loginType) {
+      updateData.loginType = loginType;
+    }
+
+    // 기존 프로필 이미지가 없을 때만 소셜 이미지 반영
+    if (!crew.profileImage && profileImage) {
+      updateData.profileImage = profileImage;
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      updateData.modifyTime = now;
+      await crew.update(updateData);
+      crew = await Crew.findOne({ where: { email } });
+      console.log(`[${loginType}] 기존 유저 정보 업데이트 완료: ${email}`);
+    } else {
+      console.log(`[${loginType}] 변경 사항 없음: ${email}`);
+    }
+  } else {
+    isCreated = true;
+    const crewId = await generateUniqueCrewId(loginType);
+
+    crew = await Crew.create({
+      crewId,
+      email,
+      nickname,
+      profileImage,
+      loginType,
+      creationTime: now,
+      modifyTime: now,
+    });
+
+    console.log(`[${loginType}] 신규 유저 생성 완료: ${email}`);
+  }
+  return { crew, isCreated };
+};
+
+// 서비스 JWT 생성
+const createServiceToken = (crewId) => {
+  return jwt.sign(
+    { crewId },
+    process.env.JWT_SECRET,
+    { expiresIn: "24h" }
+  );
+};
+
+// 공통 응답
+const sendAuthResponse = (res, crew, isCreated) => {
+  const token = createServiceToken(crew.crewId);
+
+  return res.status(200).json({
+    message: isCreated ? "회원가입 성공" : "로그인 성공",
+    token,
+    crew: {
+      email: crew.email,
+      nickname: crew.nickname,
+      profileImage: crew.profileImage,
+      motto: crew?.motto ?? "",
+    },
+  });
+};
+
+// 에러 로그 공통
+const logOAuthError = (label, error) => {
+  console.error(`${label} Error:`, {
+    message: error.message,
+    responseData: error.response?.data,
+    stack: error.stack,
+  });
+};
 
 exports.googleLogin = async (req, res) => {
   const { code } = req.body;
 
+  if (!code) {
+    return res.status(400).json({ message: "인가 코드가 없습니다." });
+  }
+
   try {
-    // 코드를 이용해 구글 토큰 획득
+    // 구글 토큰 획득
     const { tokens } = await client.getToken(code);
     client.setCredentials(tokens);
 
-    // 구글 유저 정보 가져오기
-    const userInfo = await client.request({
-      url: 'https://www.googleapis.com/oauth2/v3/userinfo',
+    // 구글 유저 정보 요청
+    const userInfoResponse = await client.request({
+      url: "https://www.googleapis.com/oauth2/v3/userinfo",
     });
 
-    const { email, name, picture } = userInfo.data;
-    const now = new Date();
+    const { email, name, picture } = userInfoResponse.data;
 
-    // DB 작업 (Upsert: 존재하면 Update, 없으면 Insert)
-    let crew = await Crew.findOne({ where: { email: email } });
-    let isCreated = false; // 신규 가입인지 확인하기 위한 플래그 선언
-
-    if (crew) {
-      const updateData = {};
-      let isChanged = false;
-
-      // 로그인 타입 보정
-      if (crew.loginType !== 'GOOGLE') {
-        updateData.loginType = 'GOOGLE';
-        isChanged = true;
-      }
-
-      // 프로필 이미지가 없을 때만 구글 이미지 사용
-      if (!crew.profileImage && picture) {
-        updateData.profileImage = picture;
-        isChanged = true;
-      }
-
-      if (isChanged) {
-        updateData.modifyTime = now;
-        await crew.update(updateData);
-        console.log('기존 유저 정보 업데이트 완료');
-      } else {
-        console.log('변경 사항 없음 - 구글');
-      }
-    } else {
-      // 이메일이 존재하지 않는다면? -> 신규 생성 (Create)
-      isCreated = true;
-      let crewId;
-      let isCrewIdExists = true;
-
-      while(isCrewIdExists){
-        crewId = createCrewId('GOOGLE');
-
-        // DB에서 해당 crewId가 이미 존재하는지 확인
-        const checkId = await Crew.findOne({
-          where: { crewId: crewId }
-        });
-
-        // 검색 결과가 없으면(null이면) 중복되지 않은 것이므로 루프 종료
-        if (!checkId) {
-          isCrewIdExists = false;
-        }
-      }
-
-      crew = await Crew.create({
-        crewId: crewId,        // 구글의 고유 ID를 PK로 사용
-        email: email,
-        nickname: name,
-        profileImage: picture,
-        loginType: 'GOOGLE',
-        creationTime: now,
-        modifyTime: now,
-      });
-      console.log('신규 구글 유저 생성 완료:', email);
+    if (!email) {
+      return res.status(400).json({ message: "구글 이메일 정보를 가져오지 못했습니다." });
     }
-    // 서비스 전용 JWT 발급
-    const accessToken = jwt.sign(
-      { crewId: crew.crewId },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
 
-    res.status(200).json({
-      message: isCreated ? '회원가입 성공' : '로그인 성공',
-      token: accessToken,
-      crew: {
-        email: crew.email,
-        nickname: crew.nickname,
-        profileImage: crew.profileImage,
-        motto: crew?.motto ?? ""
-      }
+    const { crew, isCreated } = await findOrCreateOAuthCrew({
+      email,
+      nickname: name,
+      profileImage: picture,
+      loginType: "GOOGLE",
     });
 
+    return sendAuthResponse(res, crew, isCreated);
   } catch (error) {
-    console.error('Google Login Error:', error);
-    res.status(500).json({ message: '인증 서버 에러' });
+    logOAuthError("Google Login", error);
+    return res.status(500).json({ message: "구글 로그인 실패" });
   }
 };
 
 exports.naverLogin = async (req, res) => {
   const { code, state } = req.body;
-  const now = new Date();
+
+  if (!code || !state) {
+    return res.status(400).json({ message: "네이버 인가 정보가 올바르지 않습니다." });
+  }
 
   try {
-    // 인가 코드로 접근 토큰(Access Token) 요청
-    const tokenResponse = await axios.get(`https://nid.naver.com/oauth2.0/token`, {
+    // 네이버 access token 요청
+    const tokenResponse = await axios.get("https://nid.naver.com/oauth2.0/token", {
       params: {
-        grant_type: 'authorization_code',
+        grant_type: "authorization_code",
         client_id: process.env.NAVER_CLIENT_ID,
         client_secret: process.env.NAVER_CLIENT_SECRET,
-        code: code,
-        state: state,
+        code,
+        state,
       },
     });
 
-    const accessToken = tokenResponse.data.access_token;
+    const naverAccessToken = tokenResponse.data.access_token;
 
-    // 접근 토큰으로 네이버 프로필 정보 요청
-    const userResponse = await axios.get('https://openapi.naver.com/v1/nid/me', {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-
-    const { email, nickname, profile_image } = userResponse.data.response;
-
-    // DB 로직 (기존 구글 로직과 동일, createCrewId만 NAVER로!)
-    let crew = await Crew.findOne({ where: { email: email } });
-    let isCreated = false;
-
-    if (crew) {
-      const updateData = {};
-      let isChanged = false;
-
-      // 로그인 타입 보정
-      if (crew.loginType !== 'NAVER') {
-        updateData.loginType = 'NAVER';
-        isChanged = true;
-      }
-
-      // 프로필 이미지가 없을 때만 네이버 이미지 사용
-      if (!crew.profileImage && profile_image) {
-        updateData.profileImage = profile_image;
-        isChanged = true;
-      }
-
-      if (isChanged) {
-        updateData.modifyTime = now;
-        await crew.update(updateData);
-        console.log('기존 유저 정보 업데이트 완료');
-      } else {
-        console.log('변경 사항 없음 - 네이버');
-      }
-    } else {
-      isCreated = true;
-      let crewId;
-      let isCrewIdExists = true;
-
-      while(isCrewIdExists){
-        crewId = createCrewId('NAVER');
-
-        const checkId = await Crew.findOne({
-          where: { crewId: crewId }
-        });
-
-        if (!checkId) {
-          isCrewIdExists = false;
-        }
-      }
-
-      crew = await Crew.create({
-        crewId: crewId,
-        email: email,
-        nickname: nickname,
-        profileImage: profile_image,
-        loginType: 'NAVER',
-        creationTime: now,
-        modifyTime: now,
-      });
+    if (!naverAccessToken) {
+      return res.status(400).json({ message: "네이버 액세스 토큰을 가져오지 못했습니다." });
     }
 
-    // JWT 발급
-    const token = jwt.sign(
-      { crewId: crew.crewId }, 
-      process.env.JWT_SECRET, 
-      { expiresIn: '24h' }
-    );
-
-    res.status(200).json({ 
-      token, message: isCreated ? '회원가입 성공' : '로그인 성공',
-      crew: {
-        email: crew.email,
-        nickname: crew.nickname,
-        profileImage: crew.profileImage,
-        motto: crew?.motto ?? ""
-      }
+    // 네이버 유저 정보 요청
+    const userResponse = await axios.get("https://openapi.naver.com/v1/nid/me", {
+      headers: {
+        Authorization: `Bearer ${naverAccessToken}`,
+      },
     });
 
+    const profile = userResponse.data?.response || {};
+    const { email, nickname, profile_image: profileImage } = profile;
+
+    if (!email) {
+      return res.status(400).json({ message: "네이버 이메일 정보를 가져오지 못했습니다." });
+    }
+
+    const { crew, isCreated } = await findOrCreateOAuthCrew({
+      email,
+      nickname,
+      profileImage,
+      loginType: "NAVER",
+    });
+
+    return sendAuthResponse(res, crew, isCreated);
   } catch (error) {
-    console.error('Naver Login Error:', error);
-    res.status(500).json({ message: '네이버 로그인 실패' });
+    logOAuthError("Naver Login", error);
+    return res.status(500).json({ message: "네이버 로그인 실패" });
   }
 };
