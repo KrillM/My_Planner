@@ -129,10 +129,10 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
 
     if (useAlarm) {
       setAlarmValue(crew.alarm ?? 1);
-      setAlarmUnit(crew.alarmType ?? "hour");
+      setAlarmUnit(crew.alarmType || "hour");
     } else {
       setAlarmValue("");
-      setAlarmUnit("");
+      setAlarmUnit("hour");
     }
 
     // 프로필 이미지 파일명만 표시
@@ -147,7 +147,16 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
   const [alarmUnit, setAlarmUnit] = useState("hour");
   
   const handleAlarmToggle = () => {
-    setIsUseAlarm((prev) => !prev);
+    setIsUseAlarm((prev) => {
+      const next = !prev;
+
+      if (next) {
+        setAlarmValue((cur) => cur || 1);
+        setAlarmUnit((cur) => cur || "hour");
+      }
+
+      return next;
+    });
   };
 
   // 폼 제출
