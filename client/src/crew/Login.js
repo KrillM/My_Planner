@@ -74,6 +74,7 @@ const Login = ({setIsLogin, setCrew}) => {
         email: data.email,
         nickname: data.nickname,
         profileImage: data.profileImage,
+        loginType: data.loginType,
         motto: data.motto
       }
       localStorage.setItem("crew", JSON.stringify(crew));

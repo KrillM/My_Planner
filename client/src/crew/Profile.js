@@ -164,7 +164,8 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
     e.preventDefault();
   
     const nicknameEmpty = nickname.trim() === "";
-    const isChangingPassword = password.trim() !== "";
+    const canChangePassword = crew?.loginType === "MY_PLANNER";
+    const isChangingPassword = canChangePassword && password.trim() !== "";
     const passwordConfirmEmpty = isChangingPassword && passwordConfirm.trim() === "";
 
     setIsNicknameEmpty(nicknameEmpty);
@@ -340,38 +341,42 @@ const Profile = ({crew, setCrew, setIsLogin }) => {
               닉네임을 입력해주세요.
             </p>
           )}
-
-          <input 
-            type="password" 
-            placeholder="password" 
-            className="underline-input"
-            value={password}
-            onChange={handlePasswordChange}
-          />
           
-          {password.trim() !== "" && !isPasswordValid && (
-            <p className="warning-message">
-              8~20자 사이 문자, 숫자, 특수문자를 포함해야 합니다.
-            </p>
-          )}
+          {crew?.loginType === "MY_PLANNER" && (
+            <>
+            <input 
+              type="password" 
+              placeholder="password" 
+              className="underline-input" ㄴ
+              value={password}
+              onChange={handlePasswordChange}
+            />
+            
+            {password.trim() !== "" && !isPasswordValid && (
+              <p className="warning-message">
+                8~20자 사이 문자, 숫자, 특수문자를 포함해야 합니다.
+              </p>
+            )}
 
-          <input 
-            type="password" 
-            placeholder="password confirm" 
-            className="underline-input"
-            value={passwordConfirm}
-            onChange={(e) => validatePasswordConfirm(e.target.value)}
-          />
-          {isPasswordNotEqual && (
-            <p className="warning-message">
-              비밀번호와 일치해야 합니다.
-            </p>
-          )}
+            <input 
+              type="password" 
+              placeholder="password confirm" 
+              className="underline-input"
+              value={passwordConfirm}
+              onChange={(e) => validatePasswordConfirm(e.target.value)}
+            />
+            {isPasswordNotEqual && (
+              <p className="warning-message">
+                비밀번호와 일치해야 합니다.
+              </p>
+            )}
 
-          {isPasswordConfirmEmpty && (
-            <p className="warning-message">
-              비밀번호를 확인해주세요.
-            </p>
+            {isPasswordConfirmEmpty && (
+              <p className="warning-message">
+                비밀번호를 확인해주세요.
+              </p>
+            )}
+            </>
           )}
 
           <div className="profile-image-input-wrapper">
