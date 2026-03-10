@@ -1,4 +1,4 @@
-const { Event, Date: PlanDate } = require("../model");
+const { Crew, ToDo, Event, Date: PlanDate } = require("../model");
 const { Op } = require("sequelize");
 
 const getAlarms = async (req, res) => {
@@ -6,32 +6,18 @@ const getAlarms = async (req, res) => {
         const crewId = req.user.crewId;
         const now = new Date();
 
-        // event: 지금부터 30일 안
-        const eventRangeEnd = new Date(now);
-        eventRangeEnd.setDate(eventRangeEnd.getDate() + 30);
-
-        const events = await Event.findAll({
-            where: {
-                crewId,
-                date_begin: {
-                    [Op.gte]: now,
-                    [Op.lte]: eventRangeEnd,
-                },
-            },
-            order: [["date_begin", "ASC"]],
+        // crew 알람 설정 조회
+        const crew = await Crew.findOne({
+            where: { crewId },
+            attributes: ["crewId", "isUseAlarm", "alarmType", "alarm"],
         });
 
-        const ddayDates = await PlanDate.findAll({
-            where: {
-                crewId,
-                isUseDDay: "Y",
-            },
-            order: [
-                ["year", "ASC"],
-                ["month", "ASC"],
-                ["day", "ASC"],
-            ],
-        });
+        if (!crew) {
+            return res.status(404).json({
+                result: false,
+                message: "사용자를 찾을 수 없습니다.",
+            });
+        }
 
         const toDateKey = (dateObj) => {
             const y = dateObj.getFullYear();
@@ -63,7 +49,85 @@ const getAlarms = async (req, res) => {
             return `D+${Math.abs(diffDays)}`;
         };
 
-        // event 알람
+        const getAlarmMinutes = (alarmType, alarm) => {
+            const value = Number(alarm);
+
+            if (!value || value < 1) return 0;
+            if (alarmType === "minute") return value;
+            if (alarmType === "hour") return value * 60;
+            if (alarmType === "day") return value * 1440;
+            return 0;
+        };
+
+        const getRemainingMessage = (beginDate) => {
+            const diffMs = new Date(beginDate) - new Date();
+            const diffMinutes = Math.ceil(diffMs / (1000 * 60));
+
+            if (diffMinutes < 60) return `${diffMinutes}분 뒤에 일정이 있습니다.`;
+
+            const diffHours = Math.ceil(diffMinutes / 60);
+            if (diffHours < 24) return `${diffHours}시간 뒤에 일정이 있습니다.`;
+
+            const diffDays = Math.ceil(diffHours / 24);
+            return `${diffDays}일 뒤에 일정이 있습니다.`;
+        };
+
+        // -------------------------
+        // ToDo 알람
+        // -------------------------
+        let todoAlarms = [];
+
+        if (crew.isUseAlarm === "Y") {
+            const alarmMinutes = getAlarmMinutes(crew.alarmType, crew.alarm);
+
+            if (alarmMinutes > 0) {
+                const alarmRangeEnd = new Date(now.getTime() + alarmMinutes * 60 * 1000);
+
+                const todos = await ToDo.findAll({
+                    where: {
+                        crewId,
+                        isUseAlarm: "Y",
+                        isDone: "N",
+                        planBegin: {
+                            [Op.gte]: now,
+                            [Op.lte]: alarmRangeEnd,
+                        },
+                    },
+                    order: [["planBegin", "ASC"]],
+                });
+
+                todoAlarms = todos.map((todo) => {
+                    const begin = new Date(todo.planBegin);
+                    const dateKey = toDateKey(begin);
+
+                    return {
+                        type: "event",
+                        dateKey,
+                        message: getRemainingMessage(todo.planBegin),
+                        title: todo.content,
+                        beginDate: todo.planBegin,
+                    };
+                });
+            }
+        }
+
+        // -------------------------
+        // Event 알람 : 30일 범위 유지
+        // -------------------------
+        const eventRangeEnd = new Date(now);
+        eventRangeEnd.setDate(eventRangeEnd.getDate() + 30);
+
+        const events = await Event.findAll({
+            where: {
+                crewId,
+                date_begin: {
+                    [Op.gte]: now,
+                    [Op.lte]: eventRangeEnd,
+                },
+            },
+            order: [["date_begin", "ASC"]],
+        });
+
         const eventAlarms = events.map((event) => {
             const begin = new Date(event.date_begin);
             const dateKey = toDateKey(begin);
@@ -77,13 +141,31 @@ const getAlarms = async (req, res) => {
             };
         });
 
-        // event가 존재하는 날짜 set
-        const eventDateKeySet = new Set(eventAlarms.map((item) => item.dateKey));
+        // -------------------------
+        // event/todo가 존재하는 날짜 set
+        // -------------------------
+        const scheduleDateKeySet = new Set(
+            [...todoAlarms, ...eventAlarms].map((item) => item.dateKey)
+        );
+
+        // -------------------------
+        // D-Day(date) 알람
+        // -------------------------
+        const ddayDates = await PlanDate.findAll({
+            where: {
+                crewId,
+                isUseDDay: "Y",
+            },
+            order: [
+                ["year", "ASC"],
+                ["month", "ASC"],
+                ["day", "ASC"],
+            ],
+        });
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        // 같은 날짜에 event가 있으면 dday 제외
         const ddayAlarms = ddayDates
             .map((dateRow) => {
                 const targetDate = new Date(dateRow.year, dateRow.month - 1, dateRow.day);
@@ -100,9 +182,12 @@ const getAlarms = async (req, res) => {
                 };
             })
             .filter((item) => item.targetDate >= today)
-            .filter((item) => !eventDateKeySet.has(item.dateKey));
+            .filter((item) => !scheduleDateKeySet.has(item.dateKey));
 
-        const alarms = [...eventAlarms, ...ddayAlarms].sort((a, b) => {
+        // -------------------------
+        // 종합
+        // -------------------------
+        const alarms = [...todoAlarms, ...eventAlarms, ...ddayAlarms].sort((a, b) => {
             const aDate = a.beginDate
                 ? new Date(a.beginDate)
                 : new Date(
