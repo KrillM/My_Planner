@@ -48,6 +48,10 @@ app.use("/event", eventRouter);
 const alarmRouter = require('./routes/alarm');
 app.use("/alarm", alarmRouter);
 
+// Search
+const searchRouter = require('./routes/search');
+app.use("/search", searchRouter);
+
 app.get("/", (req, res) => {
   res.send({ message: "Server and Client connected" });
 });

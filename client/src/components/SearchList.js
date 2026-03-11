@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import UpdateEvent from "../event/UpdateEvent";
 import "../styles/date.scss";
 
 const SearchList = () => {
@@ -13,20 +14,17 @@ const SearchList = () => {
 
     const parseYmd = (raw) => {
         if (!raw) return null;
-
         if (raw instanceof Date) return raw;
 
         const str = String(raw).trim();
 
-        // yyyy-mm-dd 또는 yyyy-mm-dd hh:mm:ss
         if (str.includes("-")) {
             const datePart = str.slice(0, 10);
             const [y, m, d] = datePart.split("-").map(Number);
-        if (!y || !m || !d) return null;
+            if (!y || !m || !d) return null;
             return new Date(y, m - 1, d);
         }
 
-        // yyyymmdd
         if (/^\d{8}$/.test(str)) {
             const y = Number(str.slice(0, 4));
             const m = Number(str.slice(4, 6));
@@ -54,7 +52,11 @@ const SearchList = () => {
         if (!targetDate) return "";
 
         const today = new Date();
-        const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const startOfToday = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate()
+        );
         const startOfTarget = new Date(
             targetDate.getFullYear(),
             targetDate.getMonth(),
@@ -106,10 +108,159 @@ const SearchList = () => {
         navigate(`/search?keyword=${encodeURIComponent(keyword)}&type=${nextType}`);
     };
 
-    const renderSectionTitle = () => {
-        if (type === "date") return "Date";
-        if (type === "frequency") return "Frequency";
-        return "Events";
+    // 이벤트 수정
+    const [selectedEventId, setSelectedEventId] = useState(null);
+
+    const renderEventList = () => {
+        if (searchList.length === 0) {
+            return <div className="empty-search-result">검색 결과가 존재하지 않습니다.</div>;
+        }
+
+        return (
+            <div className="toDo-list">
+            {searchList.map((event, idx) => (
+                <div key={event.eventId || idx}>
+                    {selectedEventId === event.eventId ? (
+                        <UpdateEvent
+                            eventId={event.eventId}
+                            event={event}
+                            onSaved={() => {
+                            fetchSearchList();
+                            setSelectedEventId(null);
+                        }}
+                        onCancel={() => setSelectedEventId(null)}
+                        />
+                    ) : (
+                        <div className="toDo-detail">
+                            <div className="toDo-content get-pointer">
+                                {(() => {
+                                const beginRaw =
+                                    event.dateBegin ??
+                                    event.date_begin ??
+                                    event.dateBeginTime ??
+                                    event.date_begin_time;
+
+                                const endRaw =
+                                    event.dateEnd ??
+                                    event.date_end ??
+                                    event.dateEndTime ??
+                                    event.date_end_time;
+
+                                const beginDate = parseYmd(beginRaw);
+                                const endDate = parseYmd(endRaw) || beginDate;
+
+                                const dateText =
+                                    beginDate && endDate
+                                    ? isSameYmd(beginDate, endDate)
+                                        ? formatKoreanDate(beginDate)
+                                        : `${formatKoreanDate(beginDate)} ~ ${formatKoreanDate(endDate)}`
+                                    : "";
+
+                                const isUseDDay =
+                                    (event.isUseDDay ?? event.isUsedDay ?? event.is_use_dday) === "Y";
+
+                                const ddayText =
+                                    isUseDDay && beginDate ? formatDDay(beginDate) : "";
+
+                                return dateText ? (
+                                    <div className="event-date-line">
+                                    <span className="event-date">{dateText}</span>
+                                    {ddayText && <span className="event-dday">{ddayText}</span>}
+                                    </div>
+                                ) : null;
+                                })()}
+
+                                <div className="content-row">
+                                    <span className="toDo-content">{event.content}</span>
+                                </div>
+                            </div>
+
+                            <div className="toDo-checkbox get-pointer">
+                                <span
+                                    className="material-symbols-outlined"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedEventId(event.eventId);
+                                    }}
+                                >
+                                    edit
+                                </span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            ))}
+            </div>
+        );
+    };
+
+    const renderFrequencyList = () => {
+        if (searchList.length === 0) {
+            return <div className="empty-search-result">검색 결과가 존재하지 않습니다.</div>;
+        }
+
+        return (
+            <div className="toDo-list">
+                {searchList.map((frequency, idx) => (
+                <div key={frequency.frequencyId || idx} className="toDo-detail">
+                    <div
+                        className="toDo-content get-pointer"
+                        onClick={() => navigate(`/frequency/${frequency.frequencyId}`)}
+                    >
+                        <div className="content-row">{frequency.title}</div>
+                    </div>
+                </div>
+                ))}
+            </div>
+        );
+    };
+
+    const renderDateList = () => {
+        if (searchList.length === 0) {
+            return <div className="empty-search-result">검색 결과가 존재하지 않습니다.</div>;
+        }
+
+        return (
+            <div className="toDo-list">
+                {searchList.map((dateItem) => (
+                    <div key={dateItem.dateId} className="search-date-group">
+                        <div className="planner-header">
+                            <h2 className="date-content">{dateItem.dateLabel}</h2>
+                        </div>
+
+                        {dateItem.eventList?.length > 0 && dateItem.eventList.map((e, eIdx) => (
+                            <div key={e.eventId || eIdx} className="toDo-detail">
+                                <div className="content-row">
+                                    <span className="toDo-content">{e.content}</span>
+                                </div>
+                            </div>
+                        ))}
+
+                        {dateItem.toDoList?.map((toDo, tIdx) => (
+                            <div key={toDo.toDoId || tIdx} className="toDo-detail">
+                                <div className="toDo-content">
+                                    <span className="toDo-time">{toDo.time}</span>
+                                    <div className="content-row">
+                                        <span className="toDo-content">{toDo.content}</span>
+                                        {toDo.isUseAlarm && (
+                                            <span className="material-symbols-outlined notif-icon">
+                                                notifications
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    const renderSearchResult = () => {
+        if (type === "date") return renderDateList();
+        if (type === "frequency") return renderFrequencyList();
+        return renderEventList();
     };
 
     return (
@@ -119,70 +270,13 @@ const SearchList = () => {
             </div>
 
             <div className="search-tab-wrap">
-                <select
-                    className="search-tab"
-                    value={type}
-                    onChange={(e) => moveType(e.target.value)}
-                >
+                <select className="search-tab" value={type} onChange={(e) => moveType(e.target.value)}>
                     <option value="date">Date</option>
                     <option value="frequency">Frequency</option>
                     <option value="events">Events</option>
                 </select>
             </div>
-
-
-            <div className="toDo-list">
-                {searchList.length > 0 ? (
-                    searchList.map((item, idx) => {
-                        const beginRaw =
-                        item.dateBegin ??
-                        item.date_begin ??
-                        item.dateBeginTime ??
-                        item.date_begin_time;
-
-                        const endRaw =
-                        item.dateEnd ??
-                        item.date_end ??
-                        item.dateEndTime ??
-                        item.date_end_time;
-
-                        const beginDate = parseYmd(beginRaw);
-                        const endDate = parseYmd(endRaw) || beginDate;
-
-                        const dateText =
-                        beginDate && endDate
-                            ? isSameYmd(beginDate, endDate)
-                            ? formatKoreanDate(beginDate)
-                            : `${formatKoreanDate(beginDate)} ~ ${formatKoreanDate(endDate)}`
-                            : "";
-
-                        const isUseDDay = (item.isUseDDay ?? item.isUsedDay ?? item.is_use_dday) === "Y";
-
-                        const ddayText = isUseDDay && beginDate ? formatDDay(beginDate) : "";
-
-                        return (
-                            <div key={item.eventId || item.dateId || item.frequencyId || idx}>
-                                <div className="toDo-detail">
-                                <div className="toDo-content get-pointer">
-                                    {dateText ? (
-                                    <div className="event-date-line">
-                                        <span className="event-date">{dateText}</span>
-                                        {ddayText && <span className="event-dday">{ddayText}</span>}
-                                    </div>
-                                    ) : null}
-
-                                    <div className="content-row">
-                                    {item.content || item.title || item.name || "제목 없음"}
-                                    </div>
-                                </div>
-                                </div>
-                            </div>
-                            );
-                        })
-                    ) : (
-                    <div className="empty-search-result">검색 결과가 존재하지 않습니다.</div>
-                )}
-            </div>
+            {renderSearchResult()}
         </div>
     );
 };
