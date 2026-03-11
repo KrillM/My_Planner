@@ -200,11 +200,11 @@ const EventForm = ({
           <option value="singleDay">Single Day</option>
         </select>
 
-        <select className="pill pill-event" value={repeat} onChange={(e) => setRepeat(e.target.value)}>
+        {/* <select className="pill pill-event" value={repeat} onChange={(e) => setRepeat(e.target.value)}>
           <option value="none">No Repeat</option>
           <option value="yearly">Yearly</option>
           <option value="monthly">Monthly</option>
-        </select>
+        </select> */}
 
         <div className="time-group time-group-event">
           <div className="pill-wrapper">
