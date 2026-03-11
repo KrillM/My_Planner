@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import Alarm from './Alarm';
+import SearchBar from './SearchBar';
 import Sidebar from './Sidebar';
 import '../styles/header.scss';
 
@@ -27,7 +28,14 @@ const Header = ({isLogin, setIsLogin, crew, setCrew}) => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-   // 알림창
+  // 검색창
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const toggleSearch = () => {
+    setIsSearchOpen((prev) => !prev);
+    setIsAlarmOpen(false); // 검색 열면 알람 닫기
+  };
+
+  // 알림창
   const [isAlarmOpen, setIsAlarmOpen] = useState(false);
   const alarmRef = useRef(null);
 
@@ -82,34 +90,42 @@ const Header = ({isLogin, setIsLogin, crew, setCrew}) => {
   }, [isLogin]);
 
   return (
-    <header className="header-container">
-      {/* 왼쪽: 로고/타이틀 */}
-      <div className="header-logo" onClick={handleHomeClick}>
-        My Planner
-      </div>
+    <>
+      <header className="header-container">
+        {/* 왼쪽: 로고 */}
+        <div className="header-logo" onClick={handleHomeClick}>
+          My Planner
+        </div>
 
-      {/* 오른쪽: 로그인 상태일 때만 검색, 메뉴, 프로필 아이콘을 렌더링 */}
-      {isLogin && (
-        <div className="header-actions" ref={alarmRef}>
-          <div className="profile-circle">
-            <img src={crewProfileImage} alt="Profile" />
+        {/* 오른쪽: 로그인 상태일 때만 검색, 메뉴, 프로필 아이콘을 렌더링 */}
+        {isLogin && (
+          <div className="header-actions" ref={alarmRef}>
+            <div className="profile-circle">
+              <img src={crewProfileImage} alt="Profile" />
+            </div>
+            <span className="material-symbols-outlined icon" onClick={toggleSearch}>search</span>
+            <span className="material-symbols-outlined icon" onClick={toggleAlarm}>notifications</span>
+            <span className="material-symbols-outlined icon" onClick={toggleSidebar}>menu</span>
+
+            {isAlarmOpen && <Alarm alarms={alarmList}/>}
           </div>
-          {/* <span className="material-symbols-outlined icon">search</span> */}
-          <span className="material-symbols-outlined icon" onClick={toggleAlarm}>notifications</span>
-          <span className="material-symbols-outlined icon" onClick={toggleSidebar}>menu</span>
+        )}
+        
+        {/* 사이드바 */}
+        <Sidebar 
+          isOpen={isLogin && isSidebarOpen} 
+          onClose={() => setIsSidebarOpen(false)} 
+          setIsLogin={setIsLogin}
+          setCrew={setCrew}
+        />
+      </header>
 
-          {isAlarmOpen && <Alarm alarms={alarmList}/>}
+      {isLogin && isSearchOpen && (
+        <div className="header-search-row">
+          <SearchBar onClose={() => setIsSearchOpen(false)} />
         </div>
       )}
-
-      {/* 사이드바 컴포넌트 호출 (상태와 닫기 함수 전달) */}
-      <Sidebar 
-        isOpen={isLogin && isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)} 
-        setIsLogin={setIsLogin}
-        setCrew={setCrew}
-      />
-    </header>
+    </>
   );
 };
 

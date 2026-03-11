@@ -370,6 +370,11 @@ body.dark {
   .cal-modal{
     background: mp.$main-bg-color-dark;
   }
+
+  .search-tab {
+    background: mp.$main-bg-color-dark;
+    color: mp.$main-bg-color;
+  }
 }
 
 // 모바일
@@ -391,7 +396,12 @@ body.dark {
         }
       }
     }
+    
+    .empty-search-result {
+      font-size: 1.2rem;
+    }
   }
+  
   .header-icon {
     font-size: 1.6rem;
   }
@@ -406,4 +416,32 @@ body.dark {
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
   }
+}
+
+// 검색
+.search-tab-wrap {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0 28px 0;
+}
+
+.search-tab {
+  min-width: 110px;
+  height: 42px;
+  border: 1px solid #cfcfcf;
+  border-radius: 14px;
+  background: mp.$main-bg-color;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.search-tab.active {
+  font-weight: 700;
+  border-color: #999;
+}
+
+.empty-search-result {
+  margin-top: 80px;
+  text-align: center;
+  font-size: 1.7rem;
 }
