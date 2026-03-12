@@ -110,7 +110,10 @@ const login = async (req, res) => {
       nickname: crew.nickname,
       loginType: crew.loginType,
       profileImage: crew.profileImage,
-      motto: crew.motto
+      motto: crew.motto,
+      isUseAlarm: crew.isUseAlarm,
+      alarmType: crew.alarmType,
+      alarm: crew.alarm
     });
 
   } catch (error) {

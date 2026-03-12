@@ -96,6 +96,10 @@ const sendAuthResponse = (res, crew, isCreated) => {
       nickname: crew.nickname,
       profileImage: crew.profileImage,
       motto: crew?.motto ?? "",
+      isUseAlarm: crew.isUseAlarm,
+      alarmType: crew.alarmType,
+      alarm: crew.alarm,
+      loginType: crew.loginType,
     },
   });
 };

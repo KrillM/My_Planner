@@ -48,6 +48,9 @@ const Login = ({ setIsLogin, setCrew }) => {
       profileImage: crewData?.profileImage ?? "",
       loginType: crewData?.loginType ?? "",
       motto: crewData?.motto ?? "",
+      isUseAlarm: crewData?.isUseAlarm ?? "N",
+      alarmType: crewData?.alarmType ?? "",
+      alarm: crewData?.alarm ?? "",
     };
   };
 
