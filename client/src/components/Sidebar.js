@@ -8,34 +8,34 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
   // Plan 메뉴의 열림/닫힘 상태 관리
   const [isPlanOpen, setIsPlanOpen] = useState(true);
 
-  // 홈 페이지로 이동
+  const go = (path) => {
+    onClose();
+    navigate(path);
+  };
+
   const handleHome = () => {
-    navigate('/')
-  }
+    go('/');
+  };
 
   const handleCalendar = () => {
-    navigate('/calendar')
-  }
+    go('/calendar');
+  };
 
-  // 계획 생성 페이지로 이동
   const handleCreatePlan = () => {
-    navigate('/new')
-  }
+    go('/new');
+  };
 
-  // 자주 사용하는 일정 페이지로 이동
   const handleFrequencyPlan = () => {
-    navigate('/frequency/list')
-  }
+    go('/frequency/list');
+  };
 
-  // 이벤트 페이지로 이동
   const handleEvent = () => {
-    navigate('/event')
-  }
+    go('/event');
+  };
 
-  // 프로필 화면 이동
   const handleProfile = () => {
-    navigate('/profile')
-  }
+    go('/profile');
+  };
 
   // 로그아웃 함수
   const handleLogout = async () => {
@@ -110,7 +110,7 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
           {isPlanOpen && (
             <div className="sub-items">
               <div className="sub-item" onClick={handleCreatePlan}>
-                <span class="material-symbols-outlined">add_notes</span>
+                <span className="material-symbols-outlined">add_notes</span>
                 New
               </div>
               <div className="sub-item" onClick={handleFrequencyPlan}>
@@ -122,7 +122,7 @@ const Sidebar = ({ setIsLogin, isOpen, onClose, setCrew }) => {
                 Long Term
               </div> */}
               <div className="sub-item" onClick={handleEvent}>
-                <span class="material-symbols-outlined">event</span>
+                <span className="material-symbols-outlined">event</span>
                 Event
               </div>
             </div>
