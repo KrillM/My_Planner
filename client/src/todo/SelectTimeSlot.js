@@ -12,9 +12,11 @@ export const SelectTimeSlot = ({
   onChange,
   options = DEFAULT_OPTIONS,
 }) => {
+  const isSlot = slot === "slot";
+
   return (
     <select
-      className="pill pill-label"
+      className={`pill pill-label ${isSlot ? "slot-short" : "slot-long"}`}
       value={slot}
       onChange={(e) => onChange(e.target.value)}
     >

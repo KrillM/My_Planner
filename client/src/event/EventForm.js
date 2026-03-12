@@ -65,6 +65,14 @@ const EventForm = ({
   // delete confirm
   const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 600);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // initialValues가 바뀔 수 있으니(수정 모달 열 때) 동기화
   useEffect(() => {
     const next = normalize(initialValues);
@@ -178,101 +186,224 @@ const EventForm = ({
 
   return (
     <form className="input-wrap" onSubmit={handleSubmit}>
-      <div className="slot-row slot-row-event">
-        <select
-          name="timeSlotType"
-          id="timeSlotType"
-          className="pill pill-event"
-          value={slot}
-          onChange={(e) => {
-            const val = e.target.value;
-            setSlot(val);
-            setIsUseTimeSlot(val === "period");
-            
-            if (val === "period") {
-              setIsUseDDay(false);  
-            } else if (dateBegin) {
-              setDateEnd(dateBegin); 
-            }
-          }}
-        >
-          <option value="period">Period</option>
-          <option value="singleDay">Single Day</option>
-        </select>
+      {isMobile ? (
+        <>
+          <div className="slot-row slot-row-mobile">
+            <select
+              name="timeSlotType"
+              id="timeSlotType"
+              className="pill pill-label pill-label-event"
+              value={slot}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSlot(val);
+                setIsUseTimeSlot(val === "period");
 
-        {/* <select className="pill pill-event" value={repeat} onChange={(e) => setRepeat(e.target.value)}>
-          <option value="none">No Repeat</option>
-          <option value="yearly">Yearly</option>
-          <option value="monthly">Monthly</option>
-        </select> */}
-
-        <div className="time-group time-group-event">
-          <div className="pill-wrapper">
-            <input className="pill pill-time" type="text" value={dateBegin} readOnly />
-            <span
-              className="material-symbols-outlined"
-              onClick={() => {
-                setCalTarget("begin");
-                setIsCalendarOpen(true);
+                if (val === "period") {
+                  setIsUseDDay(false);
+                } else if (dateBegin) {
+                  setDateEnd(dateBegin);
+                }
               }}
             >
-              calendar_month
-            </span>
-          </div>
+              <option value="period">Period</option>
+              <option value="singleDay">Day</option>
+            </select>
 
-          {isUseTimeSlot && (
-            <>
-              <span className="tilde">~</span>
+            <div className="time-group time-group-mobile">
               <div className="pill-wrapper">
-                <input className="pill pill-time" type="text" value={dateEnd} readOnly />
+                <input
+                  className="pill pill-time pill-time-event "
+                  type="text"
+                  value={dateBegin}
+                  readOnly
+                />
                 <span
                   className="material-symbols-outlined"
                   onClick={() => {
-                    setCalTarget("end");
+                    setCalTarget("begin");
                     setIsCalendarOpen(true);
                   }}
                 >
                   calendar_month
                 </span>
               </div>
-            </>
-          )}
-        </div>
 
-        <button type="button" className="close-btn" aria-label="close" onClick={onCancel}>
-          ×
-        </button>
-      </div>
+              {isUseTimeSlot ? (
+                <>
+                  <span className="tilde">~</span>
 
-      <div className="content-row">
-        <input className="content-input" value={content} placeholder="Event" onChange={(e) => validateContent(e.target.value)} />
-
-        <div className="event-icons">
-          {slot !== "period" && (
-            <div
-              className={`set-toggle ${isUseDDay ? "toggle-d-day-on" : "toggle-d-day-off"}`}
-              onClick={() => setIsUseDDay((prev) => !prev)}
-            >
-              {isUseDDay ? (
-                <span className="material-symbols-outlined">toggle_on</span>
+                  <div className="pill-wrapper">
+                    <input
+                      className="pill pill-time pill-time-event "
+                      type="text"
+                      value={dateEnd}
+                      readOnly
+                    />
+                    <span
+                      className="material-symbols-outlined"
+                      onClick={() => {
+                        setCalTarget("end");
+                        setIsCalendarOpen(true);
+                      }}
+                    >
+                      calendar_month
+                    </span>
+                  </div>
+                </>
               ) : (
-                <span className="material-symbols-outlined">toggle_off</span>
+                <div
+                  className={`set-toggle mobile-dday-toggle ${
+                    isUseDDay ? "toggle-d-day-on" : "toggle-d-day-off"
+                  }`}
+                  onClick={() => setIsUseDDay((prev) => !prev)}
+                >
+                  {isUseDDay ? (
+                    <span className="material-symbols-outlined">toggle_on</span>
+                  ) : (
+                    <span className="material-symbols-outlined">toggle_off</span>
+                  )}
+                  D-Day
+                </div>
               )}
-              D-Day
             </div>
-          )}
 
-          <button type="submit" className="icon-btn add" aria-label="saveEvent">
-            <span className="material-symbols-outlined">edit</span>
-          </button>
+            <button
+              type="button"
+              className="close-btn"
+              aria-label="close"
+              onClick={onCancel}
+            >
+              ×
+            </button>
+          </div>
 
-          {mode === "update" && typeof onDelete === "function" && (
-            <span className="material-symbols-outlined get-pointer" onClick={() => setIsCheckModalOpen(true)}>
-              delete
-            </span>
-          )}
-        </div>
-      </div>
+          <div className="content-row content-row-mobile">
+            <input
+              className="content-input"
+              value={content}
+              placeholder="내용"
+              onChange={(e) => validateContent(e.target.value)}
+            />
+
+            <div className="event-icons">
+              <button
+                type="submit"
+                className="icon-btn add"
+                aria-label="saveEvent"
+              >
+                <span className="material-symbols-outlined">edit</span>
+              </button>
+
+              {mode === "update" && typeof onDelete === "function" && (
+                <span
+                  className="material-symbols-outlined get-pointer"
+                  onClick={() => setIsCheckModalOpen(true)}
+                >
+                  delete
+                </span>
+              )}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="slot-row slot-row-event">
+            <select
+              name="timeSlotType"
+              id="timeSlotType"
+              className="pill pill-event"
+              value={slot}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSlot(val);
+                setIsUseTimeSlot(val === "period");
+
+                if (val === "period") {
+                  setIsUseDDay(false);
+                } else if (dateBegin) {
+                  setDateEnd(dateBegin);
+                }
+              }}
+            >
+              <option value="period">Period</option>
+              <option value="singleDay">Day</option>
+            </select>
+
+            <div className="time-group time-group-event">
+              <div className="pill-wrapper">
+                <input className="pill pill-time" type="text" value={dateBegin} readOnly />
+                <span
+                  className="material-symbols-outlined"
+                  onClick={() => {
+                    setCalTarget("begin");
+                    setIsCalendarOpen(true);
+                  }}
+                >
+                  calendar_month
+                </span>
+              </div>
+
+              {isUseTimeSlot && (
+                <>
+                  <span className="tilde">~</span>
+                  <div className="pill-wrapper">
+                    <input className="pill pill-time" type="text" value={dateEnd} readOnly />
+                    <span
+                      className="material-symbols-outlined"
+                      onClick={() => {
+                        setCalTarget("end");
+                        setIsCalendarOpen(true);
+                      }}
+                    >
+                      calendar_month
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <button type="button" className="close-btn" aria-label="close" onClick={onCancel}>
+              ×
+            </button>
+          </div>
+
+          <div className="content-row">
+            <input
+              className="content-input"
+              value={content}
+              placeholder="Event"
+              onChange={(e) => validateContent(e.target.value)}
+            />
+
+            <div className="event-icons">
+              {slot !== "period" && (
+                <div
+                  className={`set-toggle ${isUseDDay ? "toggle-d-day-on" : "toggle-d-day-off"}`}
+                  onClick={() => setIsUseDDay((prev) => !prev)}
+                >
+                  {isUseDDay ? (
+                    <span className="material-symbols-outlined">toggle_on</span>
+                  ) : (
+                    <span className="material-symbols-outlined">toggle_off</span>
+                  )}
+                  D-Day
+                </div>
+              )}
+
+              <button type="submit" className="icon-btn add" aria-label="saveEvent">
+                <span className="material-symbols-outlined">edit</span>
+              </button>
+
+              {mode === "update" && typeof onDelete === "function" && (
+                <span className="material-symbols-outlined get-pointer" onClick={() => setIsCheckModalOpen(true)}>
+                  delete
+                </span>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       {isContentEmpty && <p className="warning-message">이벤트 입력해주세요.</p>}
       {isWrongTimeSlot && isUseTimeSlot && <p className="warning-message">종료날짜는 시작날짜보다 빠를 수 없습니다.</p>}

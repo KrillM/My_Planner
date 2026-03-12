@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { SelectTimeSlot } from "./SelectTimeSlot";
 import "../styles/input.scss";
 import "../styles/save.scss";
@@ -25,74 +26,155 @@ const TodoForm = ({
   closeAriaLabel = "close",
   submitAriaLabel = "submitTodo",
 }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 600);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <form className="input-wrap" onSubmit={onSubmit}>
-      <div className="slot-row">
-        <SelectTimeSlot
-          slot={slot}
-          onChange={onSlotChange}
-          options={timeSlotOptions}
-        />
+        {isMobile ? (
+          <>
+            <div className="slot-row slot-row-mobile">
+              <SelectTimeSlot
+                slot={slot}
+                onChange={onSlotChange}
+                options={timeSlotOptions}
+              />
 
-        {isUseTimeSlot && (
-          <div className="time-group">
-            <input
-              className="pill pill-time"
-              type="time"
-              value={start}
-              onChange={(e) => onStartChange(e.target.value)}
+              {isUseTimeSlot && (
+                <div className="time-group time-group-mobile">
+                  <input
+                    className="pill pill-time"
+                    type="time"
+                    value={start}
+                    onChange={(e) => onStartChange(e.target.value)}
+                  />
+
+                  <span className="tilde">~</span>
+
+                  <input
+                    className="pill pill-time"
+                    type="time"
+                    value={end}
+                    onChange={(e) => onEndChange(e.target.value)}
+                  />
+                </div>
+              )}
+
+              <button
+                type="button"
+                className="close-btn"
+                aria-label={closeAriaLabel}
+                onClick={onClose}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="content-row content-row-mobile">
+              <input
+                className="content-input"
+                value={content}
+                placeholder="To Do"
+                onChange={(e) => onContentChange(e.target.value)}
+              />
+
+              <div className="content-icons">
+                {!isAllDay && (
+                  <button
+                    type="button"
+                    className={`icon-btn alert ${isUseAlarm ? "active" : ""}`}
+                    aria-label="setAlert"
+                    onClick={onToggleAlarm}
+                  >
+                    <span className="material-symbols-outlined">add_alert</span>
+                  </button>
+                )}
+
+                <button
+                  type="submit"
+                  className="icon-btn add"
+                  aria-label={submitAriaLabel}
+                >
+                  <span className="material-symbols-outlined">{submitIcon}</span>
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+        <>
+          <div className="slot-row">
+            <SelectTimeSlot
+              slot={slot}
+              onChange={onSlotChange}
+              options={timeSlotOptions}
             />
 
-            <span className="tilde">~</span>
+            {isUseTimeSlot && (
+              <div className="time-group">
+                <input
+                  className="pill pill-time"
+                  type="time"
+                  value={start}
+                  onChange={(e) => onStartChange(e.target.value)}
+                />
 
-            <input
-              className="pill pill-time"
-              type="time"
-              value={end}
-              onChange={(e) => onEndChange(e.target.value)}
-            />
-          </div>
-        )}
+                <span className="tilde">~</span>
 
-        <button
-          type="button"
-          className="close-btn"
-          aria-label={closeAriaLabel}
-          onClick={onClose}
-        >
-          ×
-        </button>
-      </div>
+                <input
+                  className="pill pill-time"
+                  type="time"
+                  value={end}
+                  onChange={(e) => onEndChange(e.target.value)}
+                />
+              </div>
+            )}
 
-      <div className="content-row">
-        <input
-          className="content-input"
-          value={content}
-          placeholder="To Do"
-          onChange={(e) => onContentChange(e.target.value)}
-        />
-
-        <div className="content-icons">
-          {!isAllDay && (
             <button
               type="button"
-              className={`icon-btn alert ${isUseAlarm ? "active" : ""}`}
-              aria-label="setAlert"
-              onClick={onToggleAlarm}
+              className="close-btn"
+              aria-label={closeAriaLabel}
+              onClick={onClose}
             >
-              <span className="material-symbols-outlined">add_alert</span>
+              ×
             </button>
-          )}
+          </div>
 
-          <button
-            type="submit"
-            className="icon-btn add"
-            aria-label={submitAriaLabel}
-          >
-            <span className="material-symbols-outlined">{submitIcon}</span>
-          </button>
-        </div>
-      </div>
+          <div className="content-row">
+            <input
+              className="content-input"
+              value={content}
+              placeholder="To Do"
+              onChange={(e) => onContentChange(e.target.value)}
+            />
+
+            <div className="content-icons">
+              {!isAllDay && (
+                <button
+                  type="button"
+                  className={`icon-btn alert ${isUseAlarm ? "active" : ""}`}
+                  aria-label="setAlert"
+                  onClick={onToggleAlarm}
+                >
+                  <span className="material-symbols-outlined">add_alert</span>
+                </button>
+              )}
+
+              <button
+                type="submit"
+                className="icon-btn add"
+                aria-label={submitAriaLabel}
+              >
+                <span className="material-symbols-outlined">{submitIcon}</span>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       {isContentEmpty && (
         <p className="warning-message">계획을 입력해주세요.</p>

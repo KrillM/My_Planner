@@ -146,14 +146,6 @@
         flex: 0 0 auto;         
       }
     }
-
-    .toggle-d-day-on{
-      color: #4caf50;
-    }
-    
-    .toggle-d-day-off {
-      color: #bbb;
-    }
   }
 
   .alert {
@@ -167,6 +159,14 @@
   .add {
     color: mp.$crew-txt-color;
   }
+}
+
+.toggle-d-day-on{
+  color: #4caf50;
+}
+
+.toggle-d-day-off {
+  color: #bbb;
 }
 
 // 다크모드
@@ -208,132 +208,149 @@ body.dark{
   }
 }
 
-// 모바일 모드
 @media (max-width: 600px) {
-  .slot-row {
-    flex-wrap: nowrap;      // 줄바꿈 금지
-    gap: 3px;
-  }
-
-  .slot-row .pill {
-    height: 24px;
-    line-height: 24px;
-    font-size: 13px;
-    padding: 0 10px;
-  }
-
-  .pill-label {
-    width: 40px;      // 95 -> 78
-    font-size: 12px;  // select 글자도 줄임
-    padding: 0 10px;  // 좌우 padding 줄여서 실사용 폭 확보
-  }
-
-  .pill-event {
-    width: 100px;
-  }
-
-  .pill-time {
-    width: 78px;
-    font-size: 13px;
-  }
-
-  .tilde {
-    font-size: 12px;
-    margin: 0 2px;
-  }
-
-  .close-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 22px;
-  }
-
-  .time-group {
-    flex-wrap: nowrap;
-    white-space: nowrap;
-    gap: 2px;
-  }
-
-  .time-group .pill-time {
-    width: 88px;
-    min-width: 88px;
-    font-size: 10px;
-    height: 24px;
-    line-height: 24px;
-    padding: 0 6px;
-  }
-
-  .time-group .tilde {
-    margin: 0 1px;
-  }
-  
-  .content-row {
-    gap: 4px;
-
-    .content-input {
-      font-size: 18px; 
-      font-weight: 500; 
-      margin-top: 10px; 
-      margin-bottom: 10px;
-      padding: 6px 2px; 
-    }
-
-    .content-icons {
-      margin-top: 10px;
-      gap: 3px; 
-    }
-
-    .icon-btn {
-      width: 28px; 
-      height: 28px; 
-      font-size: 18px; 
-    }
-
-    .event-icons {
-      gap: 2px;
-      padding-top: 2px;  
-
-      .set-toggle .material-symbols-outlined {
-        font-size: 20px;     // 기본(대개 24) -> 20
-      }
-    }
-  }
-
-  .slot-row-event {
-    flex-wrap: wrap; 
+  // ToDo
+  .slot-row-mobile {
+    display: flex;
     align-items: center;
-    gap: 6px;
-
-    // select 2개는 한 줄에서 좌우로
-    .pill-event {
-      flex: 1 1 0;
-      min-width: 0;
-    }
-
-    // 날짜 그룹은 다음 줄로 내려도 되고, 공간되면 같이
-    .time-group {
-      flex: 1 1 100%;         // ✅ 기본은 한 줄 전체 사용(범위 이탈 방지)
-      justify-content: flex-start;
-    }
-
-    // 닫기는 항상 맨 오른쪽으로
-    .close-btn {
-      margin-left: auto;
-    }
-  }
-
-  .time-group-event {
     gap: 4px;
+    width: 100%;
+    min-width: 0;
+    flex-wrap: nowrap;
   }
 
-  .time-group-event .pill-time {
-    width: 144x;      // 기존보다 크게
-    min-width: 144px;
-    height: 26px;
+  .slot-row-mobile .pill-label {
+    flex: 0 0 80px;
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+    font-size: 11px;
+    text-align: left;
+  }
+
+  .slot-row-mobile .pill-label-event {
+    flex: 0 0 80px;
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+
+    font-size: 9px;   // 글자 축소
+    padding: 0 10px;  // 좌우 여백 줄임
+  }
+
+  .slot-row-mobile .slot-short {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+  }
+
+  .slot-row-mobile .slot-long {
+    width: 110px;
+    min-width: 110px;
+    max-width: 110px;
+  }
+
+  .time-group-mobile {
+    display: flex;
+    align-items: left;
+    gap: 2px;
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .time-group-mobile .pill-time {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    height: 24px;
+    line-height: 24px;
+    font-size: 10px;
+    padding: 0 6px;
+    box-sizing: border-box;
+  }
+
+  .time-group-mobile .pill-time-event {
+    flex: 1 1 0;
+    min-width: 0;
+    width: 100px;
+    font-size: 12px;
+    text-align: left;
+    padding: 0 2px;
+  }
+
+  .time-group-mobile .tilde {
+    flex: 0 0 auto;
+    margin: 0 1px;
     font-size: 12px;
   }
 
-  .time-group-event .material-symbols-outlined {
-    font-size: 18px;
+  .slot-row-mobile .close-btn {
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    margin-left: auto;
+    font-size: 20px;
+  }
+
+  .content-row-mobile {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .content-row-mobile .content-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-top: 6px;
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 4px 2px;
+  }
+
+  .content-row-mobile .content-icons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: 0;
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .content-row-mobile .icon-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    padding: 0;
+  }
+
+  .content-row-mobile .material-symbols-outlined {
+    font-size: 20px;
+  }
+
+  .time-group-mobile .mobile-dday-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    height: 24px;
+    line-height: 24px;
+    white-space: nowrap;
+    font-size: 12px;
+    flex: 0 0 auto;
+    margin-left: 2px;
+    vertical-align: middle;
+  }
+
+  .time-group-mobile .mobile-dday-toggle .material-symbols-outlined {
+    font-size: 16px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 }
