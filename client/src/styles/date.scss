@@ -362,6 +362,29 @@ body.dark {
         }
       }
     }
+    
+    .search-tab {
+      background: mp.$main-bg-color-dark;
+      color: mp.$font-color-dark;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .search-pill-wrapper {
+      background: mp.$main-bg-color-dark;
+      border-color: rgba(255, 255, 255, 0.18);
+
+      .material-symbols-outlined {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+
+    .search-pill-time {
+      color: mp.$font-color-dark;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.45);
+      }
+    }
   }
 
   .cal-popover-fixed {
@@ -375,6 +398,91 @@ body.dark {
     background: mp.$main-bg-color-dark;
     color: mp.$main-bg-color;
   }
+}
+
+// 검색
+.search-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 20px 0 28px 0;
+  flex-wrap: wrap;
+}
+
+.search-tab-wrap {
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.search-tab {
+  min-width: 100px;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid #cfcfcf;
+  border-radius: 14px;
+  background: mp.$main-bg-color;
+  cursor: pointer;
+  font-size: 14px;
+  color: mp.$font-color;
+  outline: none;
+}
+
+.empty-search-result {
+  margin-top: 80px;
+  text-align: center;
+  font-size: 1.7rem;
+}
+
+.search-time-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.search-pill-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 150px;
+  height: 42px;
+  padding: 0 40px 0 14px;
+  border: 1px solid #cfcfcf;
+  border-radius: 14px;
+  background: mp.$main-bg-color;
+  cursor: pointer;
+  box-sizing: border-box;
+
+  .material-symbols-outlined {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 19px;
+    color: #777;
+    pointer-events: none;
+  }
+}
+
+.search-pill-time {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: mp.$font-color;
+  cursor: pointer;
+
+  &::placeholder {
+    color: #999;
+  }
+}
+
+.tilde {
+  font-size: 18px;
+  color: #777;
+  line-height: 1;
 }
 
 // 모바일
@@ -416,32 +524,69 @@ body.dark {
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
   }
-}
 
-// 검색
-.search-tab-wrap {
-  display: flex;
-  gap: 10px;
-  margin: 20px 0 28px 0;
-}
+  .search-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow-x: auto;
+  }
 
-.search-tab {
-  min-width: 100px;
-  height: 42px;
-  border: 1px solid #cfcfcf;
-  border-radius: 14px;
-  background: mp.$main-bg-color;
-  cursor: pointer;
-  font-size: 14px;
-}
+  .search-tab-wrap {
+    flex: 0 0 auto;
+    margin: 0;
+  }
 
-.search-tab.active {
-  font-weight: 700;
-  border-color: #999;
-}
+  .search-tab {
+    min-width: 80px;
+    width: 80px;
+    height: 32px;
+    padding: 0 6px;
+    font-size: 12px;
+    border-radius: 10px;
+  }
 
-.empty-search-result {
-  margin-top: 80px;
-  text-align: center;
-  font-size: 1.7rem;
+  .search-time-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .search-pill-wrapper {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    height: 32px;
+    padding: 0 28px 0 8px;
+    border-radius: 10px;
+    box-sizing: border-box;
+
+    .material-symbols-outlined {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: #777;
+      pointer-events: none;
+    }
+  }
+
+  .search-pill-time {
+    width: 100%;
+    min-width: 0;
+    font-size: 12px;
+  }
+
+  .tilde {
+    flex: 0 0 auto;
+    font-size: 14px;
+    color: #777;
+  }
 }

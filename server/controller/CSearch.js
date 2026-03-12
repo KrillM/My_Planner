@@ -72,12 +72,44 @@ const formatDateLabel = (year, month, day) => {
     return `${year}년 ${Number(month)}월 ${Number(day)}일`;
 };
 
+// 날짜 계산
+const makeDateKey = (year, month, day) => {
+    return Number(year) * 10000 + Number(month) * 100 + Number(day);
+};
+
+const makeYmdKey = (ymd) => {
+    if (!ymd) return null;
+    const [y, m, d] = ymd.split("-").map(Number);
+    if (!y || !m || !d) return null;
+    return y * 10000 + m * 100 + d;
+};
+
+const makeDateTimeRange = (dateBegin, dateEnd) => {
+    if (!dateBegin || !dateEnd) {
+        return { start: null, end: null };
+    }
+
+    const [by, bm, bd] = dateBegin.split("-").map(Number);
+    const [ey, em, ed] = dateEnd.split("-").map(Number);
+
+    if (!by || !bm || !bd || !ey || !em || !ed) {
+        return { start: null, end: null };
+    }
+
+    return {
+        start: new Date(by, bm - 1, bd, 0, 0, 0),
+        end: new Date(ey, em - 1, ed, 23, 59, 59),
+    };
+};
+
 // 검색
 const searchList = async (req, res) => {
     try {
         const crewId = req.user.crewId;
         const keyword = (req.query.keyword || "").trim();
         const type = (req.query.type || "date").trim().toLowerCase();
+        const dateBegin = (req.query.dateBegin || "").trim();
+        const dateEnd = (req.query.dateEnd || "").trim();
 
         if (!keyword) {
             return res.status(400).json({
@@ -123,71 +155,30 @@ const searchList = async (req, res) => {
                 ],
             });
 
-            const dateMap = new Map();
-            dates.forEach((d) => {
-                dateMap.set(d.dateId, d);
+            const beginKey = makeYmdKey(dateBegin);
+            const endKey = makeYmdKey(dateEnd);
+
+            const filteredDates = dates.filter((date) => {
+                if (!beginKey || !endKey) return true;
+
+                const currentKey = makeDateKey(date.year, date.month, date.day);
+                return currentKey >= beginKey && currentKey <= endKey;
             });
 
-            const events = await Event.findAll({
-                where: {
-                    crewId,
-                    [Op.or]: dateIds.map((dateId) => {
-                        const date = dateMap.get(dateId);
-                        if (!date) return null;
-
-                        const y = Number(date.year);
-                        const m = Number(date.month) - 1;
-                        const d = Number(date.day);
-
-                        const dayStart = new Date(y, m, d, 0, 0, 0);
-                        const dayEnd = new Date(y, m, d, 23, 59, 59);
-
-                        return {
-                            date_begin: { [Op.lte]: dayEnd },
-                            date_end: { [Op.gte]: dayStart },
-                        };
-                    }).filter(Boolean),
-                },
-                order: [["date_begin", "ASC"]],
-            });
-
-            const eventMap = new Map();
-            dateIds.forEach((id) => eventMap.set(id, []));
-
-            events.forEach((event) => {
-                dateIds.forEach((dateId) => {
-                    const date = dateMap.get(dateId);
-                    if (!date) return;
-
-                    const y = Number(date.year);
-                    const m = Number(date.month) - 1;
-                    const d = Number(date.day);
-
-                    const dayStart = new Date(y, m, d, 0, 0, 0);
-                    const dayEnd = new Date(y, m, d, 23, 59, 59);
-
-                    const begin = event.date_begin ? new Date(event.date_begin) : null;
-                    const end = event.date_end ? new Date(event.date_end) : begin;
-
-                    if (!begin || !end) return;
-
-                    if (begin <= dayEnd && end >= dayStart) {
-                        eventMap.get(dateId).push({
-                            eventId: event.eventId,
-                            content: event.content,
-                            dateBegin: event.date_begin,
-                            dateEnd: event.date_end,
-                            isUseDDay: event.is_use_dday,
-                        });
-                    }
+            if (!filteredDates.length) {
+                return res.status(200).json({
+                    message: "Date 검색 성공",
+                    searchList: [],
                 });
-            });
+            }
+
+            const filteredDateIdSet = new Set(filteredDates.map((d) => d.dateId));
 
             const todoMap = new Map();
-            dateIds.forEach((id) => todoMap.set(id, []));
+            filteredDates.forEach((date) => todoMap.set(date.dateId, []));
 
             todoList.forEach((todo) => {
-                if (!todoMap.has(todo.dateId)) return;
+                if (!filteredDateIdSet.has(todo.dateId)) return;
 
                 todoMap.get(todo.dateId).push({
                     toDoId: todo.toDoId,
@@ -198,14 +189,13 @@ const searchList = async (req, res) => {
                 });
             });
 
-            const searchList = dates.map((date) => ({
+            const searchList = filteredDates.map((date) => ({
                 dateId: date.dateId,
                 dateLabel: formatDateLabel(date.year, date.month, date.day),
                 year: date.year,
                 month: date.month,
                 day: date.day,
                 memo: date.content || "",
-                eventList: eventMap.get(date.dateId) || [],
                 toDoList: todoMap.get(date.dateId) || [],
             }));
 
@@ -282,13 +272,22 @@ const searchList = async (req, res) => {
         // Event.content 에서 키워드 검색
         // -------------------------
         if (type === "events") {
-            const eventList = await Event.findAll({
-                where: {
-                    crewId,
-                    content: {
-                        [Op.like]: `%${keyword}%`,
-                    },
+            const { start, end } = makeDateTimeRange(dateBegin, dateEnd);
+
+            const where = {
+                crewId,
+                content: {
+                    [Op.like]: `%${keyword}%`,
                 },
+            };
+
+            if (start && end) {
+                where.date_begin = { [Op.lte]: end };
+                where.date_end = { [Op.gte]: start };
+            }
+
+            const eventList = await Event.findAll({
+                where,
                 order: [["date_begin", "ASC"]],
             });
 

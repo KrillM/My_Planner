@@ -1,16 +1,27 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import UpdateEvent from "../event/UpdateEvent";
+import CalendarEventPopover from "../calendar/CalendarEventPopover";
 import "../styles/date.scss";
 
 const SearchList = () => {
     const [searchList, setSearchList] = useState([]);
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+    const [calTarget, setCalTarget] = useState(null);
+
     const location = useLocation();
     const navigate = useNavigate();
 
     const searchParams = new URLSearchParams(location.search);
     const keyword = searchParams.get("keyword") || "";
     const type = searchParams.get("type") || "date";
+
+    const formatYmd = (date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+    };
 
     const parseYmd = (raw) => {
         if (!raw) return null;
@@ -71,12 +82,34 @@ const SearchList = () => {
         return `D+${Math.abs(diffDay)}`;
     };
 
+    const getDefaultDates = () => {
+        const today = new Date();
+
+        const begin = new Date(today);
+        begin.setDate(begin.getDate() - 7);
+
+        const end = new Date(today);
+        end.setDate(end.getDate() + 7);
+
+        return {
+            begin: formatYmd(begin),
+            end: formatYmd(end),
+        };
+    };
+
+    const defaultDates = getDefaultDates();
+
+    const [dateBegin, setDateBegin] = useState(defaultDates.begin);
+    const [dateEnd, setDateEnd] = useState(defaultDates.end);
+
     const fetchSearchList = async () => {
         try {
             const token = localStorage.getItem("token");
             const query = new URLSearchParams({
                 keyword,
                 type,
+                dateBegin,
+                dateEnd
             }).toString();
 
             const res = await fetch(
@@ -102,14 +135,48 @@ const SearchList = () => {
             return;
         }
         fetchSearchList();
-    }, [keyword, type]);
+    }, [keyword, type, dateBegin, dateEnd]);
 
     const moveType = (nextType) => {
-        navigate(`/search?keyword=${encodeURIComponent(keyword)}&type=${nextType}`);
+        navigate(`/search?keyword=${encodeURIComponent(keyword)}&type=${nextType}&dateBegin=${dateBegin}&dateEnd=${dateEnd}`);
     };
 
     // 이벤트 수정
     const [selectedEventId, setSelectedEventId] = useState(null);
+
+    // 날짜 계산
+    const handleSelectSearchDate = (d) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        const ymd = `${y}-${m}-${dd}`;
+
+        if (calTarget === "begin") {
+            setDateBegin(ymd);
+            if (dateEnd && ymd > dateEnd) setDateEnd(ymd);
+        } else if (calTarget === "end") {
+            setDateEnd(ymd);
+            if (dateBegin && ymd < dateBegin) setDateBegin(ymd);
+        }
+
+        setIsCalendarOpen(false);
+    };
+
+    useEffect(() => {
+        if (!dateBegin || !dateEnd) return;
+
+        if (dateBegin > dateEnd) {
+            setDateEnd(dateBegin);
+        }
+    }, [dateBegin]);
+
+    useEffect(() => {
+        if (!dateBegin || !dateEnd) return;
+
+        if (dateEnd < dateBegin) {
+            setDateBegin(dateEnd);
+        }
+    }, [dateEnd]);
 
     const renderEventList = () => {
         if (searchList.length === 0) {
@@ -264,20 +331,78 @@ const SearchList = () => {
     };
 
     return (
+        <>
         <div className="date-container">
             <div className="planner-header">
                 <h1 className="date-content">“{keyword}” 검색 결과</h1>
             </div>
 
-            <div className="search-tab-wrap">
-                <select className="search-tab" value={type} onChange={(e) => moveType(e.target.value)}>
-                    <option value="date">Date</option>
-                    <option value="frequency">Frequency</option>
-                    <option value="events">Events</option>
-                </select>
+            <div className="search-filter-row">
+                <div className="search-tab-wrap">
+                    <select
+                        className="search-tab"
+                        value={type}
+                        onChange={(e) => moveType(e.target.value)}
+                    >
+                        <option value="date">Date</option>
+                        <option value="frequency">Frequency</option>
+                        <option value="events">Events</option>
+                    </select>
+                </div>
+
+                <div className="search-time-group">
+                    <div
+                        className="search-pill-wrapper"
+                        onClick={() => {
+                            setCalTarget("begin");
+                            setIsCalendarOpen(true);
+                        }}
+                    >
+                        <input
+                            className="search-pill-time"
+                            type="text"
+                            value={dateBegin}
+                            placeholder="시작 날짜"
+                            readOnly
+                        />
+                        <span className="material-symbols-outlined">calendar_month</span>
+                    </div>
+
+                    <span className="tilde">~</span>
+
+                    <div
+                        className="search-pill-wrapper"
+                        onClick={() => {
+                            setCalTarget("end");
+                            setIsCalendarOpen(true);
+                        }}
+                    >
+                        <input
+                            className="search-pill-time"
+                            type="text"
+                            value={dateEnd}
+                            placeholder="종료 날짜"
+                            readOnly
+                        />
+                        <span className="material-symbols-outlined">calendar_month</span>
+                    </div>
+                </div>
             </div>
             {renderSearchResult()}
         </div>
+
+        {isCalendarOpen && (
+            <div className="cal-modal-overlay" onClick={() => setIsCalendarOpen(false)}>
+                <div className="cal-modal" onClick={(e) => e.stopPropagation()}>
+                    <CalendarEventPopover
+                        onSelectDate={handleSelectSearchDate}
+                        canSelect={() => true}
+                        onClose={() => setIsCalendarOpen(false)}
+                    />
+                </div>
+            </div>
+        )}
+        </>
     );
 };
 
