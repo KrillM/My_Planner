@@ -178,6 +178,16 @@ const SearchList = () => {
         }
     }, [dateEnd]);
 
+    const moveDate = (dateItem) => {
+        const y = String(dateItem.year).slice(2);
+        const m = String(dateItem.month).padStart(2, "0");
+        const d = String(dateItem.day).padStart(2, "0");
+
+        const dateKey = `${y}${m}${d}`;
+
+        navigate(`/${dateKey}`);
+    };
+
     const renderEventList = () => {
         if (searchList.length === 0) {
             return <div className="empty-search-result">검색 결과가 존재하지 않습니다.</div>;
@@ -291,7 +301,7 @@ const SearchList = () => {
             <div className="toDo-list">
                 {searchList.map((dateItem) => (
                     <div key={dateItem.dateId} className="search-date-group">
-                        <div className="planner-header">
+                        <div className="planner-header get-pointer" onClick={() => moveDate(dateItem)}>
                             <h2 className="date-content">{dateItem.dateLabel}</h2>
                         </div>
 
