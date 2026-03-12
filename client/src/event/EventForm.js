@@ -211,44 +211,36 @@ const EventForm = ({
             </select>
 
             <div className="time-group time-group-mobile">
-              <div className="pill-wrapper">
+              <div className="pill-wrapper"
+                onClick={() => {
+                  setCalTarget("begin");
+                  setIsCalendarOpen(true);
+              }}>
                 <input
                   className="pill pill-time pill-time-event "
                   type="text"
                   value={dateBegin}
                   readOnly
                 />
-                <span
-                  className="material-symbols-outlined"
-                  onClick={() => {
-                    setCalTarget("begin");
-                    setIsCalendarOpen(true);
-                  }}
-                >
-                  calendar_month
-                </span>
+                <span className="material-symbols-outlined">calendar_month</span>
               </div>
 
               {isUseTimeSlot ? (
                 <>
                   <span className="tilde">~</span>
 
-                  <div className="pill-wrapper">
+                  <div className="pill-wrapper"
+                    onClick={() => {
+                      setCalTarget("end");
+                      setIsCalendarOpen(true);
+                  }}>
                     <input
                       className="pill pill-time pill-time-event "
                       type="text"
                       value={dateEnd}
                       readOnly
                     />
-                    <span
-                      className="material-symbols-outlined"
-                      onClick={() => {
-                        setCalTarget("end");
-                        setIsCalendarOpen(true);
-                      }}
-                    >
-                      calendar_month
-                    </span>
+                    <span className="material-symbols-outlined">calendar_month</span>
                   </div>
                 </>
               ) : (
@@ -331,33 +323,25 @@ const EventForm = ({
             </select>
 
             <div className="time-group time-group-event">
-              <div className="pill-wrapper">
+              <div className="pill-wrapper"                  
+                onClick={() => {
+                setCalTarget("begin");
+                setIsCalendarOpen(true);
+              }}>
                 <input className="pill pill-time" type="text" value={dateBegin} readOnly />
-                <span
-                  className="material-symbols-outlined"
-                  onClick={() => {
-                    setCalTarget("begin");
-                    setIsCalendarOpen(true);
-                  }}
-                >
-                  calendar_month
-                </span>
+                <span className="material-symbols-outlined">calendar_month</span>
               </div>
 
               {isUseTimeSlot && (
                 <>
                   <span className="tilde">~</span>
-                  <div className="pill-wrapper">
+                  <div className="pill-wrapper"
+                    onClick={() => {
+                    setCalTarget("end");
+                    setIsCalendarOpen(true);
+                  }}>
                     <input className="pill pill-time" type="text" value={dateEnd} readOnly />
-                    <span
-                      className="material-symbols-outlined"
-                      onClick={() => {
-                        setCalTarget("end");
-                        setIsCalendarOpen(true);
-                      }}
-                    >
-                      calendar_month
-                    </span>
+                    <span className="material-symbols-outlined">calendar_month</span>
                   </div>
                 </>
               )}
