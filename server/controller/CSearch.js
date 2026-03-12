@@ -231,14 +231,29 @@ const searchList = async (req, res) => {
                 order: [["frequencyId", "DESC"]],
             });
 
-            if (!lists.length) {
+            const titleMatches = await Frequency.findAll({
+                where: {
+                    crewId,
+                    title: {
+                        [Op.like]: `%${keyword}%`,
+                    },
+                },
+            });
+
+            const listFrequencyIds = lists.map((item) => item.frequencyId);
+            const titleFrequencyIds = titleMatches.map((item) => item.frequencyId);
+
+            const frequencyIds = [...new Set([
+                ...listFrequencyIds,
+                ...titleFrequencyIds
+            ])].filter(Boolean);
+
+            if (!frequencyIds.length) {
                 return res.status(200).json({
                     message: "Frequency 검색 성공",
                     searchList: [],
                 });
             }
-
-            const frequencyIds = [...new Set(lists.map((item) => item.frequencyId).filter(Boolean))];
 
             const frequencyList = await Frequency.findAll({
                 where: {
