@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/input.scss";
 
 const SearchBar = ({ onClose }) => {
   const [content, setContent] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const inputToDo = (value) => {
-    setContent(value);
-  };
+  const searchParams = new URLSearchParams(location.search);
+  const currentType = searchParams.get("type") || "date";
+  const currentDateBegin = searchParams.get("dateBegin") || "";
+  const currentDateEnd = searchParams.get("dateEnd") || "";
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -16,7 +18,18 @@ const SearchBar = ({ onClose }) => {
     const keyword = content.trim();
     if (!keyword) return;
 
-    navigate(`/search?keyword=${encodeURIComponent(keyword)}&type=date`);
+    const nextParams = new URLSearchParams({
+      keyword,
+      type: currentType,
+    });
+
+    if (currentType !== "frequency") {
+      if (currentDateBegin) nextParams.set("dateBegin", currentDateBegin);
+      if (currentDateEnd) nextParams.set("dateEnd", currentDateEnd);
+    }
+
+    navigate(`/search?${nextParams.toString()}`);
+    setContent("");
     onClose?.();
   };
 
@@ -27,7 +40,7 @@ const SearchBar = ({ onClose }) => {
           className="content-input"
           value={content}
           placeholder="검색어를 입력하세요."
-          onChange={(e) => inputToDo(e.target.value)}
+          onChange={(e) => setContent(e.target.value)}
         />
 
         <div className="content-icons">

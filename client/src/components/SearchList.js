@@ -360,43 +360,45 @@ const SearchList = () => {
                     </select>
                 </div>
 
-                <div className="search-time-group">
-                    <div
-                        className="search-pill-wrapper"
-                        onClick={() => {
-                            setCalTarget("begin");
-                            setIsCalendarOpen(true);
-                        }}
-                    >
-                        <input
-                            className="search-pill-time"
-                            type="text"
-                            value={dateBegin}
-                            placeholder="시작 날짜"
-                            readOnly
-                        />
-                        <span className="material-symbols-outlined">calendar_month</span>
-                    </div>
+                {type !== "frequency" && (
+                    <div className="search-time-group">
+                        <div
+                            className="search-pill-wrapper"
+                            onClick={() => {
+                                setCalTarget("begin");
+                                setIsCalendarOpen(true);
+                            }}
+                        >
+                            <input
+                                className="search-pill-time"
+                                type="text"
+                                value={dateBegin}
+                                placeholder="시작 날짜"
+                                readOnly
+                            />
+                            <span className="material-symbols-outlined">calendar_month</span>
+                        </div>
 
-                    <span className="tilde">~</span>
+                        <span className="tilde">~</span>
 
-                    <div
-                        className="search-pill-wrapper"
-                        onClick={() => {
-                            setCalTarget("end");
-                            setIsCalendarOpen(true);
-                        }}
-                    >
-                        <input
-                            className="search-pill-time"
-                            type="text"
-                            value={dateEnd}
-                            placeholder="종료 날짜"
-                            readOnly
-                        />
-                        <span className="material-symbols-outlined">calendar_month</span>
+                        <div
+                            className="search-pill-wrapper"
+                            onClick={() => {
+                                setCalTarget("end");
+                                setIsCalendarOpen(true);
+                            }}
+                        >
+                            <input
+                                className="search-pill-time"
+                                type="text"
+                                value={dateEnd}
+                                placeholder="종료 날짜"
+                                readOnly
+                            />
+                            <span className="material-symbols-outlined">calendar_month</span>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
             {renderSearchResult()}
         </div>
