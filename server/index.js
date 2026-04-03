@@ -10,6 +10,8 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
+app.set("trust proxy", 1);
+
 app.use(cors({ origin: true, credentials: true }));
 app.use("/static", express.static("static"));
 app.use(express.urlencoded({ extended: true }));
